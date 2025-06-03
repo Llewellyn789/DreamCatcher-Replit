@@ -18,6 +18,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const [dreamText, setDreamText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const transcriptRef = useRef<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -32,26 +33,28 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'en-US';
 
-        let lastProcessedIndex = 0;
-
         recognitionRef.current.onresult = (event) => {
-          let finalTranscript = '';
+          let currentTranscript = '';
           
-          // Only process new results to prevent duplicates
-          for (let i = lastProcessedIndex; i < event.results.length; i++) {
+          // Build complete transcript from all final results
+          for (let i = 0; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
-              lastProcessedIndex = i + 1;
+              currentTranscript += event.results[i][0].transcript;
             }
           }
           
-          if (finalTranscript.trim()) {
-            setDreamText(prev => prev + finalTranscript.trim() + ' ');
+          // Only add new text that wasn't already transcribed
+          if (currentTranscript && currentTranscript !== transcriptRef.current) {
+            const newText = currentTranscript.replace(transcriptRef.current, '').trim();
+            if (newText) {
+              transcriptRef.current = currentTranscript;
+              setDreamText(prev => prev + (prev.trim() ? ' ' : '') + newText);
+            }
           }
         };
 
         recognitionRef.current.onstart = () => {
-          lastProcessedIndex = 0;
+          transcriptRef.current = '';
         };
 
         recognitionRef.current.onerror = (event) => {
@@ -112,6 +115,8 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       return;
     }
 
+    // Clear previous transcript tracking
+    transcriptRef.current = '';
     setIsRecording(true);
     recognitionRef.current.start();
   };
