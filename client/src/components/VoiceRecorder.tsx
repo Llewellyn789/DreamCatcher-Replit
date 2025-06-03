@@ -179,12 +179,18 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
           Or type your dream directly:
         </h3>
         
-        <div className="glass-effect rounded-xl p-4">
+        <div className="glass-effect rounded-xl p-4 overflow-hidden">
           <Textarea
             value={dreamText}
             onChange={(e) => setDreamText(e.target.value)}
             placeholder="Type your dream here..."
-            className="bg-transparent cosmic-text-50 placeholder:cosmic-text-300 border-none resize-none focus:ring-0 h-32"
+            className="bg-transparent cosmic-text-50 placeholder:cosmic-text-300 border-none resize-none focus:ring-0 h-32 w-full mobile-textarea"
+            style={{ 
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              overflow: 'hidden'
+            }}
           />
         </div>
 
