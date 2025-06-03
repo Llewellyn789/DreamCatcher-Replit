@@ -28,22 +28,30 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       recognitionRef.current = new SpeechRecognition();
       
       if (recognitionRef.current) {
-        recognitionRef.current.continuous = false; // Changed to false to prevent repetition
-        recognitionRef.current.interimResults = false; // Changed to false to only get final results
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'en-US';
+
+        let lastProcessedIndex = 0;
 
         recognitionRef.current.onresult = (event) => {
           let finalTranscript = '';
           
-          for (let i = 0; i < event.results.length; i++) {
+          // Only process new results to prevent duplicates
+          for (let i = lastProcessedIndex; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
               finalTranscript += event.results[i][0].transcript;
+              lastProcessedIndex = i + 1;
             }
           }
           
           if (finalTranscript.trim()) {
             setDreamText(prev => prev + finalTranscript.trim() + ' ');
           }
+        };
+
+        recognitionRef.current.onstart = () => {
+          lastProcessedIndex = 0;
         };
 
         recognitionRef.current.onerror = (event) => {
