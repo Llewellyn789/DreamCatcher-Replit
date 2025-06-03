@@ -18,7 +18,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const [dreamText, setDreamText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const transcriptRef = useRef<string>("");
+  const lastResultIndex = useRef<number>(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -34,27 +34,20 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
         recognitionRef.current.lang = 'en-US';
 
         recognitionRef.current.onresult = (event) => {
-          let currentTranscript = '';
-          
-          // Build complete transcript from all final results
-          for (let i = 0; i < event.results.length; i++) {
+          // Only process new results since last index
+          for (let i = lastResultIndex.current; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-              currentTranscript += event.results[i][0].transcript;
-            }
-          }
-          
-          // Only add new text that wasn't already transcribed
-          if (currentTranscript && currentTranscript !== transcriptRef.current) {
-            const newText = currentTranscript.replace(transcriptRef.current, '').trim();
-            if (newText) {
-              transcriptRef.current = currentTranscript;
-              setDreamText(prev => prev + (prev.trim() ? ' ' : '') + newText);
+              const transcript = event.results[i][0].transcript.trim();
+              if (transcript) {
+                setDreamText(prev => prev + (prev ? ' ' : '') + transcript);
+                lastResultIndex.current = i + 1;
+              }
             }
           }
         };
 
         recognitionRef.current.onstart = () => {
-          transcriptRef.current = '';
+          lastResultIndex.current = 0;
         };
 
         recognitionRef.current.onerror = (event) => {
@@ -115,8 +108,8 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       return;
     }
 
-    // Clear previous transcript tracking
-    transcriptRef.current = '';
+    // Clear previous result tracking
+    lastResultIndex.current = 0;
     setIsRecording(true);
     recognitionRef.current.start();
   };
