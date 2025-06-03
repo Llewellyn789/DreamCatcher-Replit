@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 35 77% 49%;
+  --primary-foreground: 240 10% 3.9%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+
+  /* Custom cosmic colors */
+  --cosmic-50: 42 33% 93%; /* #F5E6D3 */
+  --cosmic-100: 42 27% 85%; /* #E8D5B7 */
+  --cosmic-200: 35 43% 64%; /* #D4A574 */
+  --cosmic-300: 42 92% 38%; /* #B8860B */
+  --cosmic-400: 45 88% 32%; /* #9A7209 */
+  --cosmic-500: 45 77% 31%; /* #8B6914 */
+  --cosmic-600: 45 67% 29%; /* #705419 */
+  --cosmic-700: 45 58% 24%; /* #5A431D */
+  --cosmic-800: 246 46% 28%; /* #2D1B69 */
+  --cosmic-900: 245 47% 20%; /* #1E1B4B */
+  --cosmic-950: 215 61% 8%; /* #0B1426 */
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 35 77% 49%;
+  --primary-foreground: 240 10% 3.9%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(var(--cosmic-950)) 0%, hsl(var(--cosmic-900)) 50%, hsl(var(--cosmic-800)) 100%);
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .gradient-cosmic {
+    background: linear-gradient(135deg, hsl(var(--cosmic-950)) 0%, hsl(var(--cosmic-900)) 50%, hsl(var(--cosmic-800)) 100%);
+  }
+  
+  .gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--cosmic-200)) 0%, hsl(var(--cosmic-300)) 100%);
+  }
+  
+  .text-shadow-gold {
+    text-shadow: 0 0 20px hsla(var(--cosmic-200), 0.5);
+  }
+  
+  .dreamcatcher-glow {
+    filter: drop-shadow(0 0 20px hsla(var(--cosmic-200), 0.3));
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid hsla(var(--cosmic-200), 0.2);
+  }
+  
+  .recording-pulse {
+    animation: pulse-gold 1.5s infinite;
+  }
+  
+  .shimmer-text {
+    background: linear-gradient(90deg, hsl(var(--cosmic-200)), hsl(var(--cosmic-50)), hsl(var(--cosmic-200)));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 2s linear infinite;
+  }
+
+  .cosmic-text-50 { color: hsl(var(--cosmic-50)); }
+  .cosmic-text-100 { color: hsl(var(--cosmic-100)); }
+  .cosmic-text-200 { color: hsl(var(--cosmic-200)); }
+  .cosmic-text-300 { color: hsl(var(--cosmic-300)); }
+  .cosmic-text-400 { color: hsl(var(--cosmic-400)); }
+  .cosmic-text-500 { color: hsl(var(--cosmic-500)); }
+  .cosmic-text-600 { color: hsl(var(--cosmic-600)); }
+  .cosmic-text-700 { color: hsl(var(--cosmic-700)); }
+  .cosmic-text-800 { color: hsl(var(--cosmic-800)); }
+  .cosmic-text-900 { color: hsl(var(--cosmic-900)); }
+  .cosmic-text-950 { color: hsl(var(--cosmic-950)); }
+
+  .cosmic-bg-50 { background-color: hsl(var(--cosmic-50)); }
+  .cosmic-bg-100 { background-color: hsl(var(--cosmic-100)); }
+  .cosmic-bg-200 { background-color: hsl(var(--cosmic-200)); }
+  .cosmic-bg-300 { background-color: hsl(var(--cosmic-300)); }
+  .cosmic-bg-400 { background-color: hsl(var(--cosmic-400)); }
+  .cosmic-bg-500 { background-color: hsl(var(--cosmic-500)); }
+  .cosmic-bg-600 { background-color: hsl(var(--cosmic-600)); }
+  .cosmic-bg-700 { background-color: hsl(var(--cosmic-700)); }
+  .cosmic-bg-800 { background-color: hsl(var(--cosmic-800)); }
+  .cosmic-bg-900 { background-color: hsl(var(--cosmic-900)); }
+  .cosmic-bg-950 { background-color: hsl(var(--cosmic-950)); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 hsla(var(--cosmic-200), 0.7);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 10px hsla(var(--cosmic-200), 0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Stars background */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: hsl(var(--cosmic-200));
+  border-radius: 50%;
+  animation: twinkle 2s infinite;
+}
+
+.star:nth-child(2n) { animation-delay: 0.5s; }
+.star:nth-child(3n) { animation-delay: 1s; }
+.star:nth-child(4n) { animation-delay: 1.5s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
