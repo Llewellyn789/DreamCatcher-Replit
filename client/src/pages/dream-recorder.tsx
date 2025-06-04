@@ -133,7 +133,14 @@ export default function DreamRecorder() {
                   </p>
                 </div>
 
-                
+                {/* Step Indicator */}
+                <div className="flex justify-center mb-6">
+                  <div className="flex space-x-6">
+                    <div className="w-8 h-8 rounded-full gradient-gold flex items-center justify-center cosmic-text-950 font-semibold text-sm">1</div>
+                    <div className="w-8 h-8 rounded-full border-2 border-opacity-50 border-[hsl(var(--cosmic-300))] flex items-center justify-center cosmic-text-300 font-semibold text-sm">2</div>
+                    <div className="w-8 h-8 rounded-full border-2 border-opacity-50 border-[hsl(var(--cosmic-300))] flex items-center justify-center cosmic-text-300 font-semibold text-sm">3</div>
+                  </div>
+                </div>
 
                 {/* Voice Recorder Component */}
                 <div className="flex-1 flex flex-col min-h-0">
