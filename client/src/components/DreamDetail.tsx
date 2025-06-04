@@ -272,7 +272,7 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => deleteDreamMutation.mutate()}
-                  className="bg-red-600 hover:bg-red-700 cosmic-text-50"
+                  className="gradient-gold cosmic-text-950 hover:opacity-90"
                 >
                   Delete Dream
                 </AlertDialogAction>
