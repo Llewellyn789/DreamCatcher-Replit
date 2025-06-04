@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Share, Quote, Brain, Calendar, Clock, Mic } from "lucide-react";
+import { ArrowLeft, Share, Quote, Brain, Calendar, Clock, Mic, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -36,6 +36,24 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
       toast({
         title: "Analysis Failed",
         description: "Failed to analyze your dream. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteDreamMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("DELETE", `/api/dreams/${dreamId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
+      onBack(); // Navigate back to the dreams list
+    },
+    onError: () => {
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete your dream. Please try again.",
         variant: "destructive",
       });
     },
@@ -229,6 +247,19 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
             )}
 
           </div>
+        </div>
+
+        {/* Delete button - bottom right */}
+        <div className="fixed bottom-8 right-8 z-10">
+          <Button
+            onClick={() => deleteDreamMutation.mutate()}
+            disabled={deleteDreamMutation.isPending}
+            variant="destructive"
+            size="icon"
+            className="w-12 h-12 rounded-full shadow-lg"
+          >
+            <Trash2 className="w-5 h-5" />
+          </Button>
         </div>
       </div>
     </div>
