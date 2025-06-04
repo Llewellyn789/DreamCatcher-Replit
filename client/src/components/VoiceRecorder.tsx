@@ -227,18 +227,22 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
         <Button
           onClick={handleInterpret}
           disabled={!dreamText.trim() || createDreamMutation.isPending || isAnalyzing}
-          className="w-full cosmic-bg-800 cosmic-text-200 font-semibold py-4 border border-[hsl(var(--cosmic-300))] hover:cosmic-bg-700 transition-all duration-200 disabled:opacity-50"
+          className={`w-full font-semibold py-6 text-lg transition-all duration-200 disabled:opacity-50 ${
+            dreamText.trim() 
+              ? 'gradient-gold cosmic-text-950 hover:shadow-lg' 
+              : 'cosmic-bg-800 cosmic-text-200 border border-[hsl(var(--cosmic-300))] hover:cosmic-bg-700'
+          }`}
         >
           {isAnalyzing ? (
             <div className="flex items-center space-x-2">
-              <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+              <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
               <span className="shimmer-text">Analyzing your dream...</span>
             </div>
           ) : (
-            <>
-              <span>Interpret Text</span>
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </>
+            <div className="flex items-center space-x-3">
+              <span>🔮 Interpret Dream</span>
+              <ArrowRight className="w-5 h-5" />
+            </div>
           )}
         </Button>
       </div>
