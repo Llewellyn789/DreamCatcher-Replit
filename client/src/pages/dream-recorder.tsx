@@ -124,10 +124,9 @@ export default function DreamRecorder() {
               </div>
               
               <div className="flex flex-col h-screen px-6 py-8 overflow-y-auto">
-                {/* Header */}
+                {/* Header - Title only */}
                 <div className="text-center mb-6">
-                  <DreamCatcher />
-                  <h1 className="text-2xl font-bold cosmic-text-50 mb-2 text-shadow-gold">DreamCatcher</h1>
+                  <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">DreamCatcher</h1>
                 </div>
 
                 {/* Voice Recorder Component */}

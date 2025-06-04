@@ -185,37 +185,76 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between">
-      {/* Top section - only show text area after recording or if there's text */}
-      {(dreamText || hasRecorded) && (
-        <div className="flex-1 space-y-4 mb-8">
-          <Textarea
-            value={dreamText}
-            onChange={(e) => setDreamText(e.target.value)}
-            placeholder="Your recorded dream will appear here, or you can type manually..."
-            className="min-h-[200px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
-            disabled={isRecording}
-          />
-          
-          {/* Interpret Button - only show when there's text */}
-          {dreamText.trim() && (
-            <Button
-              onClick={handleInterpretDream}
-              disabled={isAnalyzing || isRecording}
-              className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
+    <div className="flex-1 flex flex-col">
+      {/* Center section - Large dreamcatcher icon or text area */}
+      <div className="flex-1 flex items-center justify-center px-6">
+        {!(dreamText || hasRecorded) ? (
+          // Show large dreamcatcher icon when no recording has been made
+          <div className="text-center">
+            <svg 
+              width="200" 
+              height="240" 
+              viewBox="0 0 200 240" 
+              className="mx-auto cosmic-text-300 opacity-80"
+              fill="currentColor"
             >
-              {isAnalyzing ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Interpreting Dream...</span>
-                </div>
-              ) : (
-                <span>Interpret Dream</span>
-              )}
-            </Button>
-          )}
-        </div>
-      )}
+              {/* Main circle */}
+              <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeWidth="2"/>
+              
+              {/* Inner circles forming the web pattern */}
+              <circle cx="100" cy="60" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="100" cy="140" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="70" cy="100" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="130" cy="100" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+              
+              {/* Center circle */}
+              <circle cx="100" cy="100" r="15" fill="none" stroke="currentColor" strokeWidth="2"/>
+              
+              {/* Feathers */}
+              <path d="M85 185 Q80 200 75 220 Q80 225 85 220 Q90 200 85 185" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M100 190 Q95 205 90 225 Q95 230 100 225 Q105 205 100 190" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M115 185 Q120 200 125 220 Q120 225 115 220 Q110 200 115 185" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              
+              {/* Feather details */}
+              <line x1="85" y1="190" x2="82" y2="195" stroke="currentColor" strokeWidth="0.5"/>
+              <line x1="85" y1="200" x2="88" y2="205" stroke="currentColor" strokeWidth="0.5"/>
+              <line x1="100" y1="195" x2="97" y2="200" stroke="currentColor" strokeWidth="0.5"/>
+              <line x1="100" y1="205" x2="103" y2="210" stroke="currentColor" strokeWidth="0.5"/>
+              <line x1="115" y1="190" x2="118" y2="195" stroke="currentColor" strokeWidth="0.5"/>
+              <line x1="115" y1="200" x2="112" y2="205" stroke="currentColor" strokeWidth="0.5"/>
+            </svg>
+          </div>
+        ) : (
+          // Show text area after recording
+          <div className="w-full max-w-2xl space-y-4">
+            <Textarea
+              value={dreamText}
+              onChange={(e) => setDreamText(e.target.value)}
+              placeholder="Your recorded dream will appear here, or you can type manually..."
+              className="min-h-[300px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
+              disabled={isRecording}
+            />
+            
+            {/* Interpret Button - only show when there's text */}
+            {dreamText.trim() && (
+              <Button
+                onClick={handleInterpretDream}
+                disabled={isAnalyzing || isRecording}
+                className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
+              >
+                {isAnalyzing ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Interpreting Dream...</span>
+                  </div>
+                ) : (
+                  <span>Interpret Dream</span>
+                )}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Bottom section - Record button */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-10">
