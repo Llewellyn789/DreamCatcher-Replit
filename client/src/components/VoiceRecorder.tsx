@@ -208,7 +208,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       )}
 
       {/* Bottom section - Record button */}
-      <div className="flex justify-center pb-8">
+      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-10">
         {voiceEnabled && (
           <Button
             onClick={toggleRecording}
