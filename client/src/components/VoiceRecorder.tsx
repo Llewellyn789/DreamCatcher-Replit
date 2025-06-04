@@ -16,6 +16,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [dreamText, setDreamText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [hasRecorded, setHasRecorded] = useState(false);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -122,6 +123,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setIsRecording(false);
+      setHasRecorded(true);
     }
   };
 
@@ -173,50 +175,51 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   };
 
   return (
-    <div className="flex-1 flex flex-col space-y-8">
-      {/* Voice Recording Section */}
-      {voiceEnabled && (
-        <div className="text-center space-y-6">
-          <Button
-            onClick={toggleRecording}
-            disabled={!voiceEnabled}
-            className={`w-full gradient-gold cosmic-text-950 font-semibold py-6 text-lg space-x-3 hover:shadow-lg transition-all duration-200 ${
-              isRecording ? 'recording-pulse' : ''
-            }`}
-          >
-            {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            <span>{isRecording ? 'Stop Recording' : 'Record Dream'}</span>
-          </Button>
+    <div className="flex-1 flex flex-col justify-between">
+      {/* Top section - only show text area after recording or if there's text */}
+      {(dreamText || hasRecorded) && (
+        <div className="flex-1 space-y-4 mb-8">
+          <Textarea
+            value={dreamText}
+            onChange={(e) => setDreamText(e.target.value)}
+            placeholder="Your recorded dream will appear here, or you can type manually..."
+            className="min-h-[200px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
+            disabled={isRecording}
+          />
+          
+          {/* Interpret Button - only show when there's text */}
+          {dreamText.trim() && (
+            <Button
+              onClick={handleInterpretDream}
+              disabled={isAnalyzing || isRecording}
+              className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
+            >
+              {isAnalyzing ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Interpreting Dream...</span>
+                </div>
+              ) : (
+                <span>Interpret Dream</span>
+              )}
+            </Button>
+          )}
         </div>
       )}
 
-      {/* Manual Input Section */}
-      <div className="space-y-4">
-        <Textarea
-          value={dreamText}
-          onChange={(e) => setDreamText(e.target.value)}
-          placeholder={voiceEnabled ? "Your recorded dream will appear here, or you can type manually..." : "Describe your dream in detail..."}
-          className="min-h-[200px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
-          disabled={isRecording}
-        />
-      </div>
-
-      {/* Interpret Button */}
-      <div className="sticky bottom-6 z-10">
-        <Button
-          onClick={handleInterpretDream}
-          disabled={!dreamText.trim() || isAnalyzing || isRecording}
-          className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
-        >
-          {isAnalyzing ? (
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Interpreting Dream...</span>
-            </div>
-          ) : (
-            <span>Interpret Dream</span>
-          )}
-        </Button>
+      {/* Bottom section - Record button */}
+      <div className="flex justify-center pb-8">
+        {voiceEnabled && (
+          <Button
+            onClick={toggleRecording}
+            disabled={!voiceEnabled}
+            className={`w-16 h-16 rounded-full gradient-gold cosmic-text-950 font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center ${
+              isRecording ? 'recording-pulse' : ''
+            }`}
+          >
+            {isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+          </Button>
+        )}
       </div>
     </div>
   );
