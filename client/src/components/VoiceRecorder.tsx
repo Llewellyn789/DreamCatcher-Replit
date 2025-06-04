@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Mic, MicOff, Folder } from "lucide-react";
+import DreamCatcher from "@/components/DreamCatcher";
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
@@ -190,39 +191,8 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       <div className="flex-1 flex items-center justify-center px-6">
         {!(dreamText || hasRecorded) ? (
           // Show large dreamcatcher icon when no recording has been made
-          <div className="text-center">
-            <svg 
-              width="200" 
-              height="240" 
-              viewBox="0 0 200 240" 
-              className="mx-auto cosmic-text-300 opacity-80"
-              fill="currentColor"
-            >
-              {/* Main circle */}
-              <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeWidth="2"/>
-              
-              {/* Inner circles forming the web pattern */}
-              <circle cx="100" cy="60" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="100" cy="140" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="70" cy="100" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="130" cy="100" r="25" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-              
-              {/* Center circle */}
-              <circle cx="100" cy="100" r="15" fill="none" stroke="currentColor" strokeWidth="2"/>
-              
-              {/* Feathers */}
-              <path d="M85 185 Q80 200 75 220 Q80 225 85 220 Q90 200 85 185" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M100 190 Q95 205 90 225 Q95 230 100 225 Q105 205 100 190" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M115 185 Q120 200 125 220 Q120 225 115 220 Q110 200 115 185" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              
-              {/* Feather details */}
-              <line x1="85" y1="190" x2="82" y2="195" stroke="currentColor" strokeWidth="0.5"/>
-              <line x1="85" y1="200" x2="88" y2="205" stroke="currentColor" strokeWidth="0.5"/>
-              <line x1="100" y1="195" x2="97" y2="200" stroke="currentColor" strokeWidth="0.5"/>
-              <line x1="100" y1="205" x2="103" y2="210" stroke="currentColor" strokeWidth="0.5"/>
-              <line x1="115" y1="190" x2="118" y2="195" stroke="currentColor" strokeWidth="0.5"/>
-              <line x1="115" y1="200" x2="112" y2="205" stroke="currentColor" strokeWidth="0.5"/>
-            </svg>
+          <div className="text-center transform scale-[3]">
+            <DreamCatcher />
           </div>
         ) : (
           // Show text area after recording
