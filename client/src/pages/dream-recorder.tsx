@@ -4,6 +4,8 @@ import VoiceRecorder from "@/components/VoiceRecorder";
 import DreamList from "@/components/DreamList";
 import DreamDetail from "@/components/DreamDetail";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Folder } from "lucide-react";
 
 type Page = 'recording' | 'saved-dreams' | 'dream-detail';
 
@@ -110,6 +112,17 @@ export default function DreamRecorder() {
               transition={pageTransition}
               className="absolute inset-0"
             >
+              {/* Folder Icon - Fixed to top right */}
+              <div className="absolute top-6 right-6 z-50">
+                <Button
+                  variant="ghost"
+                  onClick={() => setCurrentPage('saved-dreams')}
+                  className="cosmic-text-200 hover:cosmic-text-50 p-2"
+                >
+                  <Folder className="w-6 h-6" />
+                </Button>
+              </div>
+              
               <div className="flex flex-col h-screen px-6 py-8 overflow-y-auto">
                 {/* Header */}
                 <div className="text-center mb-6">

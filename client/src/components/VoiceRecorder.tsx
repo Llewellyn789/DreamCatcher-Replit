@@ -173,66 +173,50 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   };
 
   return (
-    <div className="min-h-screen cosmic-gradient flex flex-col relative">
-      {/* Folder Icon - Fixed to top right */}
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          variant="ghost"
-          onClick={onNavigateToSavedDreams}
-          className="cosmic-text-700 hover:cosmic-text-950 p-2"
-        >
-          <Folder className="w-6 h-6" />
-        </Button>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6 space-y-8">
-
-
-        {/* Voice Recording Section */}
-        {voiceEnabled && (
-          <div className="text-center space-y-6">
-            <Button
-              onClick={toggleRecording}
-              disabled={!voiceEnabled}
-              className={`w-full gradient-gold cosmic-text-950 font-semibold py-6 text-lg space-x-3 hover:shadow-lg transition-all duration-200 ${
-                isRecording ? 'recording-pulse' : ''
-              }`}
-            >
-              {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              <span>{isRecording ? 'Stop Recording' : 'Record Dream'}</span>
-            </Button>
-          </div>
-        )}
-
-        {/* Manual Input Section */}
-        <div className="space-y-4">
-          <Textarea
-            value={dreamText}
-            onChange={(e) => setDreamText(e.target.value)}
-            placeholder={voiceEnabled ? "Your recorded dream will appear here, or you can type manually..." : "Describe your dream in detail..."}
-            className="min-h-[200px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
-            disabled={isRecording}
-          />
-        </div>
-
-        {/* Interpret Button */}
-        <div className="sticky bottom-6 z-10">
+    <div className="flex-1 flex flex-col space-y-8">
+      {/* Voice Recording Section */}
+      {voiceEnabled && (
+        <div className="text-center space-y-6">
           <Button
-            onClick={handleInterpretDream}
-            disabled={!dreamText.trim() || isAnalyzing || isRecording}
-            className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
+            onClick={toggleRecording}
+            disabled={!voiceEnabled}
+            className={`w-full gradient-gold cosmic-text-950 font-semibold py-6 text-lg space-x-3 hover:shadow-lg transition-all duration-200 ${
+              isRecording ? 'recording-pulse' : ''
+            }`}
           >
-            {isAnalyzing ? (
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Interpreting Dream...</span>
-              </div>
-            ) : (
-              <span>Interpret Dream</span>
-            )}
+            {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            <span>{isRecording ? 'Stop Recording' : 'Record Dream'}</span>
           </Button>
         </div>
+      )}
+
+      {/* Manual Input Section */}
+      <div className="space-y-4">
+        <Textarea
+          value={dreamText}
+          onChange={(e) => setDreamText(e.target.value)}
+          placeholder={voiceEnabled ? "Your recorded dream will appear here, or you can type manually..." : "Describe your dream in detail..."}
+          className="min-h-[200px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
+          disabled={isRecording}
+        />
+      </div>
+
+      {/* Interpret Button */}
+      <div className="sticky bottom-6 z-10">
+        <Button
+          onClick={handleInterpretDream}
+          disabled={!dreamText.trim() || isAnalyzing || isRecording}
+          className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
+        >
+          {isAnalyzing ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Interpreting Dream...</span>
+            </div>
+          ) : (
+            <span>Interpret Dream</span>
+          )}
+        </Button>
       </div>
     </div>
   );
