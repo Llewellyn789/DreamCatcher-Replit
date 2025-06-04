@@ -227,10 +227,7 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
                 <span>{dream.duration}</span>
               </span>
             )}
-            <span className="flex items-center space-x-2">
-              <Mic className="w-4 h-4" />
-              <span>Voice Recording</span>
-            </span>
+
           </div>
         </div>
       </div>
