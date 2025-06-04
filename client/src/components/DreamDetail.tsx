@@ -263,7 +263,7 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle className="cosmic-text-50">Delete Dream</AlertDialogTitle>
                 <AlertDialogDescription className="cosmic-text-300">
-                  Are you sure you want to delete this dream? This action cannot be undone and all analysis will be permanently lost.
+                  Are you sure you want to delete this dream?
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
