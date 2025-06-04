@@ -192,12 +192,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
         {/* Voice Recording Section */}
         {voiceEnabled && (
           <div className="text-center space-y-6">
-            <div className="space-y-4">
-              <p className="cosmic-text-600 text-lg">
-                {isRecording ? "Recording your dream..." : "Ready to capture your dream"}
-              </p>
-            </div>
-
             <Button
               onClick={toggleRecording}
               disabled={!voiceEnabled}
