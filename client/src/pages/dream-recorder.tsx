@@ -110,9 +110,9 @@ export default function DreamRecorder() {
               transition={pageTransition}
               className="absolute inset-0"
             >
-              <div className="flex flex-col h-screen px-6 py-8">
+              <div className="flex flex-col h-screen px-6 py-8 overflow-y-auto">
                 {/* Header */}
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
                   <DreamCatcher />
                   <h1 className="text-2xl font-bold cosmic-text-50 mb-2 text-shadow-gold">DreamCatcher</h1>
                   <p className="cosmic-text-100 text-base px-4 leading-relaxed">
@@ -121,7 +121,7 @@ export default function DreamRecorder() {
                 </div>
 
                 {/* Step Indicator */}
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mb-6">
                   <div className="flex space-x-6">
                     <div className="w-8 h-8 rounded-full gradient-gold flex items-center justify-center cosmic-text-950 font-semibold text-sm">1</div>
                     <div className="w-8 h-8 rounded-full border-2 border-opacity-50 border-[hsl(var(--cosmic-300))] flex items-center justify-center cosmic-text-300 font-semibold text-sm">2</div>
@@ -130,7 +130,12 @@ export default function DreamRecorder() {
                 </div>
 
                 {/* Voice Recorder Component */}
-                <VoiceRecorder onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')} />
+                <div className="flex-1 flex flex-col min-h-0">
+                  <VoiceRecorder onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')} />
+                </div>
+                
+                {/* Bottom padding to ensure content is not hidden behind navigation */}
+                <div className="h-16"></div>
               </div>
             </motion.div>
           )}

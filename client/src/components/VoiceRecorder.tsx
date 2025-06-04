@@ -172,7 +172,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   };
 
   return (
-    <div className="flex-1 space-y-8">
+    <div className="flex flex-col h-full space-y-6">
       {/* Voice Recording Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-center space-x-3">
@@ -204,22 +204,22 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       </div>
 
       {/* Manual Input Section */}
-      <div className="space-y-4">
+      <div className="flex-1 flex flex-col space-y-4">
         <h3 className="cosmic-text-100 text-lg font-medium italic text-center">
           Or type your dream directly:
         </h3>
         
-        <div className="glass-effect rounded-xl p-4 overflow-hidden">
+        <div className="glass-effect rounded-xl p-4 overflow-hidden flex-1">
           <Textarea
             value={dreamText}
             onChange={(e) => setDreamText(e.target.value)}
             placeholder="Type your dream here..."
-            className="bg-transparent cosmic-text-50 placeholder:cosmic-text-300 border-none resize-none focus:ring-0 h-32 w-full mobile-textarea"
+            className="bg-transparent cosmic-text-50 placeholder:cosmic-text-300 border-none resize-none focus:ring-0 h-full w-full mobile-textarea"
             style={{ 
               wordBreak: 'break-word',
               overflowWrap: 'break-word',
               whiteSpace: 'pre-wrap',
-              overflow: 'hidden'
+              overflow: 'auto'
             }}
           />
         </div>
