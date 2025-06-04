@@ -87,11 +87,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
 
   const createDreamMutation = useMutation({
     mutationFn: async (dreamData: { title: string; content: string; duration?: string }) => {
-      const response = await apiRequest({
-        url: "/api/dreams",
-        method: "POST",
-        body: dreamData,
-      });
+      const response = await apiRequest("POST", "/api/dreams", dreamData);
       return response;
     },
     onSuccess: () => {
@@ -165,10 +161,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       });
 
       // Then analyze it
-      const analysisResponse = await apiRequest({
-        url: `/api/dreams/${dreamResponse.id}/analyze`,
-        method: "POST",
-      });
+      const analysisResponse = await apiRequest("POST", `/api/dreams/${(dreamResponse as any).id}/analyze`, {});
 
       toast({
         title: "Dream Analyzed",

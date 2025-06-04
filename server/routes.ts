@@ -12,6 +12,21 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-api-key"
 });
 
+// Configure multer for file uploads
+const upload = multer({ 
+  dest: 'uploads/',
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('audio/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Get all dreams
@@ -102,6 +117,40 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
     } catch (error) {
       console.error("Analysis error:", error);
       res.status(500).json({ message: "Failed to analyze dream" });
+    }
+  });
+
+  // Transcribe audio using OpenAI Whisper
+  app.post("/api/transcribe", upload.single('audio'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No audio file provided" });
+      }
+
+      const audioPath = req.file.path;
+      
+      try {
+        // Use OpenAI Whisper to transcribe the audio
+        const transcription = await openai.audio.transcriptions.create({
+          file: fs.createReadStream(audioPath),
+          model: "whisper-1",
+          language: "en",
+        });
+
+        // Clean up the uploaded file
+        fs.unlinkSync(audioPath);
+
+        res.json({ transcript: transcription.text });
+      } catch (whisperError) {
+        // Clean up the uploaded file in case of error
+        if (fs.existsSync(audioPath)) {
+          fs.unlinkSync(audioPath);
+        }
+        throw whisperError;
+      }
+    } catch (error) {
+      console.error("Transcription error:", error);
+      res.status(500).json({ message: "Failed to transcribe audio" });
     }
   });
 
