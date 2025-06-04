@@ -38,17 +38,9 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/dreams/${dreamId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
-      toast({
-        title: "Analysis Complete",
-        description: "Your dream has been analyzed successfully.",
-      });
     },
     onError: () => {
-      toast({
-        title: "Analysis Failed",
-        description: "Failed to analyze your dream. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Failed to analyze dream");
     },
   });
 
@@ -62,11 +54,7 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
       onBack(); // Navigate back to the dreams list
     },
     onError: () => {
-      toast({
-        title: "Delete Failed",
-        description: "Failed to delete your dream. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Failed to delete dream");
     },
   });
 
