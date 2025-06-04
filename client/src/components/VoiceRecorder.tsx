@@ -18,7 +18,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const [dreamText, setDreamText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const lastResultIndex = useRef<number>(0);
+  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -29,25 +29,46 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       recognitionRef.current = new SpeechRecognition();
       
       if (recognitionRef.current) {
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
+        recognitionRef.current.continuous = false; // Use short bursts instead
+        recognitionRef.current.interimResults = false;
         recognitionRef.current.lang = 'en-US';
 
         recognitionRef.current.onresult = (event) => {
-          // Only process new results since last index
-          for (let i = lastResultIndex.current; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-              const transcript = event.results[i][0].transcript.trim();
-              if (transcript) {
-                setDreamText(prev => prev + (prev ? ' ' : '') + transcript);
-                lastResultIndex.current = i + 1;
+          const result = event.results[0];
+          if (result.isFinal) {
+            const transcript = result[0].transcript.trim();
+            if (transcript) {
+              setDreamText(prev => prev + (prev ? ' ' : '') + transcript);
+              
+              // Restart recognition after a brief pause if still recording
+              if (isRecording) {
+                restartTimeoutRef.current = setTimeout(() => {
+                  if (recognitionRef.current && isRecording) {
+                    try {
+                      recognitionRef.current.start();
+                    } catch (error) {
+                      console.log('Recognition restart failed:', error);
+                    }
+                  }
+                }, 100);
               }
             }
           }
         };
 
-        recognitionRef.current.onstart = () => {
-          lastResultIndex.current = 0;
+        recognitionRef.current.onend = () => {
+          // Auto-restart if still recording
+          if (isRecording && recognitionRef.current) {
+            restartTimeoutRef.current = setTimeout(() => {
+              if (recognitionRef.current && isRecording) {
+                try {
+                  recognitionRef.current.start();
+                } catch (error) {
+                  console.log('Recognition restart failed:', error);
+                }
+              }
+            }, 100);
+          }
         };
 
         recognitionRef.current.onerror = (event) => {
@@ -108,8 +129,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       return;
     }
 
-    // Clear previous result tracking
-    lastResultIndex.current = 0;
     setIsRecording(true);
     recognitionRef.current.start();
   };
@@ -117,6 +136,9 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const stopRecording = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
+    }
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
     }
     setIsRecording(false);
   };
