@@ -173,18 +173,16 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   };
 
   return (
-    <div className="min-h-screen cosmic-gradient flex flex-col">
-      {/* Header */}
-      <div className="cosmic-header p-6 pb-0">
-        <div className="flex justify-end items-center mb-6">
-          <Button
-            variant="ghost"
-            onClick={onNavigateToSavedDreams}
-            className="cosmic-text-700 hover:cosmic-text-950 p-2"
-          >
-            <Folder className="w-6 h-6" />
-          </Button>
-        </div>
+    <div className="min-h-screen cosmic-gradient flex flex-col relative">
+      {/* Folder Icon - Fixed to top right */}
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          variant="ghost"
+          onClick={onNavigateToSavedDreams}
+          className="cosmic-text-700 hover:cosmic-text-950 p-2"
+        >
+          <Folder className="w-6 h-6" />
+        </Button>
       </div>
 
       {/* Main Content */}
