@@ -19,7 +19,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('audio/')) {
+    if (file.mimetype.startsWith('audio/') || file.originalname.endsWith('.webm')) {
       cb(null, true);
     } else {
       cb(new Error('Only audio files are allowed'));
@@ -128,21 +128,32 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
       }
 
       const audioPath = req.file.path;
+      let finalAudioPath = audioPath;
       
       try {
+        // If the file is webm, rename it to have .webm extension for Whisper
+        if (req.file.originalname.endsWith('.webm') || req.file.mimetype.includes('webm')) {
+          const webmPath = audioPath + '.webm';
+          fs.renameSync(audioPath, webmPath);
+          finalAudioPath = webmPath;
+        }
+
         // Use OpenAI Whisper to transcribe the audio
         const transcription = await openai.audio.transcriptions.create({
-          file: fs.createReadStream(audioPath),
+          file: fs.createReadStream(finalAudioPath),
           model: "whisper-1",
           language: "en",
         });
 
         // Clean up the uploaded file
-        fs.unlinkSync(audioPath);
+        fs.unlinkSync(finalAudioPath);
 
         res.json({ transcript: transcription.text });
       } catch (whisperError) {
         // Clean up the uploaded file in case of error
+        if (fs.existsSync(finalAudioPath)) {
+          fs.unlinkSync(finalAudioPath);
+        }
         if (fs.existsSync(audioPath)) {
           fs.unlinkSync(audioPath);
         }

@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Mic, MicOff, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
@@ -17,73 +16,68 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [dreamText, setDreamText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Initialize MediaRecorder for audio recording
+  // Initialize Speech Recognition
   useEffect(() => {
-    const initializeRecorder = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        
-        mediaRecorderRef.current.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunksRef.current.push(event.data);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      if (recognitionRef.current) {
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+
+        recognitionRef.current.onresult = (event: any) => {
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript + ' ';
+            }
+          }
+          
+          if (finalTranscript.trim()) {
+            setDreamText(prev => {
+              const newText = finalTranscript.trim();
+              if (!prev.endsWith(newText.slice(0, 20))) {
+                return prev + (prev ? ' ' : '') + newText;
+              }
+              return prev;
+            });
           }
         };
 
-        mediaRecorderRef.current.onstop = async () => {
-          setIsTranscribing(true);
-          try {
-            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-            audioChunksRef.current = [];
-            
-            // Send audio to Whisper API
-            const formData = new FormData();
-            formData.append('audio', audioBlob, 'recording.webm');
-            
-            const response = await fetch('/api/transcribe', {
-              method: 'POST',
-              body: formData,
-            });
-            
-            if (!response.ok) {
-              throw new Error('Transcription failed');
+        recognitionRef.current.onend = () => {
+          if (isRecording) {
+            try {
+              recognitionRef.current.start();
+            } catch (error) {
+              console.log('Recognition restart failed');
+              setIsRecording(false);
             }
-            
-            const { transcript } = await response.json();
-            if (transcript.trim()) {
-              setDreamText(prev => prev + (prev ? ' ' : '') + transcript.trim());
-            }
-          } catch (error) {
-            console.error('Transcription failed:', error);
+          }
+        };
+
+        recognitionRef.current.onerror = (event: any) => {
+          if (event.error === 'not-allowed') {
+            setIsRecording(false);
             toast({
-              title: "Transcription Error",
-              description: "Failed to convert speech to text. Please try again.",
+              title: "Microphone Access Required",
+              description: "Please allow microphone access to record your dream.",
               variant: "destructive",
             });
-          } finally {
-            setIsTranscribing(false);
           }
         };
 
         setVoiceEnabled(true);
-      } catch (error) {
-        console.error('Failed to initialize microphone:', error);
-        toast({
-          title: "Microphone Access Required",
-          description: "Please allow microphone access to record your dream.",
-          variant: "destructive",
-        });
       }
-    };
-
-    initializeRecorder();
-  }, [toast]);
+    }
+  }, [isRecording, toast]);
 
   const createDreamMutation = useMutation({
     mutationFn: async (dreamData: { title: string; content: string; duration?: string }) => {
@@ -109,10 +103,9 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   });
 
   const startRecording = () => {
-    if (mediaRecorderRef.current && voiceEnabled) {
+    if (recognitionRef.current && voiceEnabled) {
       try {
-        audioChunksRef.current = [];
-        mediaRecorderRef.current.start();
+        recognitionRef.current.start();
         setIsRecording(true);
       } catch (error) {
         console.error('Failed to start recording:', error);
@@ -126,8 +119,8 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
       setIsRecording(false);
     }
   };
@@ -215,25 +208,19 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
           <div className="text-center space-y-6">
             <div className="space-y-4">
               <p className="cosmic-text-600 text-lg">
-                {isRecording ? "Recording your dream..." : 
-                 isTranscribing ? "Converting speech to text..." : 
-                 "Ready to capture your dream"}
+                {isRecording ? "Recording your dream..." : "Ready to capture your dream"}
               </p>
             </div>
 
             <Button
               onClick={toggleRecording}
-              disabled={!voiceEnabled || isTranscribing}
+              disabled={!voiceEnabled}
               className={`w-full gradient-gold cosmic-text-950 font-semibold py-6 text-lg space-x-3 hover:shadow-lg transition-all duration-200 ${
                 isRecording ? 'recording-pulse' : ''
               }`}
             >
               {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              <span>
-                {isRecording ? 'Stop Recording' : 
-                 isTranscribing ? 'Processing...' : 
-                 'Record Dream'}
-              </span>
+              <span>{isRecording ? 'Stop Recording' : 'Record Dream'}</span>
             </Button>
           </div>
         )}
@@ -245,7 +232,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
             onChange={(e) => setDreamText(e.target.value)}
             placeholder={voiceEnabled ? "Your recorded dream will appear here, or you can type manually..." : "Describe your dream in detail..."}
             className="min-h-[200px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
-            disabled={isRecording || isTranscribing}
+            disabled={isRecording}
           />
         </div>
 
@@ -253,7 +240,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
         <div className="sticky bottom-6 z-10">
           <Button
             onClick={handleInterpretDream}
-            disabled={!dreamText.trim() || isAnalyzing || isRecording || isTranscribing}
+            disabled={!dreamText.trim() || isAnalyzing || isRecording}
             className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
           >
             {isAnalyzing ? (
