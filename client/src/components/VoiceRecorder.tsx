@@ -197,7 +197,18 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col relative">
+      {/* Loading overlay for dream interpretation */}
+      {isAnalyzing && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[hsl(var(--cosmic-300))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h3 className="cosmic-text-50 text-lg font-semibold mb-2">Interpreting Dream</h3>
+            <p className="cosmic-text-200 text-sm">Analyzing with Jungian psychology...</p>
+          </div>
+        </div>
+      )}
+
       {/* Center section - Large dreamcatcher icon or text area */}
       <div className="flex-1 flex items-center justify-center px-6">
         {!(dreamText || hasRecorded) ? (
