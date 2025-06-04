@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertDreamSchema, jungianAnalysisSchema } from "@shared/schema";
 import OpenAI from "openai";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
