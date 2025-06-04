@@ -38,17 +38,27 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
-              finalTranscript += transcript + ' ';
+              finalTranscript += transcript;
             }
           }
           
           if (finalTranscript.trim()) {
             setDreamText(prev => {
               const newText = finalTranscript.trim();
-              if (!prev.endsWith(newText.slice(0, 20))) {
-                return prev + (prev ? ' ' : '') + newText;
+              // More robust duplicate prevention
+              const words = newText.split(' ');
+              const prevWords = prev.split(' ');
+              
+              // Check if this is a repeat of the last few words
+              if (words.length >= 3 && prevWords.length >= 3) {
+                const lastThreeNew = words.slice(-3).join(' ');
+                const lastThreePrev = prevWords.slice(-3).join(' ');
+                if (lastThreeNew === lastThreePrev) {
+                  return prev; // Skip duplicate
+                }
               }
-              return prev;
+              
+              return prev + (prev ? ' ' : '') + newText;
             });
           }
         };
