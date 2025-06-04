@@ -39,19 +39,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
             const transcript = result[0].transcript.trim();
             if (transcript) {
               setDreamText(prev => prev + (prev ? ' ' : '') + transcript);
-              
-              // Restart recognition after a brief pause if still recording
-              if (isRecording) {
-                restartTimeoutRef.current = setTimeout(() => {
-                  if (recognitionRef.current && isRecording) {
-                    try {
-                      recognitionRef.current.start();
-                    } catch (error) {
-                      console.log('Recognition restart failed:', error);
-                    }
-                  }
-                }, 100);
-              }
             }
           }
         };
@@ -65,20 +52,44 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
                   recognitionRef.current.start();
                 } catch (error) {
                   console.log('Recognition restart failed:', error);
+                  // If restart fails, set recording to false
+                  setIsRecording(false);
                 }
               }
-            }, 100);
+            }, 200);
           }
+        };
+
+        recognitionRef.current.onspeechend = () => {
+          // Don't stop on speech end, let onend handle restart
         };
 
         recognitionRef.current.onerror = (event) => {
           console.error('Speech recognition error:', event.error);
-          setIsRecording(false);
-          toast({
-            title: "Recording Error",
-            description: "There was an issue with voice recording. Please try again.",
-            variant: "destructive",
-          });
+          
+          // Only stop recording for serious errors, not network issues
+          if (event.error === 'not-allowed' || event.error === 'no-speech') {
+            setIsRecording(false);
+            toast({
+              title: "Recording Error",
+              description: "There was an issue with voice recording. Please try again.",
+              variant: "destructive",
+            });
+          } else {
+            // For other errors, try to restart
+            if (isRecording && recognitionRef.current) {
+              restartTimeoutRef.current = setTimeout(() => {
+                if (recognitionRef.current && isRecording) {
+                  try {
+                    recognitionRef.current.start();
+                  } catch (error) {
+                    console.log('Recognition restart after error failed:', error);
+                    setIsRecording(false);
+                  }
+                }
+              }, 500);
+            }
+          }
         };
       }
     }
