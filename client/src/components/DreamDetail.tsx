@@ -1,5 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ArrowLeft, Share, Quote, Brain, Calendar, Clock, Mic, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -251,15 +262,35 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
 
         {/* Delete button - bottom right */}
         <div className="fixed bottom-8 right-8 z-10">
-          <Button
-            onClick={() => deleteDreamMutation.mutate()}
-            disabled={deleteDreamMutation.isPending}
-            variant="destructive"
-            size="icon"
-            className="w-12 h-12 rounded-full shadow-lg"
-          >
-            <Trash2 className="w-5 h-5" />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                disabled={deleteDreamMutation.isPending}
+                className="w-12 h-12 rounded-full glass-effect cosmic-text-300 hover:cosmic-text-50 border border-cosmic-300/30 hover:border-cosmic-200/50 transition-all duration-200 shadow-lg"
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="cosmic-bg-800 border border-cosmic-300/30">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="cosmic-text-50">Delete Dream</AlertDialogTitle>
+                <AlertDialogDescription className="cosmic-text-300">
+                  Are you sure you want to delete this dream? This action cannot be undone and all analysis will be permanently lost.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="cosmic-text-300 border-cosmic-300/30 hover:cosmic-text-50">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteDreamMutation.mutate()}
+                  className="bg-red-600 hover:bg-red-700 cosmic-text-50"
+                >
+                  Delete Dream
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
