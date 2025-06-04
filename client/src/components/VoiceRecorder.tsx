@@ -210,7 +210,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
           }`}
         >
           {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          <span>{isRecording ? 'Stop Recording' : 'Start Recording'}</span>
+          <span>{isRecording ? 'Stop Recording' : 'Record Dream'}</span>
         </Button>
       </div>
 
