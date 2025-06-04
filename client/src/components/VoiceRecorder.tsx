@@ -98,10 +98,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
-      toast({
-        title: "Dream Saved",
-        description: "Your dream has been successfully recorded.",
-      });
       setDreamText("");
     },
     onError: (error) => {
@@ -174,11 +170,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
 
       // Then analyze it
       const analysisResponse = await apiRequest("POST", `/api/dreams/${dreamResponse.id}/analyze`, {});
-
-      toast({
-        title: "Dream Analyzed",
-        description: "Your dream has been interpreted using Jungian analysis.",
-      });
 
       // Navigate to dream detail view after successful analysis
       onViewDream(dreamResponse.id);
