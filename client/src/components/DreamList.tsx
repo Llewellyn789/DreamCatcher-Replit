@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Eye, Moon, Folder } from "lucide-react";
+import { ArrowLeft, Clock, Moon, Folder } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Dream } from "@shared/schema";
 
@@ -90,10 +90,6 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
                       <span>{dream.duration}</span>
                     </span>
                   )}
-                  <span className="flex items-center space-x-1">
-                    <Eye className="w-3 h-3" />
-                    <span>{dream.analysis ? 'Analyzed' : 'Pending'}</span>
-                  </span>
                 </div>
               </div>
             ))}
