@@ -1,4 +1,6 @@
-import { dreams, type Dream, type InsertDream } from "@shared/schema";
+import { dreams, users, type Dream, type InsertDream, type User, type InsertUser } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -13,69 +15,56 @@ export interface IStorage {
   deleteDream(id: number): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private dreams: Map<number, Dream>;
-  currentUserId: number;
-  currentDreamId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.dreams = new Map();
-    this.currentUserId = 1;
-    this.currentDreamId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getAllDreams(): Promise<Dream[]> {
-    return Array.from(this.dreams.values()).sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const allDreams = await db.select().from(dreams).orderBy(desc(dreams.createdAt));
+    return allDreams;
   }
 
   async getDream(id: number): Promise<Dream | undefined> {
-    return this.dreams.get(id);
+    const [dream] = await db.select().from(dreams).where(eq(dreams.id, id));
+    return dream || undefined;
   }
 
   async createDream(insertDream: InsertDream): Promise<Dream> {
-    const id = this.currentDreamId++;
-    const dream: Dream = { 
-      ...insertDream, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.dreams.set(id, dream);
+    const [dream] = await db
+      .insert(dreams)
+      .values(insertDream)
+      .returning();
     return dream;
   }
 
   async updateDream(id: number, updates: Partial<InsertDream>): Promise<Dream | undefined> {
-    const existingDream = this.dreams.get(id);
-    if (!existingDream) return undefined;
-    
-    const updatedDream = { ...existingDream, ...updates };
-    this.dreams.set(id, updatedDream);
-    return updatedDream;
+    const [dream] = await db
+      .update(dreams)
+      .set(updates)
+      .where(eq(dreams.id, id))
+      .returning();
+    return dream || undefined;
   }
 
   async deleteDream(id: number): Promise<boolean> {
-    return this.dreams.delete(id);
+    const result = await db.delete(dreams).where(eq(dreams.id, id));
+    return (result.rowCount || 0) > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
