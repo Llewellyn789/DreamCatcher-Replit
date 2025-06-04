@@ -18,6 +18,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const lastTranscriptRef = useRef<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,23 +44,21 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
           }
           
           if (finalTranscript.trim()) {
-            setDreamText(prev => {
-              const newText = finalTranscript.trim();
-              // More robust duplicate prevention
-              const words = newText.split(' ');
-              const prevWords = prev.split(' ');
+            const newText = finalTranscript.trim();
+            
+            // Only add if it's actually new content
+            if (newText !== lastTranscriptRef.current) {
+              lastTranscriptRef.current = newText;
               
-              // Check if this is a repeat of the last few words
-              if (words.length >= 3 && prevWords.length >= 3) {
-                const lastThreeNew = words.slice(-3).join(' ');
-                const lastThreePrev = prevWords.slice(-3).join(' ');
-                if (lastThreeNew === lastThreePrev) {
-                  return prev; // Skip duplicate
+              setDreamText(prev => {
+                // Prevent adding if the new text is already contained at the end
+                if (prev.endsWith(newText)) {
+                  return prev;
                 }
-              }
-              
-              return prev + (prev ? ' ' : '') + newText;
-            });
+                
+                return prev + (prev ? ' ' : '') + newText;
+              });
+            }
           }
         };
 
@@ -134,6 +133,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       recognitionRef.current.stop();
       setIsRecording(false);
       setHasRecorded(true);
+      lastTranscriptRef.current = ""; // Reset for next recording
     }
   };
 
