@@ -3,11 +3,12 @@ import DreamCatcher from "@/components/DreamCatcher";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import DreamList from "@/components/DreamList";
 import DreamDetail from "@/components/DreamDetail";
+import DreamAnalytics from "@/components/DreamAnalytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Folder } from "lucide-react";
+import { Folder, BarChart3 } from "lucide-react";
 
-type Page = 'recording' | 'saved-dreams' | 'dream-detail';
+type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics';
 
 export default function DreamRecorder() {
   const [currentPage, setCurrentPage] = useState<Page>('recording');
@@ -112,8 +113,15 @@ export default function DreamRecorder() {
               transition={pageTransition}
               className="absolute inset-0"
             >
-              {/* Folder Icon - Fixed to top right */}
-              <div className="absolute top-6 right-6 z-50">
+              {/* Navigation Icons - Fixed to top right */}
+              <div className="absolute top-6 right-6 z-50 flex space-x-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setCurrentPage('analytics')}
+                  className="cosmic-text-200 hover:cosmic-text-50 p-2"
+                >
+                  <BarChart3 className="w-6 h-6" />
+                </Button>
                 <Button
                   variant="ghost"
                   onClick={() => setCurrentPage('saved-dreams')}
@@ -181,6 +189,23 @@ export default function DreamRecorder() {
               />
             </motion.div>
           )}
+
+          {currentPage === 'analytics' && (
+            <motion.div
+              key="analytics"
+              custom={2}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={pageTransition}
+              className="absolute inset-0"
+            >
+              <DreamAnalytics 
+                onBack={() => setCurrentPage('recording')}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -194,6 +219,11 @@ export default function DreamRecorder() {
         <div 
           className={`w-2 h-2 rounded-full transition-all duration-200 ${
             currentPage === 'saved-dreams' ? 'cosmic-bg-200' : 'cosmic-bg-600'
+          }`}
+        />
+        <div 
+          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+            currentPage === 'analytics' ? 'cosmic-bg-200' : 'cosmic-bg-600'
           }`}
         />
       </div>
