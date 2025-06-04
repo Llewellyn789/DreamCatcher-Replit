@@ -69,6 +69,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate 3-word dream title
+  app.post("/api/generate-title", async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ message: "Dream content is required" });
+      }
+
+      const prompt = `Analyze this dream and create a 3-word title that captures its essence. Return only the 3 words separated by spaces, nothing else:
+
+${content}`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 10,
+        temperature: 0.7,
+      });
+
+      const title = response.choices[0].message.content?.trim() || "Dream Analysis";
+      
+      res.json({ title });
+    } catch (error) {
+      console.error("Title generation error:", error);
+      res.status(500).json({ message: "Failed to generate title" });
+    }
+  });
+
   // Analyze dream with GPT
   app.post("/api/dreams/:id/analyze", async (req, res) => {
     try {

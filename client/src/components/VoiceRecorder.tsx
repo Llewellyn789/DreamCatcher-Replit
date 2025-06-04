@@ -159,7 +159,12 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
 
     setIsAnalyzing(true);
     try {
-      const title = dreamText.substring(0, 50) + (dreamText.length > 50 ? "..." : "");
+      // Generate a 3-word summary title using OpenAI
+      const titleResponse = await apiRequest("POST", "/api/generate-title", {
+        content: dreamText
+      });
+      const titleData = await titleResponse.json();
+      const title = titleData.title || "Dream Analysis";
       
       // Create the dream first
       const dreamResponse = await createDreamMutation.mutateAsync({
