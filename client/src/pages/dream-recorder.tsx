@@ -131,7 +131,13 @@ export default function DreamRecorder() {
 
                 {/* Voice Recorder Component */}
                 <div className="flex-1 flex flex-col min-h-0">
-                  <VoiceRecorder onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')} />
+                  <VoiceRecorder 
+                    onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')} 
+                    onViewDream={(dreamId) => {
+                      setSelectedDreamId(dreamId);
+                      setCurrentPage('dream-detail');
+                    }}
+                  />
                 </div>
                 
                 {/* Bottom padding to ensure content is not hidden behind navigation */}

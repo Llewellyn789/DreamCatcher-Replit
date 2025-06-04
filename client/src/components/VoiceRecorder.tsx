@@ -10,9 +10,10 @@ import DreamCatcher from "@/components/DreamCatcher";
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
+  onViewDream: (dreamId: number) => void;
 }
 
-export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorderProps) {
+export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [dreamText, setDreamText] = useState("");
@@ -173,6 +174,11 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
         title: "Dream Analyzed",
         description: "Your dream has been interpreted using Jungian analysis.",
       });
+
+      // Navigate to dream detail view after successful analysis
+      onViewDream(dreamResponse.id);
+      setDreamText("");
+      setHasRecorded(false);
     } catch (error) {
       console.error("Analysis failed:", error);
       toast({
