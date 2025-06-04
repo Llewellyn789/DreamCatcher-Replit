@@ -188,7 +188,7 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
               
               <div>
                 <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
-                  Personal and Collective Unconscious Elements:
+                  Personal and Collective Unconscious:
                 </h4>
                 <p className="cosmic-text-200 text-sm leading-relaxed">{analysis.unconscious}</p>
               </div>
