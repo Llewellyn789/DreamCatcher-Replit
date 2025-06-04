@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Eye, Moon } from "lucide-react";
+import { ArrowLeft, Clock, Eye, Moon, Folder } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Dream } from "@shared/schema";
 
@@ -36,7 +36,7 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
-          <div className="w-6" />
+          <Folder className="w-6 h-6 cosmic-text-200" />
         </div>
         
         <div className="flex-1 flex items-center justify-center">
@@ -59,7 +59,7 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
           <ArrowLeft className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
-        <div className="w-6" />
+        <Folder className="w-6 h-6 cosmic-text-200" />
       </div>
 
       {/* Dreams List */}
