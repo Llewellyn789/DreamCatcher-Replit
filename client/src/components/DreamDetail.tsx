@@ -47,14 +47,18 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
   const deleteDreamMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("DELETE", `/api/dreams/${dreamId}`);
-      return response.json();
+      if (!response.ok) {
+        throw new Error('Failed to delete dream');
+      }
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
+      queryClient.removeQueries({ queryKey: [`/api/dreams/${dreamId}`] });
       onBack(); // Navigate back to the dreams list
     },
-    onError: () => {
-      console.error("Failed to delete dream");
+    onError: (error) => {
+      console.error("Failed to delete dream:", error);
     },
   });
 
