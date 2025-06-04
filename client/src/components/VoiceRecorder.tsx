@@ -191,17 +191,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
 
       {/* Main Content */}
       <div className="flex-1 p-6 space-y-8">
-        {/* Voice Toggle */}
-        <div className="flex items-center justify-center space-x-3">
-          <span className="cosmic-text-700 text-sm">Manual Input</span>
-          <Switch
-            checked={voiceEnabled}
-            onCheckedChange={setVoiceEnabled}
-            disabled={!voiceEnabled}
-            className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-blue-500"
-          />
-          <span className="cosmic-text-700 text-sm">Voice Recording</span>
-        </div>
+
 
         {/* Voice Recording Section */}
         {voiceEnabled && (
