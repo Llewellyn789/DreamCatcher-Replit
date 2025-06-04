@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Mic, MicOff, ArrowRight } from "lucide-react";
+import { Mic, MicOff, Folder } from "lucide-react";
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
@@ -176,15 +176,13 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
     <div className="min-h-screen cosmic-gradient flex flex-col">
       {/* Header */}
       <div className="cosmic-header p-6 pb-0">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold cosmic-text-950">DreamCatcher</h1>
+        <div className="flex justify-end items-center mb-6">
           <Button
             variant="ghost"
             onClick={onNavigateToSavedDreams}
-            className="cosmic-text-700 hover:cosmic-text-950 flex items-center gap-2"
+            className="cosmic-text-700 hover:cosmic-text-950 p-2"
           >
-            <span>View Dreams</span>
-            <ArrowRight className="w-4 h-4" />
+            <Folder className="w-6 h-6" />
           </Button>
         </div>
       </div>
