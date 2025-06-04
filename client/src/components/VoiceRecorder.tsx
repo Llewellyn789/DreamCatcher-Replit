@@ -29,85 +29,99 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       recognitionRef.current = new SpeechRecognition();
       
       if (recognitionRef.current) {
-        recognitionRef.current.continuous = true; // Changed back to continuous
+        recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'en-US';
         recognitionRef.current.maxAlternatives = 1;
 
-        let finalTranscriptLength = 0;
-
         recognitionRef.current.onresult = (event) => {
-          let interimTranscript = '';
           let finalTranscript = '';
           
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
+          for (let i = 0; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-              finalTranscript += transcript;
-            } else {
-              interimTranscript += transcript;
+              finalTranscript += event.results[i][0].transcript + ' ';
             }
           }
           
-          if (finalTranscript && finalTranscript.length > finalTranscriptLength) {
-            const newText = finalTranscript.substring(finalTranscriptLength);
-            if (newText.trim()) {
-              setDreamText(prev => prev + (prev ? ' ' : '') + newText.trim());
-              finalTranscriptLength = finalTranscript.length;
-            }
+          if (finalTranscript.trim()) {
+            setDreamText(prev => {
+              const newText = finalTranscript.trim();
+              // Avoid duplicates by checking if the new text is already at the end
+              if (!prev.endsWith(newText)) {
+                return prev + (prev ? ' ' : '') + newText;
+              }
+              return prev;
+            });
           }
         };
 
         recognitionRef.current.onstart = () => {
-          finalTranscriptLength = 0;
+          console.log('Speech recognition started');
         };
 
         recognitionRef.current.onend = () => {
-          console.log('Recognition ended');
-          // Only restart if we're still supposed to be recording
-          if (isRecording) {
-            restartTimeoutRef.current = setTimeout(() => {
-              if (recognitionRef.current && isRecording) {
-                try {
-                  recognitionRef.current.start();
-                } catch (error) {
-                  console.log('Recognition restart failed:', error);
-                  setIsRecording(false);
-                }
-              }
-            }, 100);
-          }
-        };
-
-        recognitionRef.current.onspeechend = () => {
-          // Don't automatically end on speech pause
-        };
-
-        recognitionRef.current.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
-          
-          // Only stop recording for serious errors, not network issues
-          if (event.error === 'not-allowed' || event.error === 'no-speech') {
-            setIsRecording(false);
-            toast({
-              title: "Recording Error",
-              description: "There was an issue with voice recording. Please try again.",
-              variant: "destructive",
-            });
-          } else {
-            // For other errors, try to restart
-            if (isRecording && recognitionRef.current) {
+          console.log('Recognition ended - attempting restart');
+          // Immediately restart if still recording
+          if (isRecording && recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (error) {
+              console.log('Immediate restart failed, trying delayed restart');
               restartTimeoutRef.current = setTimeout(() => {
                 if (recognitionRef.current && isRecording) {
                   try {
                     recognitionRef.current.start();
                   } catch (error) {
-                    console.log('Recognition restart after error failed:', error);
+                    console.log('Delayed restart failed:', error);
                     setIsRecording(false);
                   }
                 }
-              }, 500);
+              }, 200);
             }
+          }
+        };
+
+        recognitionRef.current.onspeechend = () => {
+          // Prevent automatic stopping on speech pause
+          console.log('Speech ended but keeping recognition active');
+        };
+
+        recognitionRef.current.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          
+          // Handle different error types
+          switch (event.error) {
+            case 'not-allowed':
+              setIsRecording(false);
+              toast({
+                title: "Microphone Access Denied",
+                description: "Please allow microphone access to record your dream.",
+                variant: "destructive",
+              });
+              break;
+            case 'no-speech':
+              // Don't stop for no-speech, just continue listening
+              console.log('No speech detected, continuing to listen...');
+              break;
+            case 'network':
+            case 'service-not-allowed':
+            case 'bad-grammar':
+              // For network/service errors, try to restart
+              console.log('Network/service error, attempting restart...');
+              if (isRecording && recognitionRef.current) {
+                setTimeout(() => {
+                  if (recognitionRef.current && isRecording) {
+                    try {
+                      recognitionRef.current.start();
+                    } catch (error) {
+                      console.log('Recognition restart after error failed:', error);
+                    }
+                  }
+                }, 1000);
+              }
+              break;
+            default:
+              console.log('Other error, continuing...');
           }
         };
       }
