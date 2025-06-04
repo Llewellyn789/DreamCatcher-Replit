@@ -29,39 +29,58 @@ export default function VoiceRecorder({ onNavigateToSavedDreams }: VoiceRecorder
       recognitionRef.current = new SpeechRecognition();
       
       if (recognitionRef.current) {
-        recognitionRef.current.continuous = false; // Use short bursts instead
-        recognitionRef.current.interimResults = false;
+        recognitionRef.current.continuous = true; // Changed back to continuous
+        recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'en-US';
+        recognitionRef.current.maxAlternatives = 1;
+
+        let finalTranscriptLength = 0;
 
         recognitionRef.current.onresult = (event) => {
-          const result = event.results[0];
-          if (result.isFinal) {
-            const transcript = result[0].transcript.trim();
-            if (transcript) {
-              setDreamText(prev => prev + (prev ? ' ' : '') + transcript);
+          let interimTranscript = '';
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+          
+          if (finalTranscript && finalTranscript.length > finalTranscriptLength) {
+            const newText = finalTranscript.substring(finalTranscriptLength);
+            if (newText.trim()) {
+              setDreamText(prev => prev + (prev ? ' ' : '') + newText.trim());
+              finalTranscriptLength = finalTranscript.length;
             }
           }
         };
 
+        recognitionRef.current.onstart = () => {
+          finalTranscriptLength = 0;
+        };
+
         recognitionRef.current.onend = () => {
-          // Auto-restart if still recording
-          if (isRecording && recognitionRef.current) {
+          console.log('Recognition ended');
+          // Only restart if we're still supposed to be recording
+          if (isRecording) {
             restartTimeoutRef.current = setTimeout(() => {
               if (recognitionRef.current && isRecording) {
                 try {
                   recognitionRef.current.start();
                 } catch (error) {
                   console.log('Recognition restart failed:', error);
-                  // If restart fails, set recording to false
                   setIsRecording(false);
                 }
               }
-            }, 200);
+            }, 100);
           }
         };
 
         recognitionRef.current.onspeechend = () => {
-          // Don't stop on speech end, let onend handle restart
+          // Don't automatically end on speech pause
         };
 
         recognitionRef.current.onerror = (event) => {
