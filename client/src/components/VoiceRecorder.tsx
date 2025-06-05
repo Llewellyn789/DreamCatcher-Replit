@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Mic, MicOff, Folder } from "lucide-react";
+import { Mic, MicOff, Folder, BarChart3 } from "lucide-react";
 import DreamCatcher from "@/components/DreamCatcher";
 
 interface VoiceRecorderProps {

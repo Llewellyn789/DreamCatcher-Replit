@@ -1,13 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Clock } from "lucide-react";
+import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Clock, Folder, Home } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { format, startOfMonth, eachMonthOfInterval, subMonths } from "date-fns";
+import { useState, useEffect } from "react";
 import type { Dream } from "@shared/schema";
 
 interface DreamAnalyticsProps {
   onBack: () => void;
+  onNavigateToSavedDreams?: () => void;
+  onNavigateHome?: () => void;
 }
 
 interface MonthlyData {
@@ -21,10 +24,36 @@ interface ThemeData {
   color: string;
 }
 
-export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
+export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavigateHome }: DreamAnalyticsProps) {
   const { data: dreams, isLoading } = useQuery<Dream[]>({
     queryKey: ["/api/dreams"],
   });
+
+  // Swipe navigation functionality
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isRightSwipe && onNavigateHome) {
+      onNavigateHome();
+    }
+  };
 
   if (isLoading) {
     return (
@@ -150,19 +179,31 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
   const analysisRate = totalDreams > 0 ? Math.round((analyzedDreams / totalDreams) * 100) : 0;
 
   return (
-    <div className="flex flex-col h-screen px-6 py-8">
+    <div 
+      className="flex flex-col h-screen px-6 py-8"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Button
           variant="ghost"
           size="icon"
-          onClick={onBack}
+          onClick={onNavigateToSavedDreams}
           className="cosmic-text-200 hover:cosmic-text-50"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <Folder className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
-        <div className="w-6" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNavigateHome}
+          className="cosmic-text-200 hover:cosmic-text-50"
+        >
+          <Home className="w-6 h-6" />
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-6">
