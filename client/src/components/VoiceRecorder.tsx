@@ -30,42 +30,16 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
 
 
-  // Request microphone permission manually
-  const requestMicrophonePermission = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop()); // Stop the test stream
-      setVoiceEnabled(true);
-      console.log('Microphone access granted');
-      toast({
-        title: "Microphone Enabled",
-        description: "Voice recording is now available. Click the DreamCatcher icon to start recording.",
-      });
-    } catch (error) {
-      console.error('Microphone access denied:', error);
-      setVoiceEnabled(false);
-      toast({
-        title: "Microphone Access Required",
-        description: "Please allow microphone access in your browser settings to use voice recording.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Check if microphone permission is already granted
+  // Initialize MediaRecorder
   useEffect(() => {
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: 'microphone' as PermissionName })
-        .then(permission => {
-          if (permission.state === 'granted') {
-            setVoiceEnabled(true);
-          }
-        })
-        .catch(() => {
-          // Fallback for browsers that don't support permissions API
-          console.log('Permissions API not supported');
-        });
-    }
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(() => {
+        setVoiceEnabled(true);
+      })
+      .catch((error) => {
+        console.error('Microphone access denied:', error);
+        setVoiceEnabled(false);
+      });
   }, []);
 
   const startRecording = async () => {
@@ -292,37 +266,13 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       <div className="flex-1 flex items-center justify-center px-6">
         {!(dreamText || hasRecorded) ? (
           // Show large dreamcatcher icon when no recording has been made
-          <div className="text-center">
-            <div className="transform scale-[3] mb-8">
-              <DreamCatcher 
-                isRecording={isRecording}
-                voiceEnabled={voiceEnabled}
-                isTranscribing={isTranscribing}
-                onToggleRecording={toggleRecording}
-              />
-            </div>
-            
-            {/* Show microphone permission button if not enabled */}
-            {!voiceEnabled && (
-              <div className="mt-8 text-center">
-                <Button
-                  onClick={requestMicrophonePermission}
-                  className="gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
-                >
-                  Enable Voice Recording
-                </Button>
-                <p className="text-sm cosmic-text-300 mt-2">
-                  Click to allow microphone access for voice recording
-                </p>
-              </div>
-            )}
-            
-            {/* Show recording instructions if enabled */}
-            {voiceEnabled && !isRecording && !isTranscribing && (
-              <p className="text-sm cosmic-text-300 mt-4">
-                Click the DreamCatcher to start recording your dream
-              </p>
-            )}
+          <div className="text-center transform scale-[3]">
+            <DreamCatcher 
+              isRecording={isRecording}
+              voiceEnabled={voiceEnabled}
+              isTranscribing={isTranscribing}
+              onToggleRecording={toggleRecording}
+            />
           </div>
         ) : (
           // Show text area when there's content or recording has been made
