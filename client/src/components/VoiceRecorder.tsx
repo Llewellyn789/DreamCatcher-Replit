@@ -48,17 +48,32 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
           if (finalTranscript.trim()) {
             const newText = finalTranscript.trim();
             
-            // Only add if it's actually new content
+            // More robust deduplication for mobile
             if (newText !== lastTranscriptRef.current) {
               lastTranscriptRef.current = newText;
               
               setDreamText(prev => {
-                // Prevent adding if the new text is already contained at the end
-                if (prev.endsWith(newText)) {
-                  return prev;
+                const words = prev.split(' ').filter(w => w.length > 0);
+                const newWords = newText.split(' ').filter(w => w.length > 0);
+                
+                // Check if the new text is already contained in the existing text
+                if (newWords.length === 0) return prev;
+                
+                // Find if any of the new words are already at the end
+                let duplicateCount = 0;
+                for (let i = 0; i < Math.min(words.length, newWords.length); i++) {
+                  if (words[words.length - 1 - i] === newWords[newWords.length - 1 - i]) {
+                    duplicateCount++;
+                  } else {
+                    break;
+                  }
                 }
                 
-                return prev + (prev ? ' ' : '') + newText;
+                // Only add the non-duplicate portion
+                const wordsToAdd = newWords.slice(0, newWords.length - duplicateCount);
+                if (wordsToAdd.length === 0) return prev;
+                
+                return prev + (prev ? ' ' : '') + wordsToAdd.join(' ');
               });
             }
           }
