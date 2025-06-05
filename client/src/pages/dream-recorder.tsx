@@ -134,7 +134,12 @@ export default function DreamRecorder() {
               <div className="flex flex-col h-screen px-6 py-8 overflow-y-auto">
                 {/* Header - Title only */}
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">DreamCatcher</h1>
+                  <h1 
+                    className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => setCurrentPage('recording')}
+                  >
+                    DreamCatcher
+                  </h1>
                 </div>
 
                 {/* Voice Recorder Component */}
