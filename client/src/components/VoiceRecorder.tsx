@@ -254,20 +254,12 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
               disabled={isRecording || isTranscribing}
             />
             
-            {/* Action buttons */}
-            <div className="flex space-x-3 mt-4">
-              <Button
-                onClick={saveDream}
-                disabled={!dreamText.trim() || createDreamMutation.isPending}
-                className="flex-1 gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
-              >
-                {createDreamMutation.isPending ? "Saving..." : "Save Dream"}
-              </Button>
-              
+            {/* Action button */}
+            <div className="flex justify-center mt-4">
               <Button
                 onClick={interpretDream}
                 disabled={!dreamText.trim() || isAnalyzing}
-                className="flex-1 glass-effect cosmic-text-50 border border-cosmic-300/30 hover:border-cosmic-200/50 font-semibold transition-all duration-200"
+                className="w-full max-w-xs gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
               >
                 {isAnalyzing ? "Analyzing..." : "Interpret Dream"}
               </Button>
