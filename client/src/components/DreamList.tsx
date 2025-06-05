@@ -58,7 +58,12 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
         >
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
+        <h1 
+          className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={onBack}
+        >
+          DreamCatcher
+        </h1>
         <div className="w-6" />
       </div>
 

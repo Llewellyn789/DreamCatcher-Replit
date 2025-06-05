@@ -20,9 +20,10 @@ import type { Dream, JungianAnalysis } from "@shared/schema";
 interface DreamDetailProps {
   dreamId: number;
   onBack: () => void;
+  onNavigateHome?: () => void;
 }
 
-export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
+export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDetailProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -142,8 +143,11 @@ export default function DreamDetail({ dreamId, onBack }: DreamDetailProps) {
         >
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="text-xl font-bold cosmic-text-50 text-shadow-gold flex-1 text-center px-4">
-          {dream.title}
+        <h1 
+          className="text-xl font-bold cosmic-text-50 text-shadow-gold flex-1 text-center px-4 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={onNavigateHome || onBack}
+        >
+          DreamCatcher
         </h1>
         <Button
           variant="ghost"
