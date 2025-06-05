@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Share, Quote, Brain, Calendar, Clock, Mic, Trash2 } from "lucide-react";
+import { ChevronLeft, Share, Quote, Brain, Calendar, Clock, Mic, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -141,7 +141,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
           onClick={onBack}
           className="cosmic-text-200 hover:cosmic-text-50"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ChevronLeft className="w-6 h-6" />
         </Button>
         <h1 className="text-xl font-bold cosmic-text-50 text-shadow-gold flex-1 text-center px-4">
           {dream.title}

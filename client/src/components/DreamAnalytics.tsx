@@ -36,7 +36,7 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
             onClick={onBack}
             className="cosmic-text-200 hover:cosmic-text-50"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
           <div className="w-6" />
@@ -61,7 +61,7 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
             onClick={onBack}
             className="cosmic-text-200 hover:cosmic-text-50"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
           <div className="w-6" />
@@ -159,7 +159,7 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
           onClick={onBack}
           className="cosmic-text-200 hover:cosmic-text-50"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ChevronLeft className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
         <div className="w-6" />
