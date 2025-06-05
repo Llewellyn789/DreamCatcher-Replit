@@ -1,0 +1,26 @@
+// Simple icon generation script
+const fs = require('fs');
+
+// Generate a simple SVG icon and convert to different sizes
+const svgIcon = `
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="64" fill="#0a0a0a"/>
+  <circle cx="256" cy="256" r="160" fill="url(#gradient)" opacity="0.8"/>
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.6"/>
+  <circle cx="256" cy="256" r="80" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.4"/>
+  <circle cx="256" cy="256" r="40" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.3"/>
+  <circle cx="256" cy="256" r="20" fill="#FFD700"/>
+  <circle cx="180" cy="180" r="6" fill="#FFD700" opacity="0.7"/>
+  <circle cx="332" cy="180" r="6" fill="#FFD700" opacity="0.7"/>
+  <circle cx="180" cy="332" r="6" fill="#FFD700" opacity="0.7"/>
+  <circle cx="332" cy="332" r="6" fill="#FFD700" opacity="0.7"/>
+  <defs>
+    <radialGradient id="gradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0a0a0a"/>
+    </radialGradient>
+  </defs>
+</svg>`;
+
+fs.writeFileSync('icon.svg', svgIcon);
+console.log('Created icon.svg');
