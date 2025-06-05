@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Moon, Folder } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import type { Dream } from "@shared/schema";
 
 interface DreamListProps {
@@ -15,7 +15,7 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
   });
 
   const formatDate = (date: string | Date) => {
-    return formatDistanceToNow(new Date(date), { addSuffix: true });
+    return format(new Date(date), 'MMM d, yyyy');
   };
 
   const truncateText = (text: string, maxLength: number = 100) => {
