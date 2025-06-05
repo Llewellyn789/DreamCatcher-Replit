@@ -235,6 +235,7 @@ export default function DreamRecorder() {
                 onBack={() => setCurrentPage('recording')}
                 onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')}
                 onNavigateHome={() => setCurrentPage('recording')}
+                onNavigateToPlayground={() => setCurrentPage('playground')}
               />
             </motion.div>
           )}
