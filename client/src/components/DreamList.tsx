@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Moon, Folder } from "lucide-react";
+import { ChevronLeft, Clock, Moon, Folder } from "lucide-react";
 import { format } from "date-fns";
 import type { Dream } from "@shared/schema";
 
@@ -33,7 +33,7 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
             onClick={onBack}
             className="cosmic-text-200 hover:cosmic-text-50"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
           <div className="w-6" />
@@ -56,7 +56,7 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
           onClick={onBack}
           className="cosmic-text-200 hover:cosmic-text-50"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ChevronLeft className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
         <div className="w-6" />
