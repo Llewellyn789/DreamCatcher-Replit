@@ -143,11 +143,8 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
         >
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 
-          className="text-xl font-bold cosmic-text-50 text-shadow-gold flex-1 text-center px-4 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={onNavigateHome || onBack}
-        >
-          DreamCatcher
+        <h1 className="text-xl font-bold cosmic-text-50 text-shadow-gold flex-1 text-center px-4">
+          {dream.title}
         </h1>
         <Button
           variant="ghost"

@@ -38,12 +38,7 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 
-            className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={onBack}
-          >
-            DreamCatcher
-          </h1>
+          <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
           <div className="w-6" />
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -68,12 +63,7 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 
-            className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={onBack}
-          >
-            DreamCatcher
-          </h1>
+          <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
           <div className="w-6" />
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -171,12 +161,7 @@ export default function DreamAnalytics({ onBack }: DreamAnalyticsProps) {
         >
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 
-          className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={onBack}
-        >
-          DreamCatcher
-        </h1>
+        <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
         <div className="w-6" />
       </div>
 
