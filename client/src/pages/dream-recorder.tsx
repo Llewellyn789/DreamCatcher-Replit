@@ -162,6 +162,7 @@ export default function DreamRecorder() {
                   <VoiceRecorder 
                     key={resetKey}
                     onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')} 
+                    onNavigateToAnalytics={() => setCurrentPage('analytics')}
                     onViewDream={(dreamId) => {
                       setSelectedDreamId(dreamId);
                       setCurrentPage('dream-detail');
@@ -189,6 +190,7 @@ export default function DreamRecorder() {
               <DreamList 
                 onBack={() => setCurrentPage('recording')}
                 onViewDream={navigateToDetail}
+                onNavigateToAnalytics={() => setCurrentPage('analytics')}
               />
             </motion.div>
           )}
@@ -225,6 +227,8 @@ export default function DreamRecorder() {
             >
               <DreamAnalytics 
                 onBack={() => setCurrentPage('recording')}
+                onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')}
+                onNavigateHome={() => setCurrentPage('recording')}
               />
             </motion.div>
           )}
