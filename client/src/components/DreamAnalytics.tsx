@@ -167,14 +167,24 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
           <Folder className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onNavigateHome}
-          className="cosmic-text-200 hover:cosmic-text-50"
-        >
-          <Home className="w-6 h-6" />
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.open('/playground', '_blank')}
+            className="cosmic-text-200 hover:cosmic-text-50 text-xs"
+          >
+            Draft Features
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onNavigateHome}
+            className="cosmic-text-200 hover:cosmic-text-50"
+          >
+            <Home className="w-6 h-6" />
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-6">
