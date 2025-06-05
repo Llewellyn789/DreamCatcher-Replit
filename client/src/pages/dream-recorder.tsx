@@ -13,8 +13,15 @@ type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics';
 export default function DreamRecorder() {
   const [currentPage, setCurrentPage] = useState<Page>('recording');
   const [selectedDreamId, setSelectedDreamId] = useState<number | null>(null);
+  const [resetKey, setResetKey] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const resetToHome = () => {
+    setCurrentPage('recording');
+    setSelectedDreamId(null);
+    setResetKey(prev => prev + 1); // Force VoiceRecorder to reset
+  };
 
   // Stars background
   const stars = Array.from({ length: 50 }, (_, i) => ({

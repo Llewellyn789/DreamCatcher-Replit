@@ -11,9 +11,10 @@ import DreamCatcher from "@/components/DreamCatcher";
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
   onViewDream: (dreamId: number) => void;
+  onReset?: () => void;
 }
 
-export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: VoiceRecorderProps) {
+export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, onReset }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [dreamText, setDreamText] = useState("");
@@ -179,6 +180,28 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
       setHasRecorded(false);
     } catch (error) {
       console.error("Save failed:", error);
+    }
+  };
+
+  const resetToHome = () => {
+    // Stop any ongoing recording
+    if (isRecording && mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+    
+    // Clear all states
+    setIsRecording(false);
+    setIsTranscribing(false);
+    setIsAnalyzing(false);
+    setDreamText("");
+    setHasRecorded(false);
+    
+    // Clean up audio chunks
+    audioChunksRef.current = [];
+    
+    // Call parent reset if provided
+    if (onReset) {
+      onReset();
     }
   };
 
