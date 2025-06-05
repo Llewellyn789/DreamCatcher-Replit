@@ -143,7 +143,7 @@ export default function DreamRecorder() {
                 <div className="text-center mb-6">
                   <h1 
                     className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => setCurrentPage('recording')}
+                    onClick={resetToHome}
                   >
                     DreamCatcher
                   </h1>
@@ -152,6 +152,7 @@ export default function DreamRecorder() {
                 {/* Voice Recorder Component */}
                 <div className="flex-1 flex flex-col min-h-0">
                   <VoiceRecorder 
+                    key={resetKey}
                     onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')} 
                     onViewDream={(dreamId) => {
                       setSelectedDreamId(dreamId);
