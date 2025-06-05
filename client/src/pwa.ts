@@ -16,7 +16,7 @@ declare global {
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
-// Register service worker
+// Register service worker with better error handling
 export const registerSW = async () => {
   if ('serviceWorker' in navigator) {
     try {
@@ -24,7 +24,7 @@ export const registerSW = async () => {
         scope: '/'
       });
       
-      console.log('Service Worker registered successfully:', registration);
+      console.log('Service Worker registered successfully');
       
       // Handle updates
       registration.addEventListener('updatefound', () => {
@@ -32,7 +32,6 @@ export const registerSW = async () => {
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New content is available, show update notification
               showUpdateAvailable();
             }
           });
@@ -41,9 +40,11 @@ export const registerSW = async () => {
       
       return registration;
     } catch (error) {
-      console.error('Service Worker registration failed:', error);
+      console.warn('Service Worker not available, continuing without offline support');
+      return null;
     }
   }
+  return null;
 };
 
 // Handle app install prompt
