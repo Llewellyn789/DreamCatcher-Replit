@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Clock, Moon, Folder } from "lucide-react";
+import { ChevronLeft, Clock, Moon, Folder, BarChart3, Home } from "lucide-react";
 import { format } from "date-fns";
 import type { Dream } from "@shared/schema";
 
 interface DreamListProps {
   onBack: () => void;
   onViewDream: (dreamId: number) => void;
+  onNavigateToAnalytics?: () => void;
 }
 
-export default function DreamList({ onBack, onViewDream }: DreamListProps) {
+export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }: DreamListProps) {
   const { data: dreams, isLoading } = useQuery<Dream[]>({
     queryKey: ["/api/dreams"],
   });
@@ -33,10 +34,17 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
             onClick={onBack}
             className="cosmic-text-200 hover:cosmic-text-50"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <Home className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
-          <div className="w-6" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onNavigateToAnalytics}
+            className="cosmic-text-200 hover:cosmic-text-50"
+          >
+            <BarChart3 className="w-6 h-6" />
+          </Button>
         </div>
         
         <div className="flex-1 flex items-center justify-center">
@@ -56,10 +64,17 @@ export default function DreamList({ onBack, onViewDream }: DreamListProps) {
           onClick={onBack}
           className="cosmic-text-200 hover:cosmic-text-50"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <Home className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
-        <div className="w-6" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNavigateToAnalytics}
+          className="cosmic-text-200 hover:cosmic-text-50"
+        >
+          <BarChart3 className="w-6 h-6" />
+        </Button>
       </div>
 
       {/* Dreams List */}
