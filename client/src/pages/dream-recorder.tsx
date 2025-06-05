@@ -124,8 +124,8 @@ export default function DreamRecorder() {
               transition={pageTransition}
               className="absolute inset-0"
             >
-              {/* Navigation Icons - Fixed to top right */}
-              <div className="absolute top-6 right-6 z-50 flex space-x-2">
+              {/* Analytics Icon - Fixed to top left */}
+              <div className="absolute top-6 left-6 z-50">
                 <Button
                   variant="ghost"
                   onClick={() => setCurrentPage('analytics')}
@@ -133,6 +133,10 @@ export default function DreamRecorder() {
                 >
                   <BarChart3 className="w-6 h-6" />
                 </Button>
+              </div>
+
+              {/* Folder Icon - Fixed to top right */}
+              <div className="absolute top-6 right-6 z-50">
                 <Button
                   variant="ghost"
                   onClick={() => setCurrentPage('saved-dreams')}
