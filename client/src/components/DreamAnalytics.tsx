@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Clock, Folder, Home } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { format, startOfMonth, eachMonthOfInterval, subMonths } from "date-fns";
-import { useState, useEffect } from "react";
+
 import type { Dream } from "@shared/schema";
 
 interface DreamAnalyticsProps {
@@ -29,31 +29,7 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
     queryKey: ["/api/dreams"],
   });
 
-  // Swipe navigation functionality
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isRightSwipe && onNavigateHome) {
-      onNavigateHome();
-    }
-  };
 
   if (isLoading) {
     return (
@@ -179,12 +155,7 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
   const analysisRate = totalDreams > 0 ? Math.round((analyzedDreams / totalDreams) * 100) : 0;
 
   return (
-    <div 
-      className="flex flex-col h-screen px-6 py-8"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
+    <div className="flex flex-col h-screen px-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Button

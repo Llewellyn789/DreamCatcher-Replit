@@ -50,13 +50,13 @@ export default function DreamRecorder() {
     const isRightSwipe = distance < -minSwipeDistance;
 
     if (isLeftSwipe && currentPage === 'recording') {
-      setCurrentPage('saved-dreams');
+      setCurrentPage('analytics');
+    } else if (isRightSwipe && currentPage === 'analytics') {
+      setCurrentPage('recording');
     } else if (isLeftSwipe && currentPage === 'saved-dreams') {
       setCurrentPage('analytics');
     } else if (isRightSwipe && currentPage === 'saved-dreams') {
       setCurrentPage('recording');
-    } else if (isRightSwipe && currentPage === 'analytics') {
-      setCurrentPage('saved-dreams');
     }
   };
 
@@ -111,7 +111,12 @@ export default function DreamRecorder() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen">
+      <div 
+        className="relative z-10 min-h-screen"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <AnimatePresence mode="wait" custom={currentPage}>
           {currentPage === 'recording' && (
             <motion.div
