@@ -51,8 +51,12 @@ export default function DreamRecorder() {
 
     if (isLeftSwipe && currentPage === 'recording') {
       setCurrentPage('saved-dreams');
+    } else if (isLeftSwipe && currentPage === 'saved-dreams') {
+      setCurrentPage('analytics');
     } else if (isRightSwipe && currentPage === 'saved-dreams') {
       setCurrentPage('recording');
+    } else if (isRightSwipe && currentPage === 'analytics') {
+      setCurrentPage('saved-dreams');
     }
   };
 
