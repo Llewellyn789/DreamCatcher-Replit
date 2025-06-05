@@ -18,93 +18,111 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [dreamText, setDreamText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const lastTranscriptRef = useRef<string>("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Initialize Speech Recognition
+  // Initialize MediaRecorder
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      
-      if (recognitionRef.current) {
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'en-US';
-
-        recognitionRef.current.onresult = (event: any) => {
-          let finalTranscript = '';
-          
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalTranscript += transcript;
-            }
-          }
-          
-          if (finalTranscript.trim()) {
-            const newText = finalTranscript.trim();
-            
-            // More robust deduplication for mobile
-            if (newText !== lastTranscriptRef.current) {
-              lastTranscriptRef.current = newText;
-              
-              setDreamText(prev => {
-                const words = prev.split(' ').filter(w => w.length > 0);
-                const newWords = newText.split(' ').filter(w => w.length > 0);
-                
-                // Check if the new text is already contained in the existing text
-                if (newWords.length === 0) return prev;
-                
-                // Find if any of the new words are already at the end
-                let duplicateCount = 0;
-                for (let i = 0; i < Math.min(words.length, newWords.length); i++) {
-                  if (words[words.length - 1 - i] === newWords[newWords.length - 1 - i]) {
-                    duplicateCount++;
-                  } else {
-                    break;
-                  }
-                }
-                
-                // Only add the non-duplicate portion
-                const wordsToAdd = newWords.slice(0, newWords.length - duplicateCount);
-                if (wordsToAdd.length === 0) return prev;
-                
-                return prev + (prev ? ' ' : '') + wordsToAdd.join(' ');
-              });
-            }
-          }
-        };
-
-        recognitionRef.current.onend = () => {
-          if (isRecording) {
-            try {
-              recognitionRef.current.start();
-            } catch (error) {
-              console.log('Recognition restart failed');
-              setIsRecording(false);
-            }
-          }
-        };
-
-        recognitionRef.current.onerror = (event: any) => {
-          if (event.error === 'not-allowed') {
-            setIsRecording(false);
-            toast({
-              title: "Microphone Access Required",
-              description: "Please allow microphone access to record your dream.",
-              variant: "destructive",
-            });
-          }
-        };
-
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(() => {
         setVoiceEnabled(true);
-      }
+      })
+      .catch((error) => {
+        console.error('Microphone access denied:', error);
+        setVoiceEnabled(false);
+      });
+  }, []);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await transcribeAudio(audioBlob);
+        
+        // Clean up stream
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setHasRecorded(true);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast({
+        title: "Microphone Access Required",
+        description: "Please allow microphone access to record your dream.",
+        variant: "destructive",
+      });
     }
-  }, [isRecording, toast]);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Transcription failed');
+      }
+
+      const data = await response.json();
+      setDreamText(prev => prev + (prev ? ' ' : '') + data.transcript);
+    } catch (error) {
+      console.error('Transcription error:', error);
+      toast({
+        title: "Transcription Failed",
+        description: "Failed to transcribe audio. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const createDreamMutation = useMutation({
     mutationFn: async (dreamData: { title: string; content: string; duration?: string }) => {
@@ -125,62 +143,47 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
     },
   });
 
-  const startRecording = () => {
-    if (recognitionRef.current && voiceEnabled) {
-      try {
-        recognitionRef.current.start();
-        setIsRecording(true);
-      } catch (error) {
-        console.error('Failed to start recording:', error);
-        toast({
-          title: "Recording Error",
-          description: "Failed to start voice recording. Please try again.",
-          variant: "destructive",
-        });
-      }
-    }
-  };
+  const generateTitleMutation = useMutation({
+    mutationFn: async (content: string) => {
+      const response = await apiRequest("POST", "/api/generate-title", { content });
+      return await response.json();
+    },
+  });
 
-  const stopRecording = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
-      setHasRecorded(true);
-      lastTranscriptRef.current = ""; // Reset for next recording
-    }
-  };
+  const saveDream = async () => {
+    if (!dreamText.trim()) return;
 
-  const toggleRecording = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  };
-
-  const handleInterpretDream = async () => {
-    if (!dreamText.trim()) {
-      toast({
-        title: "No Dream Content",
-        description: "Please record or type your dream before interpreting.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsAnalyzing(true);
     try {
-      // Generate a 3-word summary title using OpenAI
-      const titleResponse = await apiRequest("POST", "/api/generate-title", {
-        content: dreamText
-      });
-      const titleData = await titleResponse.json();
-      const title = titleData.title || "Dream Analysis";
+      // Generate title first
+      const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
       
-      // Create the dream first
-      const dreamResponse = await createDreamMutation.mutateAsync({
-        title,
+      // Then save dream with generated title
+      await createDreamMutation.mutateAsync({
+        title: titleResponse.title,
         content: dreamText,
+        duration: undefined
+      });
+      
+      setHasRecorded(false);
+    } catch (error) {
+      console.error("Save failed:", error);
+    }
+  };
+
+  const interpretDream = async () => {
+    if (!dreamText.trim()) return;
+
+    try {
+      setIsAnalyzing(true);
+      
+      // Generate title first
+      const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
+      
+      // Save dream with generated title
+      const dreamResponse = await createDreamMutation.mutateAsync({
+        title: titleResponse.title,
+        content: dreamText,
+        duration: undefined
       });
 
       // Then analyze it
@@ -215,6 +218,17 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
         </div>
       )}
 
+      {/* Transcription overlay */}
+      {isTranscribing && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[hsl(var(--cosmic-300))] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h3 className="cosmic-text-50 text-lg font-semibold mb-2">Transcribing Audio</h3>
+            <p className="cosmic-text-200 text-sm">Converting speech to text...</p>
+          </div>
+        </div>
+      )}
+
       {/* Center section - Large dreamcatcher icon or text area */}
       <div className="flex-1 flex items-center justify-center px-6">
         {!(dreamText || hasRecorded) ? (
@@ -223,33 +237,34 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
             <DreamCatcher />
           </div>
         ) : (
-          // Show text area after recording
-          <div className="w-full max-w-2xl space-y-4">
+          // Show text area when there's content or recording has been made
+          <div className="w-full max-w-md">
             <Textarea
               value={dreamText}
               onChange={(e) => setDreamText(e.target.value)}
-              placeholder="Your recorded dream will appear here, or you can type manually..."
-              className="min-h-[300px] glass-card border-0 cosmic-text-800 placeholder:cosmic-text-500 text-base leading-relaxed resize-none"
-              disabled={isRecording}
+              placeholder={isRecording ? "Recording your dream..." : isTranscribing ? "Transcribing..." : "Describe your dream here..."}
+              className="glass-effect cosmic-text-50 placeholder-cosmic-300 border-cosmic-300/30 resize-none min-h-[200px] text-base leading-relaxed"
+              disabled={isRecording || isTranscribing}
             />
             
-            {/* Interpret Button - only show when there's text */}
-            {dreamText.trim() && (
+            {/* Action buttons */}
+            <div className="flex space-x-3 mt-4">
               <Button
-                onClick={handleInterpretDream}
-                disabled={isAnalyzing || isRecording}
-                className="w-full gradient-cosmic cosmic-text-50 font-semibold py-4 text-lg hover:shadow-xl transition-all duration-300"
+                onClick={saveDream}
+                disabled={!dreamText.trim() || createDreamMutation.isPending}
+                className="flex-1 gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
               >
-                {isAnalyzing ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Interpreting Dream...</span>
-                  </div>
-                ) : (
-                  <span>Interpret Dream</span>
-                )}
+                {createDreamMutation.isPending ? "Saving..." : "Save Dream"}
               </Button>
-            )}
+              
+              <Button
+                onClick={interpretDream}
+                disabled={!dreamText.trim() || isAnalyzing}
+                className="flex-1 glass-effect cosmic-text-50 border border-cosmic-300/30 hover:border-cosmic-200/50 font-semibold transition-all duration-200"
+              >
+                {isAnalyzing ? "Analyzing..." : "Interpret Dream"}
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -259,7 +274,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
         {voiceEnabled && (
           <Button
             onClick={toggleRecording}
-            disabled={!voiceEnabled}
+            disabled={!voiceEnabled || isTranscribing}
             className={`w-16 h-16 rounded-full gradient-gold cosmic-text-950 font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center ${
               isRecording ? 'recording-pulse' : ''
             }`}
