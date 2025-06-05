@@ -18,7 +18,13 @@ export default function DreamCatcher({
       className={`mx-auto mb-6 w-24 h-24 relative dreamcatcher-glow animate-float cursor-pointer transition-all duration-200 hover:scale-105 ${
         isRecording ? 'recording-pulse' : ''
       } ${!voiceEnabled || isTranscribing ? 'opacity-50 cursor-not-allowed' : ''}`}
-      onClick={voiceEnabled && !isTranscribing ? onToggleRecording : undefined}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (voiceEnabled && !isTranscribing && onToggleRecording) {
+          onToggleRecording();
+        }
+      }}
     >
       <svg viewBox="0 0 100 100" className="w-full h-full">
         {/* Outer Circle */}
