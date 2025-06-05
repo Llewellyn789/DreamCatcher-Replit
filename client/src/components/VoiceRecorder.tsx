@@ -40,11 +40,28 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: { 
+          sampleRate: 16000, // Lower sample rate for faster processing
+          channelCount: 1,   // Mono audio
+          echoCancellation: true,
+          noiseSuppression: true
+        } 
+      });
       streamRef.current = stream;
       
+      // Try different mime types for better compatibility and compression
+      let mimeType = 'audio/webm;codecs=opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/webm';
+      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/mp4';
+      }
+      
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
+        mimeType,
+        audioBitsPerSecond: 32000 // Lower bitrate for faster upload
       });
       
       mediaRecorderRef.current = mediaRecorder;
@@ -57,7 +74,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         await transcribeAudio(audioBlob);
         
         // Clean up stream
@@ -67,16 +84,13 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
         }
       };
 
-      mediaRecorder.start();
+      // Start with time slicing for chunked data
+      mediaRecorder.start(1000); // 1 second chunks
       setIsRecording(true);
       setHasRecorded(true);
     } catch (error) {
       console.error('Error starting recording:', error);
-      toast({
-        title: "Microphone Access Required",
-        description: "Please allow microphone access to record your dream.",
-        variant: "destructive",
-      });
+      // Silent error handling - no toasts as requested
     }
   };
 
@@ -93,10 +107,17 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
 
+      // Add timeout for mobile optimization
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch('/api/transcribe', {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error('Transcription failed');
@@ -106,11 +127,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
       setDreamText(prev => prev + (prev ? ' ' : '') + data.transcript);
     } catch (error) {
       console.error('Transcription error:', error);
-      toast({
-        title: "Transcription Failed",
-        description: "Failed to transcribe audio. Please try again.",
-        variant: "destructive",
-      });
+      // Silent error handling - no toasts as requested
     } finally {
       setIsTranscribing(false);
     }
@@ -135,11 +152,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
     },
     onError: (error) => {
       console.error("Failed to save dream:", error);
-      toast({
-        title: "Save Error",
-        description: "Failed to save your dream. Please try again.",
-        variant: "destructive",
-      });
     },
   });
 
@@ -195,11 +207,6 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream }: 
       setHasRecorded(false);
     } catch (error) {
       console.error("Analysis failed:", error);
-      toast({
-        title: "Analysis Error",
-        description: "Failed to analyze your dream. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsAnalyzing(false);
     }

@@ -167,17 +167,19 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
           finalAudioPath = webmPath;
         }
 
-        // Use OpenAI Whisper to transcribe the audio
+        // Use OpenAI Whisper to transcribe the audio with optimizations
         const transcription = await openai.audio.transcriptions.create({
           file: fs.createReadStream(finalAudioPath),
           model: "whisper-1",
           language: "en",
+          response_format: "text", // Faster than JSON format
+          temperature: 0.2, // Lower temperature for faster processing
         });
 
         // Clean up the uploaded file
         fs.unlinkSync(finalAudioPath);
 
-        res.json({ transcript: transcription.text });
+        res.json({ transcript: transcription });
       } catch (whisperError) {
         // Clean up the uploaded file in case of error
         if (fs.existsSync(finalAudioPath)) {
