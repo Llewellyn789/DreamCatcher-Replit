@@ -73,7 +73,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
             onClick={onBack}
             className="cosmic-text-200 hover:cosmic-text-50"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6" />
           </Button>
           <div className="animate-spin w-6 h-6 border-2 border-[hsl(var(--cosmic-200))] border-t-transparent rounded-full" />
           <div className="w-6" />
@@ -92,7 +92,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
             onClick={onBack}
             className="cosmic-text-200 hover:cosmic-text-50"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-xl font-bold cosmic-text-50 text-shadow-gold">Dream Not Found</h1>
           <div className="w-6" />
