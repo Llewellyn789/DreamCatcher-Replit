@@ -267,7 +267,12 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         {!(dreamText || hasRecorded) ? (
           // Show large dreamcatcher icon when no recording has been made
           <div className="text-center transform scale-[3]">
-            <DreamCatcher />
+            <DreamCatcher 
+              isRecording={isRecording}
+              voiceEnabled={voiceEnabled}
+              isTranscribing={isTranscribing}
+              onToggleRecording={toggleRecording}
+            />
           </div>
         ) : (
           // Show text area when there's content or recording has been made
@@ -294,20 +299,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         )}
       </div>
 
-      {/* Bottom section - Record button */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-        {voiceEnabled && (
-          <Button
-            onClick={toggleRecording}
-            disabled={!voiceEnabled || isTranscribing}
-            className={`w-16 h-16 rounded-full gradient-gold cosmic-text-950 font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center ${
-              isRecording ? 'recording-pulse' : ''
-            }`}
-          >
-            {isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-          </Button>
-        )}
-      </div>
+
     </div>
   );
 }
