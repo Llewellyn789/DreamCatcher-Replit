@@ -206,6 +206,206 @@
   100% { background-position: 200% 0; }
 }
 
+/* PWA and Mobile-specific styles */
+@layer components {
+  /* Mobile-optimized touch targets */
+  .mobile-button {
+    @apply min-h-[48px] min-w-[48px] touch-manipulation;
+    -webkit-tap-highlight-color: rgba(255, 215, 0, 0.3);
+  }
+  
+  /* Improved scrollable areas for mobile */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* PWA safe area containers */
+  .pwa-container {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  /* Mobile-first responsive containers */
+  .mobile-container {
+    @apply w-full max-w-md mx-auto px-4;
+  }
+  
+  /* Enhanced touch feedback */
+  .touch-feedback {
+    transition: all 0.15s ease;
+    transform: scale(1);
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  
+  /* Voice recording specific mobile styles */
+  .voice-recorder-mobile {
+    @apply fixed inset-0 flex flex-col items-center justify-center p-6;
+    background: linear-gradient(135deg, 
+      hsla(var(--cosmic-950), 0.95) 0%, 
+      hsla(var(--cosmic-900), 0.95) 50%, 
+      hsla(var(--cosmic-800), 0.95) 100%);
+    backdrop-filter: blur(20px);
+  }
+  
+  /* Mobile dream cards */
+  .dream-card-mobile {
+    @apply p-4 rounded-lg glass-effect mb-4 touch-feedback;
+    min-height: 80px;
+  }
+  
+  /* Mobile navigation */
+  .mobile-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  /* Mobile text sizing */
+  .mobile-text-lg {
+    @apply text-lg leading-relaxed;
+  }
+  
+  .mobile-text-base {
+    @apply text-base leading-relaxed;
+  }
+  
+  /* Offline state styles */
+  .offline-state {
+    @apply opacity-75 pointer-events-none;
+  }
+  
+  .offline-indicator {
+    @apply fixed top-4 left-4 right-4 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg text-center text-sm z-50;
+    animation: slideDown 0.3s ease;
+  }
+  
+  /* Install prompt styles */
+  .install-prompt {
+    @apply fixed top-0 left-0 right-0 bg-primary text-primary-foreground px-4 py-3 text-center text-sm z-50;
+    animation: slideDown 0.3s ease;
+  }
+  
+  /* Loading states for mobile */
+  .mobile-loading {
+    @apply flex items-center justify-center min-h-[200px];
+  }
+  
+  .mobile-skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+}
+
+/* Mobile-specific media queries */
+@media (max-width: 768px) {
+  /* Increase touch targets on mobile */
+  button, [role="button"], .clickable {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Optimize text for mobile reading */
+  p, span, div {
+    line-height: 1.6;
+  }
+  
+  /* Better mobile form inputs */
+  input, textarea, select {
+    @apply text-base px-4 py-3 rounded-lg;
+    min-height: 48px;
+  }
+  
+  /* Mobile card spacing */
+  .card {
+    @apply mx-2 my-3;
+  }
+  
+  /* Adjust modal sizes for mobile */
+  .modal-content {
+    @apply w-full max-w-sm mx-4;
+  }
+}
+
+/* Landscape orientation optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+  .voice-recorder-mobile {
+    @apply flex-row gap-8;
+  }
+  
+  .mobile-container {
+    @apply max-w-full px-8;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .dreamcatcher-glow {
+    filter: drop-shadow(0 0 10px hsla(var(--cosmic-200), 0.4));
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .recording-pulse {
+    animation: none;
+  }
+  
+  .shimmer-text {
+    animation: none;
+    background: hsl(var(--cosmic-200));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Dark mode specific mobile optimizations */
+@media (prefers-color-scheme: dark) {
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid hsla(var(--cosmic-200), 0.1);
+  }
+}
+
+/* Animation keyframes */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
