@@ -39,18 +39,9 @@ export default function DreamCatcher({
           <path d="M 80 50 Q 65 35 50 50 Q 65 65 80 50"/>
           <path d="M 50 80 Q 65 65 50 50 Q 35 65 50 80"/>
           <path d="M 20 50 Q 35 65 50 50 Q 35 35 20 50"/>
-          {/* Center circle with microphone icon */}
-          <circle cx="50" cy="50" r="8" fill={isRecording ? "#FFD700" : "hsl(var(--cosmic-200))"} fillOpacity="0.2"/>
+          {/* Center circle */}
+          <circle cx="50" cy="50" r="6" fill="none" stroke={isRecording ? "#FFD700" : "hsl(var(--cosmic-200))"}/>
         </g>
-        
-        {/* Microphone Icon in Center */}
-        <foreignObject x="42" y="42" width="16" height="16">
-          {isRecording ? (
-            <MicOff className="w-4 h-4 text-gold" />
-          ) : (
-            <Mic className="w-4 h-4 text-cosmic-200" />
-          )}
-        </foreignObject>
         
         {/* Feathers */}
         <g fill={isRecording ? "#FFD700" : "hsl(var(--cosmic-200))"} className="transition-all duration-200">
