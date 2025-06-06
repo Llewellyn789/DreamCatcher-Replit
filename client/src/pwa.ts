@@ -122,19 +122,61 @@ const hideInstallPrompt = () => {
   }
 };
 
+// Device detection and responsive handling
+const detectDevice = () => {
+  const userAgent = navigator.userAgent;
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  const isTablet = /iPad|Android.*Tablet|Windows.*Touch/i.test(userAgent);
+  const isDesktop = !isMobile && !isTablet;
+  const isMacChrome = /Mac.*Chrome/i.test(userAgent);
+  
+  // Force mobile layout for narrow viewports even on desktop
+  const isNarrowViewport = window.innerWidth <= 768;
+  
+  return {
+    isMobile,
+    isTablet,
+    isDesktop,
+    isMacChrome,
+    isNarrowViewport,
+    shouldUseMobileLayout: isMobile || isNarrowViewport
+  };
+};
+
 // Advanced mobile optimizations
 export const addMobileOptimizations = () => {
+  const device = detectDevice();
+  
+  // Add device classes to body for CSS targeting
+  document.body.classList.add(
+    device.isMobile ? 'device-mobile' : 'device-desktop',
+    device.shouldUseMobileLayout ? 'layout-mobile' : 'layout-desktop'
+  );
+  
+  if (device.isMacChrome) {
+    document.body.classList.add('mac-chrome');
+  }
+  
   // Prevent bounce scrolling on iOS
   document.body.style.overscrollBehavior = 'none';
   document.documentElement.style.overscrollBehavior = 'none';
   
-  // Prevent zoom on input focus (iOS)
+  // Prevent zoom on input focus (iOS and mobile browsers)
   const viewport = document.querySelector('meta[name=viewport]');
   if (viewport) {
     viewport.setAttribute('content', 
       'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
     );
   }
+  
+  // Force mobile behavior on narrow desktop windows
+  const handleResize = () => {
+    const currentDevice = detectDevice();
+    document.body.classList.toggle('layout-mobile', currentDevice.shouldUseMobileLayout);
+    document.body.classList.toggle('layout-desktop', !currentDevice.shouldUseMobileLayout);
+  };
+  
+  window.addEventListener('resize', handleResize);
   
   // Handle orientation changes with proper viewport adjustment
   window.addEventListener('orientationchange', () => {
