@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Clock, Folder, Home, TestTube } from "lucide-react";
+import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Clock, Folder, Home } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { format, startOfMonth, eachMonthOfInterval, subMonths } from "date-fns";
 
@@ -101,74 +101,6 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
     });
   })();
 
-  // Extract archetypes and symbols from analyzed dreams
-  const archetypeAnalysis = (() => {
-    const analyzedDreams = dreams.filter(dream => dream.analysis);
-    const archetypeMap = new Map<string, number>();
-    
-    analyzedDreams.forEach(dream => {
-      if (dream.analysis) {
-        try {
-          const analysis = JSON.parse(dream.analysis);
-          const archetypes = analysis.archetypes?.toLowerCase() || '';
-          
-          // Common Jungian archetypes to look for
-          const archetypeKeywords = [
-            'shadow', 'anima', 'animus', 'wise old man', 'great mother', 'hero', 
-            'trickster', 'innocent', 'explorer', 'sage', 'magician', 'ruler',
-            'caregiver', 'lover', 'jester', 'rebel', 'creator'
-          ];
-          
-          archetypeKeywords.forEach(archetype => {
-            if (archetypes.includes(archetype)) {
-              archetypeMap.set(archetype, (archetypeMap.get(archetype) || 0) + 1);
-            }
-          });
-        } catch (e) {
-          console.error('Error parsing dream analysis:', e);
-        }
-      }
-    });
-    
-    return Array.from(archetypeMap.entries())
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 1)[0] || ['None', 0];
-  })();
-
-  const symbolAnalysis = (() => {
-    const analyzedDreams = dreams.filter(dream => dream.analysis);
-    const symbolMap = new Map<string, number>();
-    
-    analyzedDreams.forEach(dream => {
-      if (dream.analysis) {
-        try {
-          const analysis = JSON.parse(dream.analysis);
-          const symbols = analysis.symbols?.toLowerCase() || '';
-          
-          // Common dream symbols to look for
-          const symbolKeywords = [
-            'water', 'flying', 'falling', 'animals', 'death', 'fire',
-            'darkness', 'light', 'transformation', 'chase', 'house',
-            'car', 'bridge', 'tree', 'snake', 'bird', 'mirror',
-            'door', 'key', 'mountain', 'ocean', 'forest', 'child'
-          ];
-          
-          symbolKeywords.forEach(symbol => {
-            if (symbols.includes(symbol)) {
-              symbolMap.set(symbol, (symbolMap.get(symbol) || 0) + 1);
-            }
-          });
-        } catch (e) {
-          console.error('Error parsing dream analysis:', e);
-        }
-      }
-    });
-    
-    return Array.from(symbolMap.entries())
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 1)[0] || ['None', 0];
-  })();
-
   // Extract common themes from analyzed dreams
   const themeAnalysis: ThemeData[] = (() => {
     const analyzedDreams = dreams.filter(dream => dream.analysis);
@@ -235,29 +167,19 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
           <Folder className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Dream Analytics</h1>
-        <div className="flex space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.open('/playground', '_blank')}
-            className="cosmic-text-200 hover:cosmic-text-50 text-xs"
-          >
-            Draft Features
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onNavigateHome}
-            className="cosmic-text-200 hover:cosmic-text-50"
-          >
-            <Home className="w-6 h-6" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNavigateHome}
+          className="cosmic-text-200 hover:cosmic-text-50"
+        >
+          <Home className="w-6 h-6" />
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-6">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Card className="glass-effect border-cosmic-300/30">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm cosmic-text-300 flex items-center">
@@ -275,25 +197,12 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
             <CardHeader className="pb-2">
               <CardTitle className="text-sm cosmic-text-300 flex items-center">
                 <Brain className="w-4 h-4 mr-2" />
-                Most Active Archetype
+                Analyzed
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold cosmic-text-50 capitalize">{archetypeAnalysis[0]}</div>
-              <p className="text-xs cosmic-text-400">{archetypeAnalysis[1]} appearances</p>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect border-cosmic-300/30">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm cosmic-text-300 flex items-center">
-                <Eye className="w-4 h-4 mr-2" />
-                Most Active Symbol
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold cosmic-text-50 capitalize">{symbolAnalysis[0]}</div>
-              <p className="text-xs cosmic-text-400">{symbolAnalysis[1]} appearances</p>
+              <div className="text-2xl font-bold cosmic-text-50">{analyzedDreams}</div>
+              <p className="text-xs cosmic-text-400">{analysisRate}% analyzed</p>
             </CardContent>
           </Card>
         </div>

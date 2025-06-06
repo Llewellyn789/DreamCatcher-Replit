@@ -4,12 +4,11 @@ import VoiceRecorder from "@/components/VoiceRecorder";
 import DreamList from "@/components/DreamList";
 import DreamDetail from "@/components/DreamDetail";
 import DreamAnalytics from "@/components/DreamAnalytics";
-import AnalyticsPlayground from "@/components/AnalyticsPlayground";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Folder, BarChart3 } from "lucide-react";
 
-type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics' | 'playground';
+type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics';
 
 export default function DreamRecorder() {
   const [currentPage, setCurrentPage] = useState<Page>('recording');
@@ -235,23 +234,6 @@ export default function DreamRecorder() {
                 onBack={() => setCurrentPage('recording')}
                 onNavigateToSavedDreams={() => setCurrentPage('saved-dreams')}
                 onNavigateHome={() => setCurrentPage('recording')}
-              />
-            </motion.div>
-          )}
-
-          {currentPage === 'playground' && (
-            <motion.div
-              key="playground"
-              custom={3}
-              variants={pageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={pageTransition}
-              className="absolute inset-0"
-            >
-              <AnalyticsPlayground 
-                onBack={() => setCurrentPage('analytics')}
               />
             </motion.div>
           )}
