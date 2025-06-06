@@ -30,17 +30,54 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
 
 
-  // Initialize MediaRecorder
+  // Initialize MediaRecorder and check permissions
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(() => {
+    const checkMicrophoneAccess = async () => {
+      try {
+        // Check if navigator.mediaDevices is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          console.warn('getUserMedia not supported');
+          setVoiceEnabled(false);
+          return;
+        }
+
+        // Request microphone permission
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('Microphone access granted');
+        
+        // Stop the test stream
+        stream.getTracks().forEach(track => track.stop());
         setVoiceEnabled(true);
-      })
-      .catch((error) => {
-        console.error('Microphone access denied:', error);
+      } catch (error) {
+        console.error('Microphone access error:', error);
         setVoiceEnabled(false);
-      });
-  }, []);
+        
+        // Show user-friendly message based on error type
+        const err = error as any;
+        if (err?.name === 'NotAllowedError') {
+          toast({
+            title: "Microphone Access Needed",
+            description: "Please allow microphone access to record dreams",
+            variant: "destructive",
+          });
+        } else if (err?.name === 'NotFoundError') {
+          toast({
+            title: "No Microphone Found",
+            description: "No microphone device detected",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Microphone Error",
+            description: "Unable to access microphone. Please check permissions.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    checkMicrophoneAccess();
+  }, [toast]);
 
   const startRecording = async () => {
     try {
@@ -295,8 +332,8 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         )}
       </div>
 
-      {/* Bottom section - Dreamcatcher icon */}
-      <div className="pb-8 flex justify-center dreamcatcher-bottom">
+      {/* Bottom section - Dreamcatcher icon positioned at very bottom */}
+      <div className="fixed bottom-0 left-0 right-0 pb-safe-bottom flex justify-center" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
         <div className="dreamcatcher-bottom">
           <DreamCatcher 
             isRecording={isRecording}

@@ -418,6 +418,13 @@
   transition: transform 0.3s ease;
 }
 
+/* Fixed bottom positioning */
+.pb-safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+  backdrop-filter: blur(10px);
+}
+
 /* Mobile preview simulation for desktop */
 @media (max-width: 414px) {
   .dreamcatcher-bottom {
