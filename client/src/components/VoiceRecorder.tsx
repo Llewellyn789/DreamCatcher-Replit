@@ -30,28 +30,16 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
 
 
-  // Initialize MediaRecorder with better error handling
+  // Initialize MediaRecorder
   useEffect(() => {
-    const initializeMicrophone = async () => {
-      try {
-        // Check if getUserMedia is supported
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          console.warn('getUserMedia not supported');
-          setVoiceEnabled(false);
-          return;
-        }
-
-        // Request microphone permission
-        await navigator.mediaDevices.getUserMedia({ audio: true });
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(() => {
         setVoiceEnabled(true);
-      } catch (error) {
-        console.warn('Microphone not available:', error);
+      })
+      .catch((error) => {
+        console.error('Microphone access denied:', error);
         setVoiceEnabled(false);
-        // Continue without voice - user can still type dreams
-      }
-    };
-
-    initializeMicrophone();
+      });
   }, []);
 
   const startRecording = async () => {

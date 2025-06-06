@@ -11,7 +11,6 @@ interface DreamAnalyticsProps {
   onBack: () => void;
   onNavigateToSavedDreams?: () => void;
   onNavigateHome?: () => void;
-  onNavigateToPlayground?: () => void;
 }
 
 interface MonthlyData {
@@ -25,7 +24,7 @@ interface ThemeData {
   color: string;
 }
 
-export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavigateHome, onNavigateToPlayground }: DreamAnalyticsProps) {
+export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavigateHome }: DreamAnalyticsProps) {
   const { data: dreams, isLoading } = useQuery<Dream[]>({
     queryKey: ["/api/dreams"],
   });
@@ -189,30 +188,6 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-6">
-        {/* Analytics Testing */}
-        <Card className="glass-effect border-cosmic-300/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm cosmic-text-300 flex items-center">
-              <TestTube className="w-4 h-4 mr-2" />
-              Analytics Testing
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs cosmic-text-400 mb-3">
-              Test analytics features with sample data and comprehensive visualizations
-            </p>
-            <Button
-              onClick={onNavigateToPlayground || (() => console.log('Playground navigation not available'))}
-              variant="outline"
-              size="sm"
-              className="cosmic-text-200 border-cosmic-300/30 hover:cosmic-text-50"
-              disabled={!onNavigateToPlayground}
-            >
-              Open Analytics Playground
-            </Button>
-          </CardContent>
-        </Card>
-
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 gap-4">
           <Card className="glass-effect border-cosmic-300/30">
