@@ -262,19 +262,9 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         </div>
       )}
 
-      {/* Center section - Large dreamcatcher icon or text area */}
+      {/* Center section - Text area or empty space */}
       <div className="flex-1 flex items-center justify-center px-6">
-        {!(dreamText || hasRecorded) ? (
-          // Show large dreamcatcher icon when no recording has been made
-          <div className="text-center transform scale-[3]">
-            <DreamCatcher 
-              isRecording={isRecording}
-              voiceEnabled={voiceEnabled}
-              isTranscribing={isTranscribing}
-              onToggleRecording={toggleRecording}
-            />
-          </div>
-        ) : (
+        {(dreamText || hasRecorded) ? (
           // Show text area when there's content or recording has been made
           <div className="w-full max-w-md">
             <Textarea
@@ -296,7 +286,25 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               </Button>
             </div>
           </div>
+        ) : (
+          // Empty space when no content - dreamcatcher will be at bottom
+          <div className="text-center">
+            <h1 className="cosmic-text-50 text-2xl font-bold mb-4 shimmer-text">DreamCatcher</h1>
+            <p className="cosmic-text-200 text-lg">Tap the dreamcatcher below to start recording</p>
+          </div>
         )}
+      </div>
+
+      {/* Bottom section - Dreamcatcher icon */}
+      <div className="pb-8 flex justify-center">
+        <div className="transform scale-[2.5]">
+          <DreamCatcher 
+            isRecording={isRecording}
+            voiceEnabled={voiceEnabled}
+            isTranscribing={isTranscribing}
+            onToggleRecording={toggleRecording}
+          />
+        </div>
       </div>
 
 
