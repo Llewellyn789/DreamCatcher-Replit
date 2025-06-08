@@ -161,7 +161,7 @@ export default function DreamRecorder() {
                 </Button>
               </div>
               
-              <div className="flex flex-col h-screen px-6 py-8 overflow-y-auto">
+              <div className="flex flex-col h-screen px-6 py-16 overflow-y-auto">
                 {/* Header - Title only */}
                 <div className="text-center mb-6">
                   <h1 
