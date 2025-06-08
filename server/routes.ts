@@ -134,6 +134,9 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
       });
 
       const analysisText = response.choices[0].message.content;
+      if (!analysisText) {
+        throw new Error('No analysis content received');
+      }
       const analysis = JSON.parse(analysisText);
       
       // Validate the analysis structure
