@@ -62,8 +62,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dream = await storage.createDream(validatedData);
       res.status(201).json(dream);
     } catch (error) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ message: "Invalid dream data", errors: error.errors });
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid dream data", errors: (error as any).errors });
       }
       res.status(500).json({ message: "Failed to create dream" });
     }
@@ -209,6 +209,99 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete dream" });
+    }
+  });
+
+  // Get themes for unconscious map
+  app.get("/api/themes", async (req, res) => {
+    try {
+      const dreams = await storage.getAllDreams();
+      
+      if (dreams.length === 0) {
+        return res.json([]);
+      }
+
+      // Extract themes from dream analyses
+      const themeFrequency = new Map<string, number>();
+      const themeConnections = new Map<string, Set<string>>();
+      
+      dreams.forEach(dream => {
+        if (!dream.analysis) return;
+        
+        try {
+          const analysis = JSON.parse(dream.analysis);
+          
+          // Extract themes from symbols and archetypes
+          const themes: string[] = [];
+          
+          if (analysis.symbols) {
+            // Extract key symbolic themes
+            const symbolText = analysis.symbols.toLowerCase();
+            const commonSymbols = [
+              'water', 'fire', 'death', 'birth', 'flying', 'falling', 'animals', 
+              'house', 'family', 'shadow', 'light', 'darkness', 'journey', 'chase',
+              'transformation', 'fear', 'love', 'power', 'wisdom', 'nature',
+              'technology', 'childhood', 'relationships', 'conflict', 'peace'
+            ];
+            
+            commonSymbols.forEach(symbol => {
+              if (symbolText.includes(symbol)) {
+                themes.push(symbol);
+              }
+            });
+          }
+          
+          if (analysis.archetypes) {
+            // Extract archetypal themes
+            const archetypeText = analysis.archetypes.toLowerCase();
+            const commonArchetypes = [
+              'hero', 'mother', 'father', 'child', 'wise old man', 'wise old woman',
+              'trickster', 'shadow', 'anima', 'animus', 'self', 'persona',
+              'mentor', 'guardian', 'destroyer', 'creator', 'innocent', 'explorer'
+            ];
+            
+            commonArchetypes.forEach(archetype => {
+              if (archetypeText.includes(archetype)) {
+                themes.push(archetype);
+              }
+            });
+          }
+          
+          // Update frequency and connections
+          themes.forEach(theme => {
+            themeFrequency.set(theme, (themeFrequency.get(theme) || 0) + 1);
+            
+            if (!themeConnections.has(theme)) {
+              themeConnections.set(theme, new Set());
+            }
+            
+            // Connect this theme to all other themes in the same dream
+            themes.forEach(otherTheme => {
+              if (theme !== otherTheme) {
+                themeConnections.get(theme)?.add(otherTheme);
+              }
+            });
+          });
+          
+        } catch (parseError) {
+          console.error('Error parsing dream analysis:', parseError);
+        }
+      });
+      
+      // Convert to theme objects with minimum frequency threshold
+      const themeObjects = Array.from(themeFrequency.entries())
+        .filter(([_, count]) => count >= 1) // Include all themes that appear at least once
+        .map(([name, count]) => ({
+          name,
+          count,
+          links: Array.from(themeConnections.get(name) || [])
+        }))
+        .sort((a, b) => b.count - a.count); // Sort by frequency
+      
+      res.json(themeObjects);
+    } catch (error) {
+      console.error("Themes extraction error:", error);
+      res.status(500).json({ message: "Failed to extract themes" });
     }
   });
 
