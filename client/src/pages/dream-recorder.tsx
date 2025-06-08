@@ -168,8 +168,11 @@ export default function DreamRecorder() {
                     className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={resetToHome}
                   >
-                    DreamCatcher
+                    DreamCatcher v2.0
                   </h1>
+                  <div className="text-cosmic-200 text-sm mt-2">
+                    Tap the icons above to navigate • Brain = Map of Unconscious
+                  </div>
                 </div>
 
                 {/* Voice Recorder Component */}

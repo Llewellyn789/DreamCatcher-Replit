@@ -1,9 +1,18 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { initPWA } from "./pwa";
 
-// Initialize PWA features
-initPWA();
+// Force cache refresh - disable PWA temporarily
+const cacheVersion = Date.now();
+console.log(`App version: ${cacheVersion}`);
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Clear all caches and force reload
+if ('caches' in window) {
+  caches.keys().then(names => {
+    names.forEach(name => {
+      caches.delete(name);
+    });
+  });
+}
+
+createRoot(document.getElementById("root")!).render(<App key={cacheVersion} />);

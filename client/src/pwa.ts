@@ -14,6 +14,12 @@ let deferredPrompt: BeforeInstallPromptEvent | null = null;
 export const registerSW = async () => {
   if ('serviceWorker' in navigator) {
     try {
+      // Unregister existing service workers
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let registration of registrations) {
+        await registration.unregister();
+      }
+      
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/'
       });
