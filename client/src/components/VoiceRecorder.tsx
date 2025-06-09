@@ -7,10 +7,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Mic, MicOff, Folder, BarChart3 } from "lucide-react";
 import DreamCatcher from "@/components/DreamCatcher";
-import { ErrorHandler, ErrorType, safeApiCall } from '@/lib/errorHandler';
-import { validateAudioFile } from '@/lib/validation';
-import { TestingUtils, PerformanceMonitor, isDevelopment } from '@/lib/testing';
-import { TestWrapper } from './TestWrapper';
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
@@ -48,14 +44,14 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         // Request microphone permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         console.log('Microphone access granted');
-
+        
         // Stop the test stream
         stream.getTracks().forEach(track => track.stop());
         setVoiceEnabled(true);
       } catch (error) {
         console.error('Microphone access error:', error);
         setVoiceEnabled(false);
-
+        
         // Show user-friendly message based on error type
         const err = error as any;
         if (err?.name === 'NotAllowedError') {
@@ -88,7 +84,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         } 
       });
       streamRef.current = stream;
-
+      
       // Try different mime types for better compatibility and compression
       let mimeType = 'audio/webm;codecs=opus';
       if (!MediaRecorder.isTypeSupported(mimeType)) {
@@ -97,12 +93,12 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       if (!MediaRecorder.isTypeSupported(mimeType)) {
         mimeType = 'audio/mp4';
       }
-
+      
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
         audioBitsPerSecond: 32000 // Lower bitrate for faster upload
       });
-
+      
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -115,7 +111,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         await transcribeAudio(audioBlob);
-
+        
         // Clean up stream
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
@@ -207,14 +203,14 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
     try {
       // Generate title first
       const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
-
+      
       // Then save dream with generated title
       await createDreamMutation.mutateAsync({
         title: titleResponse.title,
         content: dreamText,
         duration: undefined
       });
-
+      
       setHasRecorded(false);
     } catch (error) {
       console.error("Save failed:", error);
@@ -226,17 +222,17 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
     if (isRecording && mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
     }
-
+    
     // Clear all states
     setIsRecording(false);
     setIsTranscribing(false);
     setIsAnalyzing(false);
     setDreamText("");
     setHasRecorded(false);
-
+    
     // Clean up audio chunks
     audioChunksRef.current = [];
-
+    
     // Call parent reset if provided
     if (onReset) {
       onReset();
@@ -248,10 +244,10 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
     try {
       setIsAnalyzing(true);
-
+      
       // Generate title first
       const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
-
+      
       // Save dream with generated title
       const dreamResponse = await createDreamMutation.mutateAsync({
         title: titleResponse.title,
@@ -309,7 +305,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               className="glass-effect cosmic-text-50 placeholder-cosmic-300 border-cosmic-300/30 resize-none min-h-[200px] text-base leading-relaxed"
               disabled={isRecording || isTranscribing}
             />
-
+            
             {/* Action button */}
             <div className="flex justify-center mt-4">
               <Button
@@ -330,7 +326,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               isTranscribing={isTranscribing}
               onToggleRecording={toggleRecording}
             />
-
+            
             {/* Show fallback text input option when voice is not available */}
             {!voiceEnabled && (
               <div className="mt-8 max-w-md mx-auto">

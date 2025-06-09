@@ -11,21 +11,6 @@ import { Folder, BarChart3, Brain } from "lucide-react";
 
 type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics' | 'unconscious-map';
 
-// Placeholder QAChecklist component - replace with actual implementation
-function QAChecklist() {
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, background: 'white', padding: '10px', border: '1px solid black', zIndex: 1000 }}>
-      <h3>QA Checklist</h3>
-      <ul>
-        <li>[ ] Verify voice recording functionality</li>
-        <li>[ ] Verify dream analysis accuracy</li>
-        <li>[ ] Verify data persistence</li>
-        {/* Add more items as needed */}
-      </ul>
-    </div>
-  );
-}
-
 export default function DreamRecorder() {
   const [currentPage, setCurrentPage] = useState<Page>('recording');
   const [selectedDreamId, setSelectedDreamId] = useState<number | null>(null);
@@ -60,7 +45,7 @@ export default function DreamRecorder() {
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-
+    
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -175,7 +160,7 @@ export default function DreamRecorder() {
                   <Folder className="w-6 h-6" />
                 </Button>
               </div>
-
+              
               <div className="flex flex-col h-screen px-6 py-16 overflow-y-auto">
 
                 {/* Voice Recorder Component */}
@@ -190,7 +175,7 @@ export default function DreamRecorder() {
                     }}
                   />
                 </div>
-
+                
                 {/* Bottom padding to ensure content is not hidden behind navigation */}
                 <div className="h-16"></div>
               </div>
@@ -297,7 +282,6 @@ export default function DreamRecorder() {
           }`}
         />
       </div>
-       {process.env.NODE_ENV === 'development' && <QAChecklist />}
     </div>
   );
 }
