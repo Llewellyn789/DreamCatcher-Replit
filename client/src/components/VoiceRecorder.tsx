@@ -324,27 +324,21 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
             </div>
           </div>
         ) : (
-          // Empty space when no content - dreamcatcher will be at bottom
+          // Center the dreamcatcher when no content
           <div className="text-center mobile-container">
-            <h1 className="cosmic-text-50 text-2xl md:text-3xl font-bold mb-4 shimmer-text mobile-title">DreamCatcher</h1>
-            <p className="cosmic-text-200 text-lg md:text-xl mobile-subtitle">Tap the dreamcatcher below to start recording</p>
+            <h1 className="cosmic-text-50 text-2xl md:text-3xl font-bold mb-8 shimmer-text mobile-title">DreamCatcher</h1>
+            <div className="mb-8">
+              <DreamCatcher 
+                isRecording={isRecording}
+                voiceEnabled={voiceEnabled}
+                isTranscribing={isTranscribing}
+                onToggleRecording={toggleRecording}
+              />
+            </div>
+            <p className="cosmic-text-200 text-lg md:text-xl mobile-subtitle">Tap the dreamcatcher to start recording</p>
           </div>
         )}
       </div>
-
-      {/* Bottom section - Dreamcatcher icon positioned at very bottom */}
-      <div className="fixed bottom-0 left-0 right-0 pb-safe-bottom flex justify-center" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-        <div className="dreamcatcher-bottom">
-          <DreamCatcher 
-            isRecording={isRecording}
-            voiceEnabled={voiceEnabled}
-            isTranscribing={isTranscribing}
-            onToggleRecording={toggleRecording}
-          />
-        </div>
-      </div>
-
-
     </div>
   );
 }
