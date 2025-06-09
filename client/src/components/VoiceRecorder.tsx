@@ -61,17 +61,11 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
             variant: "destructive",
           });
         } else if (err?.name === 'NotFoundError') {
-          toast({
-            title: "No Microphone Found",
-            description: "No microphone device detected",
-            variant: "destructive",
-          });
+          // Don't show error toast for no microphone - just disable voice
+          console.log('No microphone detected - switching to text input mode');
         } else {
-          toast({
-            title: "Microphone Error",
-            description: "Unable to access microphone. Please check permissions.",
-            variant: "destructive",
-          });
+          // Don't show error toast for permission denied - just disable voice
+          console.log('Microphone access denied - switching to text input mode');
         }
       }
     };
@@ -332,6 +326,21 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               isTranscribing={isTranscribing}
               onToggleRecording={toggleRecording}
             />
+            
+            {/* Show fallback text input option when voice is not available */}
+            {!voiceEnabled && (
+              <div className="mt-8 max-w-md mx-auto">
+                <p className="cosmic-text-200 text-sm mb-4">
+                  Voice recording not available
+                </p>
+                <Button
+                  onClick={() => setHasRecorded(true)}
+                  className="gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
+                >
+                  Write Dream Instead
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

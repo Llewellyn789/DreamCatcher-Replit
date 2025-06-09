@@ -1,4 +1,4 @@
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, PenTool } from "lucide-react";
 
 interface DreamCatcherProps {
   isRecording?: boolean;
