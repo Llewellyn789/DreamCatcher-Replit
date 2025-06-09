@@ -326,16 +326,12 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         ) : (
           // Center the dreamcatcher when no content
           <div className="text-center mobile-container">
-            <h1 className="cosmic-text-50 text-2xl md:text-3xl font-bold mb-8 shimmer-text mobile-title">DreamCatcher</h1>
-            <div className="mb-8">
-              <DreamCatcher 
-                isRecording={isRecording}
-                voiceEnabled={voiceEnabled}
-                isTranscribing={isTranscribing}
-                onToggleRecording={toggleRecording}
-              />
-            </div>
-            <p className="cosmic-text-200 text-lg md:text-xl mobile-subtitle">Tap the dreamcatcher to start recording</p>
+            <DreamCatcher 
+              isRecording={isRecording}
+              voiceEnabled={voiceEnabled}
+              isTranscribing={isTranscribing}
+              onToggleRecording={toggleRecording}
+            />
           </div>
         )}
       </div>

@@ -162,18 +162,6 @@ export default function DreamRecorder() {
               </div>
               
               <div className="flex flex-col h-screen px-6 py-16 overflow-y-auto">
-                {/* Header - Title only */}
-                <div className="text-center mb-6">
-                  <h1 
-                    className="text-2xl font-bold cosmic-text-50 text-shadow-gold cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={resetToHome}
-                  >
-                    DreamCatcher v2.0
-                  </h1>
-                  <div className="text-cosmic-200/80 text-sm mt-2 opacity-75">
-                    Tap the icons above to navigate • Brain = Map of Unconscious
-                  </div>
-                </div>
 
                 {/* Voice Recorder Component */}
                 <div className="flex-1 flex flex-col min-h-0">
