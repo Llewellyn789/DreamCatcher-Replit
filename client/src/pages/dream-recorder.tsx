@@ -170,7 +170,7 @@ export default function DreamRecorder() {
                   >
                     DreamCatcher v2.0
                   </h1>
-                  <div className="text-cosmic-200 text-sm mt-2">
+                  <div className="text-cosmic-200/80 text-sm mt-2 opacity-75">
                     Tap the icons above to navigate • Brain = Map of Unconscious
                   </div>
                 </div>
