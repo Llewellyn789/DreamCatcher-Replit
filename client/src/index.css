@@ -160,6 +160,49 @@
     animation: shimmer 2s linear infinite;
   }
 
+  .shiny-gold {
+    background: linear-gradient(135deg, 
+      #FFD700 0%, 
+      #FFA500 25%, 
+      #FFD700 50%, 
+      #FFFF99 75%, 
+      #FFD700 100%);
+    background-size: 200% 200%;
+    animation: goldShine 3s ease-in-out infinite;
+    box-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.6),
+      0 0 40px rgba(255, 215, 0, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.2);
+    border: 2px solid #FFD700;
+  }
+
+  .shiny-gold-text {
+    background: linear-gradient(135deg, 
+      #FFD700 0%, 
+      #FFA500 25%, 
+      #FFD700 50%, 
+      #FFFF99 75%, 
+      #FFD700 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: goldShine 3s ease-in-out infinite;
+    text-shadow: 
+      0 0 10px rgba(255, 215, 0, 0.8),
+      0 0 20px rgba(255, 215, 0, 0.6),
+      0 0 30px rgba(255, 215, 0, 0.4);
+    filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+  }
+
+  .cosmic-glow {
+    text-shadow: 
+      0 0 10px rgba(255, 215, 0, 0.8),
+      0 0 20px rgba(255, 215, 0, 0.6),
+      0 0 30px rgba(255, 215, 0, 0.4);
+    filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+  }
+
   .cosmic-text-50 { color: hsl(var(--cosmic-50)); }
   .cosmic-text-100 { color: hsl(var(--cosmic-100)); }
   .cosmic-text-200 { color: hsl(var(--cosmic-200)); }
