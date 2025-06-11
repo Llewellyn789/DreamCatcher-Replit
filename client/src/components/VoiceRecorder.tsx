@@ -293,10 +293,9 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         </div>
       )}
 
-      {/* Center section - Text area or empty space */}
-      <div className="flex-1 flex items-center justify-center px-6">
-        {(dreamText || hasRecorded) ? (
-          // Show text area when there's content or recording has been made
+      {(dreamText || hasRecorded) ? (
+        // Show text area when there's content or recording has been made
+        <div className="flex-1 flex items-center justify-center px-6">
           <div className="w-full max-w-md">
             <Textarea
               value={dreamText}
@@ -317,33 +316,67 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               </Button>
             </div>
           </div>
-        ) : (
-          // Center the dreamcatcher when no content
-          <div className="text-center mobile-container">
-            <DreamCatcher 
-              isRecording={isRecording}
-              voiceEnabled={voiceEnabled}
-              isTranscribing={isTranscribing}
-              onToggleRecording={toggleRecording}
-            />
-            
-            {/* Show fallback text input option when voice is not available */}
-            {!voiceEnabled && (
-              <div className="mt-8 max-w-md mx-auto">
-                <p className="cosmic-text-200 text-sm mb-4">
-                  Voice recording not available
-                </p>
-                <Button
-                  onClick={() => setHasRecorded(true)}
-                  className="gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
-                >
-                  Write Dream Instead
-                </Button>
-              </div>
-            )}
+        </div>
+      ) : (
+        // Home page layout: Title at top, large dreamcatcher in center, microphone at bottom
+        <>
+          {/* Title at top */}
+          <div className="text-center pt-8 pb-4">
+            <h1 className="text-4xl font-bold text-[#FFD700] cosmic-glow">
+              DreamCatcher
+            </h1>
           </div>
-        )}
-      </div>
+
+          {/* Large floating dreamcatcher in center */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="transform scale-150">
+              <DreamCatcher 
+                isRecording={isRecording}
+                voiceEnabled={voiceEnabled}
+                isTranscribing={isTranscribing}
+                onToggleRecording={undefined}
+              />
+            </div>
+          </div>
+
+          {/* Microphone button at bottom */}
+          <div className="pb-8 px-6">
+            <div className="flex justify-center">
+              <Button
+                onClick={voiceEnabled ? toggleRecording : () => setHasRecorded(true)}
+                disabled={isTranscribing}
+                className={`w-16 h-16 rounded-full ${
+                  isRecording 
+                    ? 'bg-red-500 hover:bg-red-600' 
+                    : 'bg-[#FFD700] hover:bg-[#FFB700]'
+                } text-black shadow-lg hover:shadow-xl transition-all duration-200 ${
+                  isRecording ? 'animate-pulse' : ''
+                }`}
+              >
+                {voiceEnabled ? (
+                  isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />
+                ) : (
+                  <Mic className="w-6 h-6" />
+                )}
+              </Button>
+            </div>
+            
+            {/* Status text */}
+            <div className="text-center mt-3">
+              <p className="text-sm cosmic-text-200">
+                {isRecording 
+                  ? "Recording..." 
+                  : isTranscribing 
+                    ? "Transcribing..." 
+                    : voiceEnabled 
+                      ? "Tap to record your dream" 
+                      : "Tap to write your dream"
+                }
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
