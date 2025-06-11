@@ -322,7 +322,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         <>
           {/* Title at top */}
           <div className="text-center pt-8 pb-4">
-            <h1 className="text-4xl font-bold cosmic-text-200 cosmic-glow">
+            <h1 className="text-4xl font-bold shiny-gold-text">
               DreamCatcher
             </h1>
           </div>
@@ -347,11 +347,9 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
                 disabled={isTranscribing}
                 className={`w-16 h-16 rounded-full ${
                   isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 text-white' 
-                    : 'bg-[hsl(var(--cosmic-200))] hover:bg-[hsl(var(--cosmic-300))] text-[hsl(var(--cosmic-900))]'
-                } shadow-lg hover:shadow-xl transition-all duration-200 ${
-                  isRecording ? 'animate-pulse' : ''
-                }`}
+                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                    : 'shiny-gold text-black hover:opacity-90'
+                } shadow-lg hover:shadow-xl transition-all duration-200`}
               >
                 {voiceEnabled ? (
                   isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />
