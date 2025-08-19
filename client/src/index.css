@@ -76,15 +76,15 @@
   --radius: 0.5rem;
 
   /* Legacy DreamCatcher gold colors */
-  --gold: #D4AF37;
-  --gold-light: #FFD766;
-  --gold-dark: #A07F1F;
+  --gold: #C4A05A;
+  --gold-light: #D4B070;
+  --gold-dark: #9A8344;
 
   /* Custom cosmic colors */
-  --cosmic-50: 42 33% 93%; /* #F5E6D3 */
-  --cosmic-100: 42 27% 85%; /* #E8D5B7 */
-  --cosmic-200: 35 43% 64%; /* #D4A574 */
-  --cosmic-300: 42 92% 38%; /* #B8860B */
+  --cosmic-50: 42 25% 88%; /* #E8DCC8 */
+  --cosmic-100: 42 22% 78%; /* #D4C4A8 */
+  --cosmic-200: 35 35% 58%; /* #C4A068 */
+  --cosmic-300: 42 65% 45%; /* #A68B55 */
   --cosmic-400: 45 88% 32%; /* #9A7209 */
   --cosmic-500: 45 77% 31%; /* #8B6914 */
   --cosmic-600: 45 67% 29%; /* #705419 */
@@ -153,14 +153,14 @@
   
   .glow-gold {
     text-shadow:
-      0 0 12px rgba(255,215,102,0.55),
-      0 0 32px rgba(212,175,55,0.35);
+      0 0 8px rgba(196,160,90,0.4),
+      0 0 20px rgba(196,160,90,0.25);
   }
   
   .btn-glow {
     box-shadow:
-      0 0 20px rgba(255,215,102,0.45),
-      0 0 48px rgba(212,175,55,0.30);
+      0 0 15px rgba(196,160,90,0.35),
+      0 0 30px rgba(196,160,90,0.25);
   }
   
   .glass-effect {

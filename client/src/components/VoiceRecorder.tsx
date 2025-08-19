@@ -322,21 +322,19 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         <>
           {/* Title at top */}
           <div className="text-center pt-8 pb-4">
-            <h1 className="text-gold glow-gold font-bold tracking-wide text-5xl md:text-6xl">
+            <h1 className="text-gold glow-gold font-bold tracking-wide text-4xl md:text-5xl">
               DreamCatcher
             </h1>
           </div>
 
           {/* Large floating dreamcatcher in center */}
           <div className="flex-1 flex items-center justify-center">
-            <div className="transform scale-150">
-              <DreamCatcher 
-                isRecording={isRecording}
-                voiceEnabled={voiceEnabled}
-                isTranscribing={isTranscribing}
-                onToggleRecording={undefined}
-              />
-            </div>
+            <DreamCatcher 
+              isRecording={isRecording}
+              voiceEnabled={voiceEnabled}
+              isTranscribing={isTranscribing}
+              onToggleRecording={undefined}
+            />
           </div>
 
           {/* Microphone button at bottom */}
@@ -346,7 +344,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
                 aria-label="Record"
                 onClick={voiceEnabled ? toggleRecording : () => setHasRecorded(true)}
                 disabled={isTranscribing}
-                className={`relative h-20 w-20 rounded-full flex items-center justify-center text-white
+                className={`relative h-16 w-16 rounded-full flex items-center justify-center text-white
                            transition-transform duration-150 ease-out
                            focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70
                            hover:scale-105 active:scale-95 ${
