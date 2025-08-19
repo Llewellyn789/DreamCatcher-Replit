@@ -372,11 +372,6 @@
   .mobile-container {
     @apply w-full max-w-md mx-auto px-4;
   }
-  
-  /* Ensure consistent dreamcatcher sizing */
-  .dreamcatcher-bottom {
-    transform: scale(2.5) !important;
-  }
 }
 
 /* Mobile-specific media queries */
@@ -431,10 +426,6 @@
 
 /* Very small mobile devices */
 @media (max-width: 375px) {
-  .dreamcatcher-bottom {
-    transform: scale(2.2) !important;
-  }
-  
   .mobile-title {
     font-size: 1.25rem !important;
   }
@@ -446,26 +437,15 @@
 
 /* Device-specific CSS classes for consistent rendering */
 .device-mobile .dreamcatcher-bottom {
-  transform: scale(2.5);
   padding-bottom: max(2rem, env(safe-area-inset-bottom));
 }
 
 .device-desktop .dreamcatcher-bottom {
-  transform: scale(2.5);
   padding-bottom: 2rem;
-}
-
-.layout-mobile .dreamcatcher-bottom {
-  transform: scale(2.5) !important;
-}
-
-.layout-desktop .dreamcatcher-bottom {
-  transform: scale(2.5) !important;
 }
 
 /* Mac Chrome specific fixes */
 .mac-chrome .dreamcatcher-bottom {
-  transform: scale(2.5) !important;
   padding-bottom: 2rem !important;
 }
 
@@ -479,7 +459,6 @@
 
 /* Force consistent behavior across all devices */
 .dreamcatcher-bottom {
-  transform: scale(2.5);
   transition: transform 0.3s ease;
 }
 
@@ -493,7 +472,6 @@
 /* Mobile preview simulation for desktop */
 @media (max-width: 414px) {
   .dreamcatcher-bottom {
-    transform: scale(2.3) !important;
     padding-bottom: 1.5rem !important;
   }
 }
@@ -501,7 +479,6 @@
 /* iPhone specific */
 @media screen and (max-width: 390px) and (-webkit-device-pixel-ratio: 3) {
   .dreamcatcher-bottom {
-    transform: scale(2.4) !important;
     padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
   }
 }
