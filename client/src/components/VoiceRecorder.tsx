@@ -322,7 +322,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
         <>
           {/* Title at top */}
           <div className="text-center pt-8 pb-4">
-            <h1 className="text-4xl font-bold shiny-gold-text">
+            <h1 className="text-gold glow-gold font-bold tracking-wide text-5xl md:text-6xl">
               DreamCatcher
             </h1>
           </div>
@@ -342,21 +342,28 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
           {/* Microphone button at bottom */}
           <div className="pb-8 px-6">
             <div className="flex justify-center">
-              <Button
+              <button
+                aria-label="Record"
                 onClick={voiceEnabled ? toggleRecording : () => setHasRecorded(true)}
                 disabled={isTranscribing}
-                className={`w-16 h-16 rounded-full ${
+                className={`relative h-20 w-20 rounded-full flex items-center justify-center text-white
+                           transition-transform duration-150 ease-out
+                           focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70
+                           hover:scale-105 active:scale-95 ${
                   isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
-                    : 'shiny-gold text-black hover:opacity-90'
-                } shadow-lg hover:shadow-xl transition-all duration-200`}
+                    ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                    : 'bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[var(--gold-dark)] btn-glow'
+                }`}
               >
                 {voiceEnabled ? (
-                  isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />
+                  isRecording ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />
                 ) : (
-                  <Mic className="w-6 h-6" />
+                  <Mic className="h-6 w-6" />
                 )}
-              </Button>
+                {!isRecording && (
+                  <span className="absolute -z-10 inset-0 rounded-full blur-2xl bg-yellow-400/20" />
+                )}
+              </button>
             </div>
             
             {/* Status text */}

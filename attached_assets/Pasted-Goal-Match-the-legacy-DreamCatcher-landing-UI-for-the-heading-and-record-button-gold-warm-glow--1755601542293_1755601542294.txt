@@ -1,0 +1,125 @@
+Goal: Match the legacy DreamCatcher landing UI for the heading and record button (gold, warm glow), keeping current layout and functionality.
+
+Do:
+
+Keep component structure and handlers exactly the same (no prop or state changes).
+
+Only touch styles (classes/CSS) for:
+
+The “DreamCatcher” heading
+
+The circular mic record button (and its hover/active/focus states)
+
+Style spec (from legacy):
+
+Gold base: #D4AF37
+
+Gold light: #FFD766
+
+Gold dark: #A07F1F
+
+Text glow: outer soft glow, inner subtle; warm, not neon
+
+Button: circular 64–80px, gold gradient, soft halo glow, white mic icon, accessible focus ring
+
+Background stays as‑is (starry midnight). Do not alter page layout or icons.
+
+Acceptance criteria:
+
+Heading looks like legacy: large, gold, softly glowing (no hard neon edges).
+
+Record button visually matches legacy: gold gradient disc + halo, hover lifts slightly, active presses, keyboard focus ring visible.
+
+No console errors; click/tap still triggers existing onToggleRecording (or equivalent).
+
+All styles in a single, maintainable place (CSS module or styles.css). No inline styles except CSS variables.
+
+Implementation details (choose Tailwind OR plain CSS):
+
+If using Tailwind
+
+Add CSS vars in :root and a utility for glow.
+
+/* globals.css (or index.css) */
+:root{
+  --gold:#D4AF37; --gold-light:#FFD766; --gold-dark:#A07F1F;
+}
+.text-gold { color: var(--gold); }
+.glow-gold {
+  text-shadow:
+    0 0 12px rgba(255,215,102,0.55),
+    0 0 32px rgba(212,175,55,0.35);
+}
+.btn-glow {
+  box-shadow:
+    0 0 20px rgba(255,215,102,0.45),
+    0 0 48px rgba(212,175,55,0.30);
+}
+
+
+Update heading + button classes in the landing component:
+
+<h1 className="text-gold glow-gold font-bold tracking-wide text-5xl md:text-6xl">
+  DreamCatcher
+</h1>
+
+<button
+  aria-label="Record"
+  className="relative h-20 w-20 rounded-full 
+             bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[var(--gold-dark)]
+             flex items-center justify-center text-white btn-glow
+             transition-transform duration-150 ease-out
+             focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70
+             hover:scale-105 active:scale-95"
+  onClick={onToggleRecording}
+>
+  <Mic className="h-6 w-6" />
+  <span className="absolute -z-10 inset-0 rounded-full blur-2xl bg-yellow-400/20" />
+</button>
+
+If using plain CSS
+
+Create/update styles.css:
+
+:root{
+  --gold:#D4AF37; --gold-light:#FFD766; --gold-dark:#A07F1F;
+}
+.dc-heading{
+  color:var(--gold);
+  font-weight:800;
+  letter-spacing:.02em;
+  text-shadow:
+    0 0 12px rgba(255,215,102,.55),
+    0 0 32px rgba(212,175,55,.35);
+}
+.dc-record{
+  height:80px;width:80px;border-radius:9999px;color:#fff;border:none;cursor:pointer;
+  background: radial-gradient(120% 120% at 30% 25%, var(--gold-light) 0%, var(--gold) 55%, var(--gold-dark) 100%);
+  box-shadow:
+    0 0 20px rgba(255,215,102,.45),
+    0 0 48px rgba(212,175,55,.30);
+  transition: transform .15s ease-out, box-shadow .2s ease;
+  position:relative;outline:none;
+}
+.dc-record::after{
+  content:"";position:absolute;inset:-10px;border-radius:inherit;filter:blur(18px);
+  background: radial-gradient(80% 80% at 50% 50%, rgba(255,215,102,.18), rgba(212,175,55,.08) 70%, transparent 100%);
+  z-index:-1;
+}
+.dc-record:hover{ transform:scale(1.05); }
+.dc-record:active{ transform:scale(.96); }
+.dc-record:focus-visible{ box-shadow:0 0 0 3px rgba(255,215,102,.55), 0 0 0 6px rgba(255,215,102,.25); }
+
+
+Use those classes in your React:
+
+<h1 className="dc-heading">DreamCatcher</h1>
+
+<button className="dc-record" onClick={onToggleRecording} aria-label="Record">
+  <Mic className="icon" />
+</button>
+
+
+Do not change: event handlers, routes, state names, or other components. Only add classes and minimal CSS.
+
+After changes: run the app, verify the glow looks soft (not neon), button focus ring visible with keyboard, and click/tap still records.

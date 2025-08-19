@@ -75,6 +75,11 @@
   --ring: 240 4.9% 83.9%;
   --radius: 0.5rem;
 
+  /* Legacy DreamCatcher gold colors */
+  --gold: #D4AF37;
+  --gold-light: #FFD766;
+  --gold-dark: #A07F1F;
+
   /* Custom cosmic colors */
   --cosmic-50: 42 33% 93%; /* #F5E6D3 */
   --cosmic-100: 42 27% 85%; /* #E8D5B7 */
@@ -139,6 +144,23 @@
   
   .dreamcatcher-glow {
     filter: drop-shadow(0 0 20px hsla(var(--cosmic-200), 0.3));
+  }
+  
+  /* Legacy DreamCatcher styles */
+  .text-gold {
+    color: var(--gold);
+  }
+  
+  .glow-gold {
+    text-shadow:
+      0 0 12px rgba(255,215,102,0.55),
+      0 0 32px rgba(212,175,55,0.35);
+  }
+  
+  .btn-glow {
+    box-shadow:
+      0 0 20px rgba(255,215,102,0.45),
+      0 0 48px rgba(212,175,55,0.30);
   }
   
   .glass-effect {
