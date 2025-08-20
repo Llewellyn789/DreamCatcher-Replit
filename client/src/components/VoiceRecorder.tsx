@@ -221,10 +221,16 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
     // Stop any ongoing recording
     if (isRecording && mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+    
+    // Clean up stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
     
     // Clear all states
-    setIsRecording(false);
     setIsTranscribing(false);
     setIsAnalyzing(false);
     setDreamText("");
@@ -295,8 +301,20 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
       {(dreamText || hasRecorded) ? (
         // Show text area when there's content or recording has been made
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex flex-col px-6">
+          {/* Back button */}
+          <div className="flex justify-start pt-4 pb-2">
+            <Button
+              variant="ghost"
+              onClick={resetToHome}
+              className="cosmic-text-200 hover:cosmic-text-50 p-2"
+            >
+              ← Back
+            </Button>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full max-w-md">
             <Textarea
               value={dreamText}
               onChange={(e) => setDreamText(e.target.value)}
@@ -305,15 +323,29 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               disabled={isRecording || isTranscribing}
             />
             
-            {/* Action button */}
-            <div className="flex justify-center mt-4">
-              <Button
-                onClick={interpretDream}
-                disabled={!dreamText.trim() || isAnalyzing}
-                className="w-full max-w-xs gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
-              >
-                {isAnalyzing ? "Analyzing..." : "Interpret Dream"}
-              </Button>
+            {/* Recording controls and action buttons */}
+            <div className="flex flex-col items-center mt-4 space-y-3">
+              {/* Stop recording button - show when actively recording */}
+              {isRecording && (
+                <Button
+                  onClick={stopRecording}
+                  className="w-full max-w-xs bg-red-500 hover:bg-red-600 text-white font-semibold transition-all duration-200 z-50 relative"
+                >
+                  <MicOff className="w-4 h-4 mr-2" />
+                  Stop Recording
+                </Button>
+              )}
+              
+              {/* Interpret dream button - show when not recording and has text */}
+              {!isRecording && (
+                <Button
+                  onClick={interpretDream}
+                  disabled={!dreamText.trim() || isAnalyzing}
+                  className="w-full max-w-xs gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
+                >
+                  {isAnalyzing ? "Analyzing..." : "Interpret Dream"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
