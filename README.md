@@ -72,6 +72,15 @@ Please report issues or feedback through the app's feedback form.
 
 This app is built on Replit and designed for easy deployment and sharing. The development environment includes hot reloading and automatic dependency management.
 
+## Environment
+
+Set these environment variables in **Replit Secrets** (Tools → Secrets):
+
+- `VITE_API_BASE`: Your Cloudflare Worker URL (e.g., `https://your-worker.workers.dev`)
+- `VITE_STORAGE_MODE`: Storage backend (`local` for localStorage-only mode)
+
+See `.env.example` for reference values.
+
 ## Contributing
 
 This is currently in private beta. Feedback and bug reports are welcome through the in-app feedback system.
