@@ -46,7 +46,7 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
             <BarChart3 className="w-6 h-6" />
           </Button>
         </div>
-        
+
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin w-8 h-8 border-2 border-[hsl(var(--cosmic-200))] border-t-transparent rounded-full" />
         </div>
@@ -93,11 +93,11 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
                     {formatDate(dream.createdAt)}
                   </span>
                 </div>
-                
+
                 <p className="cosmic-text-200 text-sm leading-relaxed mb-3 line-clamp-2">
                   {truncateText(dream.content)}
                 </p>
-                
+
                 <div className="flex items-center space-x-4 cosmic-text-300 text-xs">
                   {dream.duration && (
                     <span className="flex items-center space-x-1">

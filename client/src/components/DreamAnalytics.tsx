@@ -128,7 +128,10 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
             }
           });
         } catch (e) {
-          // Silently skip malformed analysis data
+          // Log parsing errors in development only to reduce console noise
+          if (import.meta.env.MODE === 'development') {
+            console.debug('Dream analysis parsing error:', e);
+          }
           // TODO: Implement proper error boundary for analytics parsing
         }
       }
