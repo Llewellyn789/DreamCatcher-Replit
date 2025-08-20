@@ -347,6 +347,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
                 </Button>
               )}
             </div>
+            </div>
           </div>
         </div>
       ) : (
