@@ -1,0 +1,167 @@
+Phase 0 — Foundation & scope
+
+Create branch mvp-hybrid; commit current state.
+
+Write MVP acceptance criteria: Record → Transcribe → Interpret → Save → View Log.
+
+List out-of-scope for beta (payments, auth, cloud DB, advanced analytics).
+
+Add README sections: Quick Start, Privacy note, Known Issues, Tester Guide link.
+
+Enable env placeholders: VITE_API_BASE, VITE_STORAGE_MODE.
+
+Triage console warnings; file anything not fixing now under Known Issues.
+
+Phase 1 — Frontend uses localStorage only
+
+Add a single store module for dreams (list/get/save/remove).
+
+Replace any /api/dreams usage with store calls in pages/components.
+
+Remove/stub Drizzle/Postgres imports from client bundle.
+
+Verify CRUD loop: create → edit → delete (x5) and persist across refresh.
+
+Confirm Dream Log reads exclusively from local storage.
+
+Check storage headroom with navigator.storage.estimate() (note in Known Issues if tight).
+
+Phase 2 — Cloudflare Worker (AI proxy)
+
+Create Worker project; add OPENAI_API_KEY secret.
+
+Implement minimal POST /interpret (Responses API) and POST /transcribe (Whisper).
+
+Lock CORS to your Replit origin(s) only.
+
+Add friendly error JSON for 400/5xx and short log lines (no PII).
+
+Deploy; smoke test with curl and sample audio blob.
+
+Note Worker URL in README and .env instructions.
+
+Phase 3 — Wire UI → Worker
+
+Add config usage of VITE_API_BASE; swap all AI calls to the Worker routes.
+
+Connect Record → Transcribe → Interpret → Save end-to-end.
+
+Add explicit error states: no network, timeout, 5xx, empty input.
+
+Show clear loading/progress for transcribe/interpret.
+
+Confirm no calls hit legacy /api/* endpoints.
+
+Do a clean happy-path run with DevTools open (no red errors).
+
+Phase 4 — PWA readiness
+
+Fix manifest.json: name, short_name, theme/background, start_url, display.
+
+Provide valid PNG icons (192, 512, maskable); update paths.
+
+Service Worker: cache app shell; show offline notice for AI actions.
+
+Test installability in DevTools; install on desktop and Android.
+
+Launch from home screen; confirm offline viewing of saved dreams.
+
+Resolve any “invalid image”/manifest errors in console.
+
+Phase 5 — UI polish & accessibility
+
+Apply legacy gold heading + mic/record button styles.
+
+Ensure a visible Stop control during recording (z-index, placement).
+
+Add aria-labels; verify tab order and focus rings.
+
+Check color contrast; adjust if needed.
+
+Run Lighthouse (mobile): A11y ≥90, Best Practices ≥90.
+
+Document any intentional exceptions in Known Issues.
+
+Phase 6 — Beta gating (payments later)
+
+Add lightweight entitlements shim (free vs pro) and guard Pro components.
+
+Add “Go Pro (Coming soon)” modal describing future perks.
+
+Add beta override (e.g., ?beta=allaccess) to unlock Pro for testers.
+
+Optional: capture interest via small link/form; store nothing sensitive.
+
+Add About text explaining beta/free vs Pro later.
+
+Verify Pro gates don’t block core MVP flow.
+
+Phase 7 — Performance & stability
+
+Inspect bundle: remove/avoid heavy server libs in client build.
+
+Quick code-split if a page is unusually heavy.
+
+Test on throttled mobile network; aim for acceptable first load.
+
+Handle mic permission deny/revoke with clear guidance.
+
+Ensure UI recovers from failed transcribe/interpret attempts.
+
+Keep runtime logs minimal; no console errors in happy path.
+
+Phase 8 — Cross-device pass
+
+Android Chrome: full flow + PWA install + offline viewing.
+
+iOS Safari: mic permission flow + Add to Home Screen + playback.
+
+Desktop Chrome/Safari: record, transcribe, interpret, save.
+
+Edge cases: immediate stop, >60s recording, background/return, airplane-mode.
+
+Record device/OS/browser of any failures in Known Issues.
+
+Capture screenshots/video for any reproducible bug.
+
+Phase 9 — Privacy & copy
+
+Add in-app privacy note (“stored on your device; only sent text is analyzed via our proxy”).
+
+Create Known Issues section/page and link it in app.
+
+Add mini “How to test” in About/Help (steps, contact).
+
+Add version/hash in footer/About for bug reports.
+
+Review meta title/description; ensure messaging matches beta.
+
+Proofread key screens; consistent tone.
+
+Phase 10 — Share-ready packaging
+
+Confirm public Replit deploy URL (static) is stable and documented.
+
+Confirm Worker URL reachable from that origin (CORS OK).
+
+Create a one-page Tester Guide (link + 6-step script + feedback form).
+
+Set up a simple feedback form (Google Form/Notion) and add link in app.
+
+Choose 10 testers; send link + guide; track responses centrally.
+
+Prep a short post-beta triage plan (what qualifies as hotfix vs later).
+
+Post-Beta (queued, not now)
+
+Choose payments: Lemon Squeezy (MoR + license keys) recommended.
+
+Add Worker /activate (license verify) + /status (token check).
+
+Wire “Go Pro” → hosted checkout → activate → entitlements token.
+
+Add Export/Import (JSON) and Pro “Deep Insight (GPT-4o)” toggle.
+
+Add basic rate limiting/Turnstile if opening publicly.
+
+Draft public launch plan (pricing, messaging, screenshots, FAQ).
