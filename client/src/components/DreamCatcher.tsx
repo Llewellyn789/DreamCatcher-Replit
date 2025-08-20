@@ -15,7 +15,7 @@ export default function DreamCatcher({
 }: DreamCatcherProps) {
   return (
     <div 
-      className={`mx-auto mb-6 w-32 h-32 relative dreamcatcher-glow animate-float cursor-pointer transition-all duration-200 hover:scale-105 ${
+      className={`mx-auto mb-6 w-48 h-48 relative dreamcatcher-glow animate-float cursor-pointer transition-all duration-200 hover:scale-105 ${
         isRecording ? 'recording-pulse' : ''
       } ${!voiceEnabled || isTranscribing ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={voiceEnabled && !isTranscribing ? onToggleRecording : undefined}
