@@ -44,6 +44,9 @@ Dreams stored in localStorage on your device only. Only submitted text is sent t
 - Voice recording unavailable without microphone permission
 - Offline functionality limited to viewing saved dreams
 - Some browsers may show install prompts inconsistently
+- Browserslist data outdated warning - will update dependencies in next release
+- Dream analysis parsing errors logged to console - needs error boundary implementation
+- Service worker cache versioning needs invalidation strategy for updates
 
 ## Tester Guide
 

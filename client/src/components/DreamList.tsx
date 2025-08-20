@@ -112,7 +112,7 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
         ) : (
           /* Empty State */
           <div className="flex-1 flex flex-col items-center justify-center text-center py-16">
-            <div className="w-16 h-16 mb-4 opacity-50">
+            <div className="w-16 h-16 mb-4 opacity-50" role="img" aria-label="Moon icon">
               <Moon className="w-full h-full cosmic-text-300" />
             </div>
             <p className="cosmic-text-300 mb-2 text-lg">No dreams recorded yet</p>
