@@ -4,13 +4,13 @@ import VoiceRecorder from "@/components/VoiceRecorder";
 import DreamList from "@/components/DreamList";
 import DreamDetail from "@/components/DreamDetail";
 import DreamAnalytics from "@/components/DreamAnalytics";
-import UnconsciousMap from "@/components/UnconsciousMap";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Folder, BarChart3, Brain } from "lucide-react";
+import { Folder, BarChart3 } from "lucide-react";
 import { isFeatureEnabled } from "@/lib/features";
 
-type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics' | 'unconscious-map';
+type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics';
 
 export default function DreamRecorder() {
   const [currentPage, setCurrentPage] = useState<Page>('recording');
@@ -59,10 +59,7 @@ export default function DreamRecorder() {
       setCurrentPage('analytics');
     } else if (isRightSwipe && currentPage === 'saved-dreams') {
       setCurrentPage('recording');
-    } else if (isLeftSwipe && currentPage === 'analytics' && isFeatureEnabled('UNCONSCIOUS_MAP')) {
-      setCurrentPage('unconscious-map');
-    } else if (isRightSwipe && currentPage === 'unconscious-map') {
-      setCurrentPage('analytics');
+
     }
   };
 
@@ -145,15 +142,7 @@ export default function DreamRecorder() {
                   >
                     <BarChart3 className="w-6 h-6" />
                   </Button>
-                  {isFeatureEnabled('UNCONSCIOUS_MAP') && (
-                    <Button
-                      variant="ghost"
-                      onClick={() => setCurrentPage('unconscious-map')}
-                      className="cosmic-text-200 hover:cosmic-text-50 p-2"
-                    >
-                      <Brain className="w-6 h-6" />
-                    </Button>
-                  )}
+
                 </div>
                 <Button
                   variant="ghost"
@@ -242,23 +231,7 @@ export default function DreamRecorder() {
             </motion.div>
           )}
 
-          {currentPage === 'unconscious-map' && isFeatureEnabled('UNCONSCIOUS_MAP') && (
-            <motion.div
-              key="unconscious-map"
-              custom={3}
-              variants={pageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={pageTransition}
-              className="absolute inset-0"
-            >
-              <UnconsciousMap 
-                onBack={() => setCurrentPage('analytics')}
-                onNavigateHome={() => setCurrentPage('recording')}
-              />
-            </motion.div>
-          )}
+
         </AnimatePresence>
       </div>
 
@@ -279,13 +252,7 @@ export default function DreamRecorder() {
             currentPage === 'analytics' ? 'cosmic-bg-200' : 'cosmic-bg-600'
           }`}
         />
-        {isFeatureEnabled('UNCONSCIOUS_MAP') && (
-          <div 
-            className={`w-2 h-2 rounded-full transition-all duration-200 ${
-              currentPage === 'unconscious-map' ? 'cosmic-bg-200' : 'cosmic-bg-600'
-            }`}
-          />
-        )}
+
       </div>
     </div>
   );

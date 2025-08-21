@@ -1,7 +1,7 @@
 
 // Feature flags configuration
 export const FEATURES = {
-  UNCONSCIOUS_MAP: import.meta.env.VITE_ENABLE_UNCONSCIOUS_MAP !== 'false',
+
   ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS !== 'false',
   DREAM_SHARING: import.meta.env.VITE_ENABLE_DREAM_SHARING !== 'false',
 } as const;
