@@ -51,15 +51,18 @@ export default function DreamRecorder() {
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
+    // Left swipe goes forward in sequence: recording -> saved-dreams -> analytics
     if (isLeftSwipe && currentPage === 'recording') {
-      setCurrentPage('analytics');
-    } else if (isRightSwipe && currentPage === 'analytics') {
-      setCurrentPage('recording');
+      setCurrentPage('saved-dreams');
     } else if (isLeftSwipe && currentPage === 'saved-dreams') {
       setCurrentPage('analytics');
+    }
+    
+    // Right swipe goes backward in sequence: analytics -> saved-dreams -> recording
+    else if (isRightSwipe && currentPage === 'analytics') {
+      setCurrentPage('saved-dreams');
     } else if (isRightSwipe && currentPage === 'saved-dreams') {
       setCurrentPage('recording');
-
     }
   };
 
