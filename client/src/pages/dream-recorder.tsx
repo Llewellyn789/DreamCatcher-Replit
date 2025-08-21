@@ -52,16 +52,27 @@ export default function DreamRecorder() {
     const isRightSwipe = distance < -minSwipeDistance;
 
     // Left swipe goes forward in sequence: recording -> saved-dreams -> analytics
-    if (isLeftSwipe && currentPage === 'recording') {
-      setCurrentPage('saved-dreams');
-    } else if (isLeftSwipe && currentPage === 'saved-dreams') {
-      setCurrentPage('analytics');
+    if (isLeftSwipe) {
+      if (currentPage === 'recording') {
+        setCurrentPage('saved-dreams');
+      } else if (currentPage === 'saved-dreams') {
+        setCurrentPage('analytics');
+      }
     }
     
-    // Right swipe goes backward in sequence: analytics -> saved-dreams -> recording
-    else if (isRightSwipe && currentPage === 'analytics') {
-      setCurrentPage('saved-dreams');
-    } else if (isRightSwipe && currentPage === 'saved-dreams') {
+    // Right swipe goes backward in sequence: analytics -> saved-dreams -> recording  
+    if (isRightSwipe) {
+      if (currentPage === 'analytics') {
+        setCurrentPage('saved-dreams');
+      } else if (currentPage === 'saved-dreams') {
+        setCurrentPage('recording');
+      }
+    }
+    
+    // Direct navigation: allow swiping directly between recording and analytics
+    else if (isLeftSwipe && currentPage === 'recording' && Math.abs(distance) > minSwipeDistance * 2) {
+      setCurrentPage('analytics');
+    } else if (isRightSwipe && currentPage === 'analytics' && Math.abs(distance) > minSwipeDistance * 2) {
       setCurrentPage('recording');
     }
   };
