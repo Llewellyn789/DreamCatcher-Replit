@@ -1,0 +1,164 @@
+You are auditing this Replit project (DreamCatcher). Produce a comprehensive, current‑state report and save it as docs/replit-status-<YYYY-MM-DD>.md (use Australia/Melbourne date). Do not modify source files beyond creating that report file.
+
+Goals
+
+Give me a single, authoritative snapshot of the project’s architecture, dependencies, configs, data/storage, backend, build/run, quality issues, risks, and a 1–2 day tidy-up plan.
+
+Output Requirements
+
+Return the full report in chat and write it to docs/replit-status-<date>.md.
+
+Use clear Markdown with section headings and tables.
+
+If a step fails, include the exact command run and the full error output, then continue.
+
+What to Collect (step-by-step)
+
+Repo Overview
+
+Print a tree to depth 3 from repo root (exclude node_modules):
+find . -maxdepth 3 -type d -name node_modules -prune -o -print | sed -e 's/^\.\///' | head -n 500
+
+Show .replit and replit.nix (if present).
+
+Detect package manager and versions: node -v, npm -v || true, pnpm -v || true, yarn -v || true.
+
+Install & Scripts
+
+Show package.json scripts as a table (script → command).
+
+Note dev/build/preview ports (e.g., Vite): parse vite.config.* if present and .replit run command.
+
+Dependencies
+
+List top-level dependencies & devDependencies with versions (npm ls --depth=0 || pnpm list -P || yarn list --depth=0).
+
+Flag UI libs (Chakra, Tailwind, Radix), charting (Recharts), icons (lucide-react), and any Cloudflare/Wrangler/OpenAI/Lemon Squeezy libs.
+
+Frontend Architecture
+
+Identify framework (React + TypeScript?), routing (React Router?) and pages.
+
+Generate a routes table (path → component file).
+
+Generate a components inventory (top 30 components by import count; file → where used).
+
+Note design system usage (e.g., Chakra vs Tailwind vs custom CSS) and any mixture/inconsistencies.
+
+Data & Storage Layer
+
+Search for localStorage usage and summarize functions/keys used.
+
+Search for dataManager abstraction (if any) and map modes (local vs Supabase).
+
+Search for any Supabase, Turso, or other DB references and list files/lines.
+
+Confirm default storage mode (local-only vs remote). If ambiguous, state why.
+
+Backend / API
+
+Detect any server code (/server, Cloudflare Worker, API routes).
+
+List all endpoints (method, path, handler file) from route definitions (e.g., /api/dreams, /interpret-dream-text, etc.).
+
+Note authentication/authorization story (none/local key/license).
+
+Show Wrangler config if present (wrangler.toml) and how it’s invoked.
+
+Configuration & Secrets
+
+List env files present: .env, .env.example, .dev.vars (but DO NOT print secret values).
+
+Build a table of required env vars by scanning for process.env/import.meta.env usage (name → used in files).
+
+Specifically identify OpenAI keys and Lemon Squeezy license references (files/lines, redacting values).
+
+OpenAI Integration
+
+Where/how requests are made: model names, temperature, rate-limit handling, error handling/retries, and any server proxying vs client direct calls.
+
+Payments/Licensing
+
+Identify Lemon Squeezy usage: where license is stored (localStorage?) and how premium features are gated.
+
+Quality & Health
+
+TypeScript check: npx tsc -p . || true (capture errors).
+
+Lint check: npx eslint . || true (capture errors).
+
+Search TODO/FIXME/HACK/XXX and list with file/line snippets.
+
+Show test files count and any test runner config (Vitest/Jest). Run tests if configured: npm test --silent || true.
+
+Performance Hints
+
+If available, run a bundle analysis (e.g., vite build and any plugin analyze). If not set up, estimate by listing largest files in src by byte size:
+find src -type f -name '*.tsx' -o -name '*.ts' -o -name '*.jsx' -o -name '*.js' -printf '%s %p\n' | sort -nr | head -n 20
+
+Git Status
+
+Current branch, last 5 commits, uncommitted changes:
+git rev-parse --abbrev-ref HEAD || true
+git log --oneline -n 5 || true
+git status --porcelain || true
+
+Deployments
+
+Document how it’s deployed today (e.g., Cloudflare Pages URL). Show deploy script/commands/config if present.
+
+Clarify whether localStorage data is per-user/browser and not shared.
+
+Known Issues & Risks
+
+Summarize any errors from steps above.
+
+Call out security risks (e.g., API keys in client, CORS, missing error handling).
+
+Prioritized 1–2 Day Tidy Plan (10 items max)
+
+Create an ordered checklist with: task, file(s), expected impact, rough time estimate (S/M/L), and a one‑line acceptance test.
+
+Report Skeleton (use this layout)
+
+Title: DreamCatcher Replit Status — <DATE>
+
+Executive Summary (green/yellow/red status, 5 bullets max)
+
+Quick Facts (table)
+
+Repo Map (tree)
+
+Run & Build (scripts, ports)
+
+Dependencies (table)
+
+Frontend Architecture (routes, components)
+
+Data/Storage (local vs remote, keys)
+
+Backend/API (endpoints)
+
+Config & Env (required vars)
+
+OpenAI Integration
+
+Payments/Licensing
+
+Quality & Health (TS/ESLint, TODOs)
+
+Performance Notes
+
+Git Status
+
+Deployments
+
+Risks
+
+Tidy Plan (1–2 days)
+
+When finished, print:
+
+The absolute path to the written report file.
+
+A 5‑line TL;DR.

@@ -1,0 +1,128 @@
+Role: You are an expert build/release engineer. Perform a diagnostic audit only (no fixes, no code edits, no suggested diffs). The goal is to judge how portable this project is from Replit to Windsurf, to deploy as a PWA on Cloudflare Pages, and optionally add a Cloudflare Worker later.
+
+Inspect & Report
+
+Project identity
+
+Framework/tooling present (Vite? React? TypeScript?).
+
+Key files detected: vite.config.(ts|js), index.html, tsconfig.json.
+
+Runtime & scripts
+
+package.json scripts present/absent for: dev, build, preview.
+
+"engines" field and Node version (if any).
+
+Package manager lockfile present (package-lock.json, pnpm-lock.yaml, or yarn.lock) and which PM is implied.
+
+PWA readiness
+
+Presence of public/manifest.webmanifest.
+
+Presence of app icons in public/icons/.
+
+Whether a service worker/PWA plugin is referenced (e.g., vite-plugin-pwa).
+
+HTTPS assumptions or installability blockers you can infer from config.
+
+Routing & hosting
+
+SPA fallback present (e.g., _redirects with /* /index.html 200 or equivalent mechanism).
+
+base setting in vite.config (if any) that might affect hosting paths.
+
+Pathing & TypeScript
+
+Use of import aliases like @/... in src/.
+
+tsconfig.json paths/baseUrl presence.
+
+Env & secrets hygiene
+
+Any import.meta.env or process.env usage in client code.
+
+Any references to likely secrets in client (e.g., raw API keys).
+
+Presence of .env* files and whether variables follow client naming conventions (e.g., VITE_* for Vite).
+
+Server/backend entanglement
+
+Existence of server/, api/, workers/, or functions/ directories.
+
+Any direct imports from client code into server code paths.
+
+Any coupling that suggests build would traverse server files.
+
+Repo shape & portability clues
+
+Monorepo indicators, custom Replit files (.replit, replit.nix) relied on at run time.
+
+Node features or OS‑specific scripts that may not run in Windsurf by default.
+
+Smoke test results (read‑only execution)
+
+Attempt npm ci (or appropriate PM install) and report outcome.
+
+Attempt npm run build and report outcome.
+
+Attempt npm run preview and report whether it starts and what URL it prints.
+
+Do not modify files; only run and record outputs.
+
+Classification
+
+Classify overall untangling difficulty: Light / Moderate / Heavy.
+
+Provide a short rationale tied to the concrete findings above.
+
+Output Format (use exactly this structure; no advice)
+## Summary
+- Difficulty: Light | Moderate | Heavy
+- Primary reasons: (bullet list of concrete findings)
+
+## Findings
+### Tooling & Scripts
+- dev: present/absent; value
+- build: present/absent; value
+- preview: present/absent; value
+- engines: present/absent; value
+- lockfile: which one
+
+### PWA Readiness
+- manifest: present/absent; path
+- icons directory: present/absent
+- service worker/plugin: detected/not detected
+
+### Routing & Hosting
+- SPA fallback file: present/absent
+- vite base setting: value/absent
+
+### Paths & TypeScript
+- alias usage (@/...): found/not found (examples)
+- tsconfig paths/baseUrl: present/absent
+
+### Env & Secrets
+- import.meta.env usage: list keys or none
+- process.env usage in client: yes/no (files/lines)
+- possible secrets in client: any matches noted
+- .env files present: list or none
+
+### Server Entanglement
+- server/api/workers/functions dirs: list
+- client → server direct imports: yes/no (paths)
+
+### Repo Shape
+- Replit‑specific files detected: list
+- Monorepo indicators: yes/no
+
+## Smoke Test
+- install: success/fail (key lines)
+- build: success/fail (key lines)
+- preview: success/fail (printed URL or error)
+
+## Notes
+- Any ambiguities or assumptions made during diagnosis.
+
+
+Only report. Do not propose fixes, diffs, or recommendations.

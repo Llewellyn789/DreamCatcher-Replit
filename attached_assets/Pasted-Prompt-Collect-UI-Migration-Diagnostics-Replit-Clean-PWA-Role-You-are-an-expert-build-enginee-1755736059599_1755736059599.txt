@@ -1,0 +1,125 @@
+Prompt: Collect UI‑Migration Diagnostics (Replit → Clean PWA)
+
+Role: You are an expert build engineer. Perform a read‑only diagnostic to help migrate this project’s UI into a clean Vite PWA (localStorage only). Do not modify files. Only list and print information.
+
+What to detect
+
+Repo shape (tree to depth 3)
+
+Key configs (package.json, vite config, tsconfig)
+
+Client surface (components/pages/hooks/styles)
+
+PWA bits (manifest, icons, service worker)
+
+SPA routing fallback
+
+Client ↔ server couplings (imports that touch server/ or shared/, or @shared/*)
+
+Env usage in client (import.meta.env / process.env)
+
+Any OpenAI usage in client
+
+Replit‑specific files
+
+How to run
+
+Execute the following commands (non‑destructive), then print results exactly in the “Output Format” section.
+
+# 1) Create a concise folder tree (3 levels), ignoring bulky dirs
+( command -v tree >/dev/null && tree -L 3 -I "node_modules|dist|build|.git|.next|out" \
+  || find . -maxdepth 3 -type d | sed 's/[^-][^\/]*\//  /g;s/\/$//' ) \
+> REPO_TREE.txt
+
+# 2) Locate key configs (root and client/)
+echo "=== FILE: package.json (root) ==="
+[ -f package.json ] && cat package.json || echo "MISSING"
+echo "=== FILE: client/package.json ==="
+[ -f client/package.json ] && cat client/package.json || echo "ABSENT"
+
+echo "=== FILE: vite.config.* (root) ==="
+ls -1 vite.config.* 2>/dev/null && cat vite.config.* 2>/dev/null || echo "ABSENT"
+echo "=== FILE: client/vite.config.* ==="
+ls -1 client/vite.config.* 2>/dev/null && cat client/vite.config.* 2>/dev/null || echo "ABSENT"
+
+echo "=== tsconfig files (root) ==="
+for f in tsconfig*.json; do [ -f "$f" ] && { echo "--- $f ---"; cat "$f"; }; done
+echo "=== tsconfig files (client) ==="
+for f in client/tsconfig*.json; do [ -f "$f" ] && { echo "--- $f ---"; cat "$f"; }; done
+
+# 3) Client import map — find couplings (search both src/ and client/src/)
+echo "=== CLIENT IMPORTS → server/shared (@shared, @server, ../server, ../shared) ==="
+grep -RInE "from ['\"](@shared|@server|(\.\.\/)+server|(\.\.\/)+shared)" \
+  client/src src 2>/dev/null || echo "None found"
+
+echo "=== CLIENT ALIAS IMPORTS (e.g., @/components/…) ==="
+grep -RInE "from ['\"]@/" client/src src 2>/dev/null || echo "None found"
+
+# 4) Env usage & OpenAI references in client
+echo "=== CLIENT ENV USAGE (import.meta.env / process.env) ==="
+grep -RInE "import\.meta\.env|process\.env" client/src src 2>/dev/null || echo "None found"
+
+echo "=== CLIENT OpenAI/API usage (openai|api.openai.com) ==="
+grep -RInE "openai|api\.openai\.com" client/src src 2>/dev/null || echo "None found"
+
+# 5) PWA & routing assets (try client/public then public)
+echo "=== PWA PUBLIC (client/public or public) ==="
+if [ -d client/public ]; then ls -al client/public; else ls -al public 2>/dev/null || echo "No public/ dir"; fi
+
+[ -f client/public/manifest.webmanifest ] && echo "Found client/public/manifest.webmanifest"
+[ -f client/public/manifest.json ] && echo "Found client/public/manifest.json"
+[ -f client/public/sw.js ] && echo "Found client/public/sw.js"
+[ -f public/manifest.webmanifest ] && echo "Found public/manifest.webmanifest"
+[ -f public/manifest.json ] && echo "Found public/manifest.json"
+[ -f public/sw.js ] && echo "Found public/sw.js"
+
+echo "=== SPA fallback (_redirects at repo root) ==="
+[ -f _redirects ] && { echo "Found _redirects"; cat _redirects; } || echo "No _redirects"
+
+# 6) Replit-specific and monorepo hints
+echo "=== Replit files ==="
+ls -1 .replit replit.nix replit.md 2>/dev/null || echo "None found"
+
+echo "=== Lockfile(s) ==="
+ls -1 package-lock.json pnpm-lock.yaml yarn.lock 2>/dev/null || echo "None found"
+
+# 7) Print folder tree last (for readability)
+echo "=== FILE: REPO_TREE.txt ==="
+cat REPO_TREE.txt
+
+Output Format (print exactly)
+## Repo Tree (depth 3)
+<contents of REPO_TREE.txt>
+
+## Key Configs
+- package.json (root): <present/absent>
+- package.json (client): <present/absent>
+- vite.config (root): <present/absent>
+- vite.config (client): <present/absent>
+- tsconfig (root): <list files or 'none'>
+- tsconfig (client): <list files or 'none'>
+- Lockfile(s): <which>
+
+## Client Couplings
+- Imports into server/shared: <none or list of file:line → import>
+- Alias imports (@/...): <none or examples>
+
+## Env & OpenAI (client)
+- Env usage: <none or lines>
+- OpenAI/API usage: <none or lines>
+
+## PWA & Routing
+- Public dir: <client/public | public | none>
+- Manifest(s): <list found>
+- Service worker: <found/not found and path>
+- _redirects: <present + contents | absent>
+
+## Replit/Monorepo Indicators
+- Replit files: <list or none>
+- Monorepo hints: <client/, server/, shared/ present?>
+
+## Notes
+- Anything unusual that might affect migrating only the UI.
+
+
+Do not propose fixes or make changes—just print the information in that format.
