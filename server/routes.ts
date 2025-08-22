@@ -128,6 +128,47 @@ Return format:
     }
   });
 
+  // Transcribe audio endpoint
+  app.post("/api/transcribe", async (req, res) => {
+    try {
+      const multer = require('multer');
+      const upload = multer({ storage: multer.memoryStorage() });
+      
+      // Handle multipart form data
+      upload.single('audio')(req, res, async (err) => {
+        if (err) {
+          return res.status(400).json({ message: "Failed to process audio file" });
+        }
+
+        if (!req.file) {
+          return res.status(400).json({ message: "Audio file is required" });
+        }
+
+        try {
+          // Convert buffer to File-like object for OpenAI
+          const audioFile = new File([req.file.buffer], 'audio.webm', { 
+            type: req.file.mimetype || 'audio/webm' 
+          });
+
+          const transcription = await openai.audio.transcriptions.create({
+            file: audioFile,
+            model: "whisper-1",
+            language: "en",
+            response_format: "json"
+          });
+
+          res.json({ transcript: transcription.text || "" });
+        } catch (transcriptionError) {
+          console.error("OpenAI transcription error:", transcriptionError);
+          res.status(500).json({ message: "Failed to transcribe audio" });
+        }
+      });
+    } catch (error) {
+      console.error("Transcription endpoint error:", error);
+      res.status(500).json({ message: "Transcription service unavailable" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
