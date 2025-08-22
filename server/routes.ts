@@ -1,10 +1,17 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import OpenAI from "openai";
+import multer from "multer";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-api-key"
+});
+
+// Configure multer for audio file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -129,40 +136,30 @@ Return format:
   });
 
   // Transcribe audio endpoint
-  app.post("/api/transcribe", async (req, res) => {
+  app.post("/api/transcribe", upload.single('audio'), async (req: Request & { file?: Express.Multer.File }, res) => {
     try {
-      const multer = require('multer');
-      const upload = multer({ storage: multer.memoryStorage() });
-      
-      // Handle multipart form data
-      upload.single('audio')(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({ message: "Failed to process audio file" });
-        }
+      if (!req.file) {
+        return res.status(400).json({ message: "Audio file is required" });
+      }
 
-        if (!req.file) {
-          return res.status(400).json({ message: "Audio file is required" });
-        }
+      try {
+        // Convert buffer to File-like object for OpenAI
+        const audioFile = new File([req.file.buffer], 'audio.webm', { 
+          type: req.file.mimetype || 'audio/webm' 
+        });
 
-        try {
-          // Convert buffer to File-like object for OpenAI
-          const audioFile = new File([req.file.buffer], 'audio.webm', { 
-            type: req.file.mimetype || 'audio/webm' 
-          });
+        const transcription = await openai.audio.transcriptions.create({
+          file: audioFile,
+          model: "whisper-1",
+          language: "en",
+          response_format: "json"
+        });
 
-          const transcription = await openai.audio.transcriptions.create({
-            file: audioFile,
-            model: "whisper-1",
-            language: "en",
-            response_format: "json"
-          });
-
-          res.json({ transcript: transcription.text || "" });
-        } catch (transcriptionError) {
-          console.error("OpenAI transcription error:", transcriptionError);
-          res.status(500).json({ message: "Failed to transcribe audio" });
-        }
-      });
+        res.json({ transcript: transcription.text || "" });
+      } catch (transcriptionError) {
+        console.error("OpenAI transcription error:", transcriptionError);
+        res.status(500).json({ message: "Failed to transcribe audio" });
+      }
     } catch (error) {
       console.error("Transcription endpoint error:", error);
       res.status(500).json({ message: "Transcription service unavailable" });
