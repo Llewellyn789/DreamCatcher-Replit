@@ -15,10 +15,11 @@ import { ChevronLeft, Share, Quote, Brain, Calendar, Clock, Mic, Trash2 } from "
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Dream, JungianAnalysis } from "@shared/schema";
+import { getById, deleteDream, updateDream, type Dream } from "@/lib/dataManager";
+import type { JungianAnalysis } from "@shared/schema";
 
 interface DreamDetailProps {
-  dreamId: number;
+  dreamId: string;
   onBack: () => void;
   onNavigateHome?: () => void;
 }
@@ -27,8 +28,9 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: dream, isLoading } = useQuery<Dream>({
-    queryKey: [`/api/dreams/${dreamId}`],
+  const { data: dream, isLoading } = useQuery<Dream | undefined>({
+    queryKey: ["dreams", dreamId],
+    queryFn: () => getById(dreamId),
   });
 
   const analyzeDreamMutation = useMutation({
@@ -36,9 +38,13 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
       const response = await apiRequest("POST", `/api/dreams/${dreamId}/analyze`);
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/dreams/${dreamId}`] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
+    onSuccess: (analysisResult) => {
+      // Update the dream with the analysis result
+      if (dream && analysisResult.analysis) {
+        updateDream(dreamId, { analysis: analysisResult.analysis });
+      }
+      queryClient.invalidateQueries({ queryKey: ["dreams", dreamId] });
+      queryClient.invalidateQueries({ queryKey: ["dreams"] });
     },
     onError: () => {
       console.error("Failed to analyze dream");
@@ -47,19 +53,20 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
 
   const deleteDreamMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("DELETE", `/api/dreams/${dreamId}`);
-      if (!response.ok) {
-        throw new Error('Failed to delete dream');
-      }
-      return response;
+      await deleteDream(dreamId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
-      queryClient.removeQueries({ queryKey: [`/api/dreams/${dreamId}`] });
+      queryClient.invalidateQueries({ queryKey: ["dreams"] });
+      queryClient.removeQueries({ queryKey: ["dreams", dreamId] });
       onBack(); // Navigate back to the dreams list
     },
     onError: (error) => {
       console.error("Failed to delete dream:", error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete dream",
+        variant: "destructive",
+      });
     },
   });
 

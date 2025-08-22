@@ -5,12 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { saveDream, updateDream } from "@/lib/dataManager";
 import { Mic, MicOff, Folder, BarChart3 } from "lucide-react";
 import DreamCatcher from "@/components/DreamCatcher";
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
-  onViewDream: (dreamId: number) => void;
+  onViewDream: (dreamId: string) => void;
   onNavigateToAnalytics?: () => void;
   onReset?: () => void;
 }
@@ -178,11 +179,11 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
   const createDreamMutation = useMutation({
     mutationFn: async (dreamData: { title: string; content: string; duration?: string }) => {
-      const response = await apiRequest("POST", "/api/dreams", dreamData);
-      return await response.json();
+      const dream = await saveDream(dreamData);
+      return dream;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/dreams"] });
+      queryClient.invalidateQueries({ queryKey: ["dreams"] });
       setDreamText("");
     },
     onError: (error) => {
@@ -197,7 +198,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
     },
   });
 
-  const saveDream = async () => {
+  const saveDreamOnly = async () => {
     if (!dreamText.trim()) return;
 
     try {
@@ -254,15 +255,26 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       // Generate title first
       const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
       
-      // Save dream with generated title
-      const dreamResponse = await createDreamMutation.mutateAsync({
+      // Save dream with generated title - use saveDream directly to get the dream object
+      const dreamResponse = await saveDream({
         title: titleResponse.title,
         content: dreamText,
         duration: undefined
       });
 
+      // Invalidate queries manually since we bypassed the mutation
+      queryClient.invalidateQueries({ queryKey: ["dreams"] });
+
       // Then analyze it
       const analysisResponse = await apiRequest("POST", `/api/dreams/${dreamResponse.id}/analyze`, {});
+      
+      // Update the local dream with the analysis result
+      if (analysisResponse.ok) {
+        const analysisResult = await analysisResponse.json();
+        if (analysisResult.analysis) {
+          await updateDream(dreamResponse.id, { analysis: analysisResult.analysis });
+        }
+      }
 
       // Navigate to dream detail view after successful analysis
       onViewDream(dreamResponse.id);

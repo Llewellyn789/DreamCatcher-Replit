@@ -14,7 +14,7 @@ type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics';
 
 export default function DreamRecorder() {
   const [currentPage, setCurrentPage] = useState<Page>('recording');
-  const [selectedDreamId, setSelectedDreamId] = useState<number | null>(null);
+  const [selectedDreamId, setSelectedDreamId] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -74,7 +74,7 @@ export default function DreamRecorder() {
     }
   };
 
-  const navigateToDetail = (dreamId: number) => {
+  const navigateToDetail = (dreamId: string) => {
     setSelectedDreamId(dreamId);
     setCurrentPage('dream-detail');
   };
