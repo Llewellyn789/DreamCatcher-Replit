@@ -35,8 +35,12 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
     });
 
     const analysisText = response.choices[0].message.content;
+    if (!analysisText) {
+      throw new Error('No analysis content received from OpenAI');
+    }
     return JSON.parse(analysisText);
   } catch (error) {
-    throw new Error("Failed to analyze dream: " + error.message);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error("Failed to analyze dream: " + errorMessage);
   }
 }

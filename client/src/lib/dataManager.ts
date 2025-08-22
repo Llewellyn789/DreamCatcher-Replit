@@ -1,4 +1,4 @@
-import type { Dream as DbDream } from "@shared/schema";
+// LocalStorage-based Dream management - no database dependencies
 
 /**
  * LocalStorage-compatible Dream interface

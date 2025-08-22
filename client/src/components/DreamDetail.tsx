@@ -16,7 +16,14 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { getById, deleteDream, updateDream, type Dream } from "@/lib/dataManager";
-import type { JungianAnalysis } from "@shared/schema";
+// Local type definition
+type JungianAnalysis = {
+  archetypes: string;
+  symbols: string;
+  unconscious: string;
+  insights: string;
+  integration: string;
+};
 
 interface DreamDetailProps {
   dreamId: string;
