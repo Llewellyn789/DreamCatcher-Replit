@@ -98,6 +98,52 @@ ${content}`;
     }
   });
 
+  // Analyze dream content directly (for localStorage dreams)
+  app.post("/api/analyze-dream", async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ message: "Dream content is required" });
+      }
+
+      const prompt = `You are a Jungian psychoanalyst. Analyze the following dream using Carl Jung's analytical psychology framework. Provide your analysis in JSON format with exactly these fields:
+
+{
+  "archetypes": "Identify the archetypal figures, roles, or patterns present in the dream",
+  "symbols": "Analyze the symbolic elements and their potential meanings",
+  "unconscious": "Explore personal and collective unconscious elements revealed",
+  "insights": "Provide psychological insights about the dreamer's psyche",
+  "integration": "Suggest opportunities for psychological integration and growth"
+}
+
+Dream content: "${content}"
+
+Provide a thoughtful, professional analysis focusing on Jungian concepts like the collective unconscious, archetypes, individuation, and psychological integration.`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+      });
+
+      const analysisText = response.choices[0].message.content;
+      if (!analysisText) {
+        throw new Error('No analysis content received');
+      }
+      const analysis = JSON.parse(analysisText);
+      
+      // Validate the analysis structure
+      const validatedAnalysis = jungianAnalysisSchema.parse(analysis);
+      
+      res.json({ analysis: JSON.stringify(validatedAnalysis) });
+    } catch (error) {
+      console.error("Dream analysis error:", error);
+      res.status(500).json({ message: "Failed to analyze dream" });
+    }
+  });
+
   // Analyze dream with GPT
   app.post("/api/dreams/:id/analyze", async (req, res) => {
     try {
@@ -143,7 +189,7 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
       const validatedAnalysis = jungianAnalysisSchema.parse(analysis);
       
       // Update dream with analysis
-      await storage.updateDream(id, { analysis: JSON.stringify(validatedAnalysis) });
+      await storage.updateDream(parseInt(idParam), { analysis: JSON.stringify(validatedAnalysis) });
       
       res.json({ analysis: validatedAnalysis });
     } catch (error) {

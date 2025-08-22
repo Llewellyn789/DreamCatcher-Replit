@@ -1,10 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Clock, Moon, Folder, BarChart3, Home, Download, Upload } from "lucide-react";
+import { ChevronLeft, Clock, Moon, Folder, BarChart3, Home } from "lucide-react";
 import { format } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
-import { getAllDreams, exportJSON, importJSON, type Dream } from "@/lib/dataManager";
-import { useRef } from "react";
+import { getAllDreams, type Dream } from "@/lib/dataManager";
 
 interface DreamListProps {
   onBack: () => void;
@@ -13,62 +11,11 @@ interface DreamListProps {
 }
 
 export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }: DreamListProps) {
-  const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
   const { data: dreams, isLoading } = useQuery<Dream[]>({
     queryKey: ["dreams"],
     queryFn: getAllDreams,
   });
 
-  const handleExport = async () => {
-    try {
-      const jsonData = await exportJSON();
-      const blob = new Blob([jsonData], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `dreams-export-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "Export successful",
-        description: "Dreams exported successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Export failed",
-        description: "Failed to export dreams",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const result = await importJSON(file);
-      toast({
-        title: "Import successful",
-        description: `Imported ${result.count} new dreams`,
-      });
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    } catch (error) {
-      toast({
-        title: "Import failed", 
-        description: error instanceof Error ? error.message : "Failed to import dreams",
-        variant: "destructive",
-      });
-    }
-  };
 
   const formatDate = (date: string | Date) => {
     return format(new Date(date), 'MMM d, yyyy');
@@ -122,44 +69,15 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
           <Home className="w-6 h-6" />
         </Button>
         <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleExport}
-            className="cosmic-text-200 hover:cosmic-text-50"
-            title="Export dreams"
-          >
-            <Download className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            className="cosmic-text-200 hover:cosmic-text-50"
-            title="Import dreams"
-          >
-            <Upload className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onNavigateToAnalytics}
-            className="cosmic-text-200 hover:cosmic-text-50"
-          >
-            <BarChart3 className="w-6 h-6" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNavigateToAnalytics}
+          className="cosmic-text-200 hover:cosmic-text-50"
+        >
+          <BarChart3 className="w-6 h-6" />
+        </Button>
       </div>
-      
-      {/* Hidden file input for import */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleImport}
-        className="hidden"
-      />
 
       {/* Dreams List */}
       <div className="flex-1 overflow-y-auto">

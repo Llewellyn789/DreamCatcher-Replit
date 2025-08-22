@@ -266,7 +266,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       queryClient.invalidateQueries({ queryKey: ["dreams"] });
 
       // Then analyze it
-      const analysisResponse = await apiRequest("POST", `/api/dreams/${dreamResponse.id}/analyze`, {});
+      const analysisResponse = await apiRequest("POST", `/api/analyze-dream`, { content: dreamText });
       
       // Update the local dream with the analysis result
       if (analysisResponse.ok) {

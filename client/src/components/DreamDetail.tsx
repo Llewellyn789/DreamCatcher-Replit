@@ -35,13 +35,14 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
 
   const analyzeDreamMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", `/api/dreams/${dreamId}/analyze`);
+      if (!dream) throw new Error('No dream found');
+      const response = await apiRequest("POST", `/api/analyze-dream`, { content: dream.content });
       return response.json();
     },
     onSuccess: (analysisResult) => {
       // Update the dream with the analysis result
       if (dream && analysisResult.analysis) {
-        updateDream(dreamId, { analysis: JSON.stringify(analysisResult.analysis) });
+        updateDream(dreamId, { analysis: analysisResult.analysis });
       }
       queryClient.invalidateQueries({ queryKey: ["dreams", dreamId] });
       queryClient.invalidateQueries({ queryKey: ["dreams"] });
