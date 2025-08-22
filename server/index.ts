@@ -18,23 +18,33 @@ async function setupVite(app: express.Express, server: any) {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   
   try {
+    log("Creating Vite server...");
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: { port: 5173 }
+      },
       appType: "spa",
       clearScreen: false,
       configFile: path.resolve(__dirname, "..", "vite.config.ts"),
+      logLevel: 'info',
     });
 
+    log("Adding Vite middleware...");
     app.use(vite.ssrFixStacktrace);
     app.use(vite.middlewares);
     
-    log("Vite middleware setup completed");
+    log("Vite middlewares registered successfully");
+    
+    log("Vite middleware setup completed successfully");
   } catch (error) {
     log(`Vite setup error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    // Fallback to simple serving if Vite fails
+    log(`Error stack: ${error instanceof Error ? error.stack : 'No stack'}`);
+    
+    // Fallback to basic HTML serving if Vite fails
     app.get("*", (req, res) => {
       if (req.path.startsWith("/api") || req.path.startsWith("/health")) {
-        return;
+        return res.status(404).json({ error: "API endpoint not found" });
       }
       res.send(`
 <!DOCTYPE html>
@@ -43,8 +53,8 @@ async function setupVite(app: express.Express, server: any) {
   <title>Dream Catcher</title>
 </head>
 <body>
-  <h1>Dream Catcher</h1>
-  <p>Vite is currently unavailable. Please check the console for errors.</p>
+  <h1>Dream Catcher - Fallback Mode</h1>
+  <p>Vite is currently unavailable. Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>
 </body>
 </html>
       `);
@@ -60,6 +70,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
+  log(`Incoming request: ${req.method} ${path}`);
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -88,7 +99,29 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Add a simple test route
+  app.get("/test", (req, res) => {
+    log("Test route accessed");
+    res.json({ message: "Express is working", timestamp: new Date().toISOString() });
+  });
+
+  // Temporarily serve built assets instead of Vite dev server
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const distPath = path.resolve(__dirname, "..", "dist", "public");
+  
+  log(`Setting up static file serving from: ${distPath}`);
+  app.use(express.static(distPath));
+
   const server = await registerRoutes(app);
+
+  // Setup static file serving for SPA in production only
+  if (process.env.NODE_ENV !== "development") {
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const distPath = path.resolve(__dirname, "..", "dist", "public");
+    
+    log("Setting up static file serving for SPA");
+    app.use(express.static(distPath));
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -97,13 +130,6 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
     throw err;
   });
-
-  // Setup static file serving for SPA
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const distPath = path.resolve(__dirname, "..", "dist", "public");
-  
-  log("Setting up static file serving for SPA");
-  app.use(express.static(distPath));
 
   // Dev-only status page
   if (process.env.SHOW_STATUS_PAGE === "true") {
@@ -211,15 +237,33 @@ app.use((req, res, next) => {
     });
   }
 
-  // SPA fallback - must be LAST
+  // SPA fallback - serve index.html for all non-API routes
   app.use("*", (req, res) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/health") || req.path.startsWith("/test")) {
+      return res.status(404).json({ error: "API endpoint not found" });
+    }
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const distPath = path.resolve(__dirname, "..", "dist", "public");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 
   // Serve the app on configured port
   // this serves both the API and the client.
   const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
-  });
+  
+  const startServer = () => {
+    server.listen(port, "0.0.0.0", () => {
+      log(`serving on port ${port}`);
+    }).on('error', (err: any) => {
+      if (err.code === 'EADDRINUSE') {
+        log(`Port ${port} is already in use. Server failed to start.`);
+        process.exit(1);
+      } else {
+        log(`Server error: ${err.message}`);
+        throw err;
+      }
+    });
+  };
+  
+  startServer();
 })();
