@@ -6,8 +6,8 @@ const DYNAMIC_CACHE = 'dreamcatcher-dynamic-v3';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
   '/src/main.tsx',
   '/src/App.tsx'
 ];
@@ -116,8 +116,8 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
       vibrate: [100, 50, 100],
       data: data.data
     };
