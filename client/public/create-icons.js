@@ -1,26 +1,79 @@
-// Simple icon generation script
+
 const fs = require('fs');
+const { createCanvas } = require('canvas');
 
-// Generate a simple SVG icon and convert to different sizes
-const svgIcon = `
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="64" fill="#0a0a0a"/>
-  <circle cx="256" cy="256" r="160" fill="url(#gradient)" opacity="0.8"/>
-  <circle cx="256" cy="256" r="120" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.6"/>
-  <circle cx="256" cy="256" r="80" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.4"/>
-  <circle cx="256" cy="256" r="40" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.3"/>
-  <circle cx="256" cy="256" r="20" fill="#FFD700"/>
-  <circle cx="180" cy="180" r="6" fill="#FFD700" opacity="0.7"/>
-  <circle cx="332" cy="180" r="6" fill="#FFD700" opacity="0.7"/>
-  <circle cx="180" cy="332" r="6" fill="#FFD700" opacity="0.7"/>
-  <circle cx="332" cy="332" r="6" fill="#FFD700" opacity="0.7"/>
-  <defs>
-    <radialGradient id="gradient" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#1a1a2e"/>
-      <stop offset="100%" style="stop-color:#0a0a0a"/>
-    </radialGradient>
-  </defs>
-</svg>`;
+// Function to create a PNG icon
+function createIcon(size, filename) {
+  const canvas = createCanvas(size, size);
+  const ctx = canvas.getContext('2d');
+  
+  // Background
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, size, size);
+  
+  // Center coordinates
+  const centerX = size / 2;
+  const centerY = size / 2;
+  
+  // Main circle with gradient effect
+  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, size * 0.4);
+  gradient.addColorStop(0, '#1a1a2e');
+  gradient.addColorStop(1, '#0a0a0a');
+  
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, size * 0.3, 0, 2 * Math.PI);
+  ctx.fill();
+  
+  // Concentric circles
+  const circles = [
+    { radius: size * 0.25, width: 4, opacity: 0.6 },
+    { radius: size * 0.16, width: 2, opacity: 0.4 },
+    { radius: size * 0.08, width: 2, opacity: 0.3 }
+  ];
+  
+  circles.forEach(circle => {
+    ctx.strokeStyle = `rgba(255, 215, 0, ${circle.opacity})`;
+    ctx.lineWidth = circle.width;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, circle.radius, 0, 2 * Math.PI);
+    ctx.stroke();
+  });
+  
+  // Center dot
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, size * 0.04, 0, 2 * Math.PI);
+  ctx.fill();
+  
+  // Corner stars
+  const starPositions = [
+    { x: size * 0.35, y: size * 0.35 },
+    { x: size * 0.65, y: size * 0.35 },
+    { x: size * 0.35, y: size * 0.65 },
+    { x: size * 0.65, y: size * 0.65 }
+  ];
+  
+  starPositions.forEach(pos => {
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, size * 0.012, 0, 2 * Math.PI);
+    ctx.fill();
+  });
+  
+  // Save as PNG
+  const buffer = canvas.toBuffer('image/png');
+  fs.writeFileSync(`client/public/icons/${filename}`, buffer);
+  console.log(`Created ${filename} (${size}x${size})`);
+}
 
-fs.writeFileSync('icon.svg', svgIcon);
-console.log('Created icon.svg');
+// Ensure icons directory exists
+if (!fs.existsSync('client/public/icons')) {
+  fs.mkdirSync('client/public/icons', { recursive: true });
+}
+
+// Generate icons
+createIcon(192, 'icon-192.png');
+createIcon(512, 'icon-512.png');
+
+console.log('All PNG icons created successfully!');
