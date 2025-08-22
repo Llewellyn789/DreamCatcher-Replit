@@ -39,8 +39,10 @@ export class DatabaseStorage implements IStorage {
     return allDreams;
   }
 
-  async getDream(id: number): Promise<Dream | undefined> {
-    const [dream] = await db.select().from(dreams).where(eq(dreams.id, id));
+  async getDream(id: number | string): Promise<Dream | undefined> {
+    const [dream] = typeof id === 'string' 
+      ? await db.select().from(dreams).where(eq(dreams.id, id))
+      : await db.select().from(dreams).where(eq(dreams.id, id));
     return dream || undefined;
   }
 

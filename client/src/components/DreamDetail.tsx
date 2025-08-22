@@ -108,7 +108,9 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
     );
   }
 
-  const analysis: JungianAnalysis | null = dream.analysis ? JSON.parse(dream.analysis) : null;
+  const analysis: JungianAnalysis | null = dream?.analysis
+    ? (typeof dream.analysis === 'string' ? JSON.parse(dream.analysis) : dream.analysis)
+    : null;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -198,7 +200,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
               </Button>
             )}
           </div>
-          
+
           {analysis ? (
             <div className="space-y-4">
               <div>
@@ -207,28 +209,28 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
                 </h4>
                 <p className="cosmic-text-200 text-sm leading-relaxed">{analysis.archetypes}</p>
               </div>
-              
+
               <div>
                 <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
                   Symbols:
                 </h4>
                 <p className="cosmic-text-200 text-sm leading-relaxed">{analysis.symbols}</p>
               </div>
-              
+
               <div>
                 <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
                   Personal and Collective Unconscious:
                 </h4>
                 <p className="cosmic-text-200 text-sm leading-relaxed">{analysis.unconscious}</p>
               </div>
-              
+
               <div>
                 <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
                   Psychological Insights:
                 </h4>
                 <p className="cosmic-text-200 text-sm leading-relaxed">{analysis.insights}</p>
               </div>
-              
+
               <div>
                 <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
                   Integration Opportunities:

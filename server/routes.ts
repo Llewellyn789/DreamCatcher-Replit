@@ -101,7 +101,9 @@ ${content}`;
   // Analyze dream with GPT
   app.post("/api/dreams/:id/analyze", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const idParam = req.params.id;
+      // Handle both numeric IDs and UUIDs
+      const id = isNaN(parseInt(idParam)) ? idParam : parseInt(idParam);
       const dream = await storage.getDream(id);
       
       if (!dream) {
