@@ -1,0 +1,89 @@
+You are helping fix a Node/Express + TypeScript app that won’t open in Replit preview.
+
+**Symptoms**
+- Run previously did nothing.
+- Now console shows: “Port :5000 opened on …replit.dev”, “NODE_ENV=development tsx server/index.ts”, “Setting up static file serving from: /home/runner/workspace/dist/public”, “serving on port 5000”.
+- App should serve a built SPA from `dist/public`.
+
+**Goals**
+1) Clicking Run should start ONE server that Replit can proxy, and preview should load.
+2) Server must bind to `process.env.PORT` and host `0.0.0.0`.
+3) Static files should serve from `dist/public` with an SPA fallback.
+4) A `/health` route should respond “ok”.
+5) Map the Run button properly in `.replit`.
+6) Avoid running multiple ports (no separate Vite dev server).
+
+**Make these changes**
+- `.replit` (create or update):
+  ```toml
+  run = "npm run dev"
+package.json scripts:
+
+json
+Copy
+Edit
+{
+  "scripts": {
+    "dev": "NODE_ENV=development tsx server/index.ts",
+    "build": "vite build"   // keep if we need to build the SPA
+  }
+}
+server/index.ts (ensure this exact shape):
+
+ts
+Copy
+Edit
+import path from "path";
+import express from "express";
+
+const app = express();
+
+// static
+const staticRoot = path.join(__dirname, "..", "dist", "public");
+app.use(express.static(staticRoot));
+
+// health
+app.get("/health", (_req, res) => res.send("ok"));
+
+// SPA fallback LAST
+app.use("*", (_req, res) => {
+  res.sendFile(path.join(staticRoot, "index.html"));
+});
+
+const port = Number(process.env.PORT) || 5000;
+app.listen(port, "0.0.0.0", () => {
+  console.log("[server] listening on", port);
+});
+Sanity checks
+
+If the app depends on built assets, ensure they exist:
+
+If dist/public is empty, run npm run build once (or configure whatever build step creates that folder).
+
+Kill any stray processes before starting: pkill -f node || true.
+
+What to do now
+
+Apply the edits above (create files as needed).
+
+If the client needs building, run npm run build.
+
+Ensure only the Express server runs (NO Vite dev server on a second port).
+
+Click Run.
+
+Verify:
+
+…replit.dev/health returns ok.
+
+Root …replit.dev/ loads the SPA.
+
+Deliverables
+
+Show the diffs or files you changed.
+
+Post the final Run command and the single port in use.
+
+Provide the preview URL and the /health URL.
+
+If anything fails, print the exact error and fix it.

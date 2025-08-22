@@ -1,264 +1,178 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { createServer as createViteServer } from "vite";
 import path from "path";
-import { fileURLToPath } from "url";
-
-function log(message: string) {
-  const formattedTime = new Date().toLocaleString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-  console.log(`${formattedTime} [server] ${message}`);
-}
-
-async function setupVite(app: express.Express, server: any) {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  
-  try {
-    log("Creating Vite server...");
-    const vite = await createViteServer({
-      server: { 
-        middlewareMode: true,
-        hmr: { port: 5173 }
-      },
-      appType: "spa",
-      clearScreen: false,
-      configFile: path.resolve(__dirname, "..", "vite.config.ts"),
-      logLevel: 'info',
-    });
-
-    log("Adding Vite middleware...");
-    app.use(vite.ssrFixStacktrace);
-    app.use(vite.middlewares);
-    
-    log("Vite middlewares registered successfully");
-    
-    log("Vite middleware setup completed successfully");
-  } catch (error) {
-    log(`Vite setup error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    log(`Error stack: ${error instanceof Error ? error.stack : 'No stack'}`);
-    
-    // Fallback to basic HTML serving if Vite fails
-    app.get("*", (req, res) => {
-      if (req.path.startsWith("/api") || req.path.startsWith("/health")) {
-        return res.status(404).json({ error: "API endpoint not found" });
-      }
-      res.send(`
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dream Catcher</title>
-</head>
-<body>
-  <h1>Dream Catcher - Fallback Mode</h1>
-  <p>Vite is currently unavailable. Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>
-</body>
-</html>
-      `);
-    });
-  }
-}
-
+import express from "express";
+import OpenAI from "openai";
+import multer from "multer";
 
 const app = express();
+
+// Add JSON parsing for API routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  log(`Incoming request: ${req.method} ${path}`);
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
+// OpenAI setup for dream analysis
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-api-key"
 });
 
-(async () => {
-  // Add a simple test route
-  app.get("/test", (req, res) => {
-    log("Test route accessed");
-    res.json({ message: "Express is working", timestamp: new Date().toISOString() });
-  });
+// Configure multer for audio file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit
+});
 
-  const server = await registerRoutes(app);
-
-  // Setup Vite dev server or static files based on environment
-  if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  } else {
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.resolve(__dirname, "..", "dist", "public");
+// API Routes
+app.post("/api/generate-title", async (req, res) => {
+  try {
+    const { content } = req.body;
     
-    log("Setting up static file serving for SPA");
-    app.use(express.static(distPath));
-  }
+    if (!content) {
+      return res.status(400).json({ message: "Dream content is required" });
+    }
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const prompt = `Analyze this dream and create a 3-word title that captures its essence. Return only the 3 words separated by spaces, nothing else:\n\n${content}`;
 
-    res.status(status).json({ message });
-    throw err;
-  });
-
-  // Dev-only status page
-  if (process.env.SHOW_STATUS_PAGE === "true") {
-    app.get("/_status", (req, res) => {
-      res.send(`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dream Catcher - Server Status</title>
-  <style>
-    body { 
-      margin: 0; 
-      padding: 20px; 
-      font-family: system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-      color: #ffffff;
-      min-height: 100vh;
-    }
-    .container { 
-      max-width: 600px; 
-      margin: 0 auto; 
-      text-align: center; 
-    }
-    h1 { 
-      color: #FFD700; 
-      margin-bottom: 2rem;
-      font-size: 2.5rem;
-    }
-    .status { 
-      background: rgba(255, 215, 0, 0.1); 
-      border: 1px solid #FFD700;
-      border-radius: 8px;
-      padding: 1rem;
-      margin: 1rem 0;
-    }
-    .api-test { 
-      margin-top: 2rem; 
-      padding: 1rem;
-      background: rgba(0, 255, 0, 0.1);
-      border-radius: 8px;
-    }
-    button {
-      background: #FFD700;
-      color: #000;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      margin: 8px;
-    }
-    button:hover { background: #FFC700; }
-    .error { color: #ff6b6b; }
-    .success { color: #4ecdc4; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🌙 Dream Catcher - Server Status</h1>
-    
-    <div class="status">
-      <h3>App Status: ✅ Server Running</h3>
-      <p>The Dream Catcher server is running successfully!</p>
-      <p>Environment: ${process.env.NODE_ENV || "development"}</p>
-    </div>
-
-    <div class="api-test">
-      <h4>API Test</h4>
-      <button onclick="testAPI()">Test Health Endpoint</button>
-      <div id="api-result"></div>
-    </div>
-
-    <div style="margin-top: 2rem;">
-      <h4>Current Features Available:</h4>
-      <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
-        <li>✅ Express Server</li>
-        <li>✅ API Routes (/health, /api/generate-title, /api/analyze-dream, /api/dream-themes)</li>
-        <li>✅ OpenAI Integration</li>
-        <li>✅ Static SPA Frontend</li>
-        <li>✅ Single-port Server</li>
-      </ul>
-    </div>
-  </div>
-
-  <script>
-    async function testAPI() {
-      const resultDiv = document.getElementById('api-result');
-      try {
-        const response = await fetch('/health');
-        const data = await response.json();
-        resultDiv.innerHTML = '<div class="success">✅ API Working: ' + JSON.stringify(data) + '</div>';
-      } catch (error) {
-        resultDiv.innerHTML = '<div class="error">❌ API Error: ' + error.message + '</div>';
-      }
-    }
-    
-    // Auto-test API on load
-    window.onload = () => testAPI();
-  </script>
-</body>
-</html>
-      `);
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 10,
+      temperature: 0.7,
     });
+
+    const title = response.choices[0].message.content?.trim() || "Dream Analysis";
+    
+    res.json({ title });
+  } catch (error) {
+    console.error("Title generation error:", error);
+    res.status(500).json({ message: "Failed to generate title" });
   }
+});
 
-  // SPA fallback - serve index.html for all non-API routes
-  app.use("*", (req, res) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/health") || req.path.startsWith("/test")) {
-      return res.status(404).json({ error: "API endpoint not found" });
+app.post("/api/analyze-dream", async (req, res) => {
+  try {
+    const { content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ message: "Dream content is required" });
     }
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.resolve(__dirname, "..", "dist", "public");
-    res.sendFile(path.resolve(distPath, "index.html"));
-  });
 
-  // Serve the app on configured port
-  // this serves both the API and the client.
-  const port = parseInt(process.env.PORT || "5000", 10);
-  
-  const startServer = () => {
-    server.listen(port, "0.0.0.0", () => {
-      log(`serving on port ${port}`);
-    }).on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE') {
-        log(`Port ${port} is already in use. Server failed to start.`);
-        process.exit(1);
-      } else {
-        log(`Server error: ${err.message}`);
-        throw err;
-      }
+    const prompt = `You are a Jungian psychoanalyst. Analyze the following dream using Carl Jung's analytical psychology framework. Provide your analysis in JSON format with exactly these fields:
+
+{
+  "archetypes": "Identify the archetypal figures, roles, or patterns present in the dream",
+  "symbols": "Analyze the symbolic elements and their potential meanings",
+  "unconscious": "Explore personal and collective unconscious elements revealed",
+  "insights": "Provide psychological insights about the dreamer's psyche",
+  "integration": "Suggest opportunities for psychological integration and growth"
+}
+
+Dream content: "${content}"
+
+Provide a thoughtful, professional analysis focusing on Jungian concepts like the collective unconscious, archetypes, individuation, and psychological integration.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      max_tokens: 1000,
     });
-  };
-  
-  startServer();
-})();
+
+    const analysisText = response.choices[0].message.content;
+    if (!analysisText) {
+      throw new Error('No analysis content received');
+    }
+    const analysis = JSON.parse(analysisText);
+    
+    res.json({ analysis: JSON.stringify(analysis) });
+  } catch (error) {
+    console.error("Dream analysis error:", error);
+    res.status(500).json({ message: "Failed to analyze dream" });
+  }
+});
+
+app.post("/api/dream-themes", async (req, res) => {
+  try {
+    const { content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ message: "Dream content is required" });
+    }
+
+    const prompt = `Analyze this dream content and extract key psychological themes. Return a JSON array of theme objects, each with a "name" field containing a concise theme name. Focus on Jungian archetypal themes, symbolic elements, and psychological patterns. Return up to 10 most relevant themes:
+
+Dream content: "${content}"
+
+Return format:
+[
+  {"name": "shadow"},
+  {"name": "transformation"},
+  {"name": "water"}
+]`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      max_tokens: 500,
+    });
+
+    const themesText = response.choices[0].message.content;
+    if (!themesText) {
+      throw new Error('No themes content received');
+    }
+    
+    const result = JSON.parse(themesText);
+    const themes = result.themes || [];
+    
+    res.json(themes);
+  } catch (error) {
+    console.error("Theme extraction error:", error);
+    res.status(500).json({ message: "Failed to extract themes" });
+  }
+});
+
+app.post("/api/transcribe", upload.single('audio'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Audio file is required" });
+    }
+
+    try {
+      // Convert buffer to File-like object for OpenAI
+      const audioFile = new File([req.file.buffer], 'audio.webm', { 
+        type: req.file.mimetype || 'audio/webm' 
+      });
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: audioFile,
+        model: "whisper-1",
+        language: "en",
+        response_format: "json"
+      });
+
+      res.json({ transcript: transcription.text || "" });
+    } catch (transcriptionError) {
+      console.error("OpenAI transcription error:", transcriptionError);
+      res.status(500).json({ message: "Failed to transcribe audio" });
+    }
+  } catch (error) {
+    console.error("Transcription endpoint error:", error);
+    res.status(500).json({ message: "Transcription service unavailable" });
+  }
+});
+
+// Static files
+const staticRoot = path.join(process.cwd(), "dist", "public");
+app.use(express.static(staticRoot));
+
+// Health check
+app.get("/health", (_req, res) => res.send("ok"));
+
+// SPA fallback LAST
+app.use("*", (_req, res) => {
+  res.sendFile(path.join(staticRoot, "index.html"));
+});
+
+const port = Number(process.env.PORT) || 5000;
+app.listen(port, "0.0.0.0", () => {
+  console.log("[server] listening on", port);
+});
