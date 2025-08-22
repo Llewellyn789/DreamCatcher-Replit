@@ -126,7 +126,7 @@ export default function DreamRecorder() {
 
       {/* Main Content */}
       <div 
-        className="relative z-10 min-h-screen"
+        className="relative z-10 min-h-screen px-4 sm:px-6"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -144,12 +144,12 @@ export default function DreamRecorder() {
               className="absolute inset-0"
             >
               {/* Navigation Icons */}
-              <div className="absolute top-6 left-4 right-4 z-50 flex justify-between">
+              <div className="absolute top-6 left-0 right-0 z-50 flex justify-between px-4">
                 <div className="flex space-x-2">
                   <Button
                     variant="ghost"
                     onClick={() => setCurrentPage('analytics')}
-                    className="cosmic-text-200 hover:cosmic-text-50 p-2"
+                    className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] min-w-[44px] p-2"
                   >
                     <BarChart3 className="w-6 h-6" />
                   </Button>
@@ -158,13 +158,13 @@ export default function DreamRecorder() {
                 <Button
                   variant="ghost"
                   onClick={() => setCurrentPage('saved-dreams')}
-                  className="cosmic-text-200 hover:cosmic-text-50 p-2"
+                  className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] min-w-[44px] p-2"
                 >
                   <Folder className="w-6 h-6" />
                 </Button>
               </div>
               
-              <div className="flex flex-col h-screen px-6 py-16 overflow-y-auto">
+              <div className="flex flex-col h-screen py-16 overflow-y-auto">
 
                 {/* Voice Recorder Component */}
                 <div className="flex-1 flex flex-col min-h-0">

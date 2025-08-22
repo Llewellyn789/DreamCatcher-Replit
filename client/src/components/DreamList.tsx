@@ -57,23 +57,23 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
   }
 
   return (
-    <div className="flex flex-col h-screen px-6 py-8">
+    <div className="flex flex-col h-screen px-4 sm:px-6 py-6 md:py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Button
           variant="ghost"
           size="icon"
           onClick={onBack}
-          className="cosmic-text-200 hover:cosmic-text-50"
+          className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] min-w-[44px]"
         >
           <Home className="w-6 h-6" />
         </Button>
-        <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
+        <h1 className="text-xl sm:text-2xl font-bold cosmic-text-50 text-shadow-gold text-center">Saved Dreams</h1>
         <Button
           variant="ghost"
           size="icon"
           onClick={onNavigateToAnalytics}
-          className="cosmic-text-200 hover:cosmic-text-50"
+          className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] min-w-[44px]"
         >
           <BarChart3 className="w-6 h-6" />
         </Button>
@@ -96,7 +96,7 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
                   </span>
                 </div>
 
-                <p className="cosmic-text-200 text-sm leading-relaxed mb-3 line-clamp-2">
+                <p className="cosmic-text-200 text-base leading-relaxed mb-3 line-clamp-2">
                   {truncateText(dream.content)}
                 </p>
 

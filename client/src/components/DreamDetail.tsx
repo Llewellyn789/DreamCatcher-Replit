@@ -85,7 +85,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-screen px-6 py-8">
+      <div className="flex flex-col h-screen px-4 sm:px-6 py-6 md:py-8">
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
@@ -104,7 +104,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
 
   if (!dream) {
     return (
-      <div className="flex flex-col h-screen px-6 py-8">
+      <div className="flex flex-col h-screen px-4 sm:px-6 py-6 md:py-8">
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
@@ -154,7 +154,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
   };
 
   return (
-    <div className="flex flex-col h-screen px-6 py-8">
+    <div className="flex flex-col h-screen px-4 sm:px-6 py-6 md:py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <Button
@@ -200,7 +200,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
               <Button
                 onClick={() => analyzeDreamMutation.mutate()}
                 disabled={analyzeDreamMutation.isPending}
-                className="gradient-gold cosmic-text-950 text-sm px-4 py-2"
+                className="gradient-gold cosmic-text-950 text-sm px-4 py-2 h-10 min-w-[120px]"
               >
                 {analyzeDreamMutation.isPending ? (
                   <div className="flex items-center space-x-2">

@@ -4,17 +4,31 @@
 
 /* PWA and Mobile Optimizations */
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   /* Prevent zoom on iOS inputs */
   input, textarea, select {
     font-size: 16px !important;
   }
-  
+
   /* Prevent bounce scrolling */
   html, body {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Remove tap highlights */
   * {
     -webkit-tap-highlight-color: transparent;
@@ -22,32 +36,32 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  
+
   /* Allow text selection for text areas and inputs */
   input, textarea, [contenteditable] {
     -webkit-user-select: text;
     user-select: text;
   }
-  
+
   /* Improve touch targets */
   button, [role="button"] {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Safe area handling for notched devices */
   .safe-area-top {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   .safe-area-left {
     padding-left: env(safe-area-inset-left);
   }
-  
+
   .safe-area-right {
     padding-right: env(safe-area-inset-right);
   }
@@ -133,46 +147,46 @@
   .gradient-cosmic {
     background: linear-gradient(135deg, hsl(var(--cosmic-950)) 0%, hsl(var(--cosmic-900)) 50%, hsl(var(--cosmic-800)) 100%);
   }
-  
+
   .gradient-gold {
     background: linear-gradient(135deg, hsl(var(--cosmic-200)) 0%, hsl(var(--cosmic-300)) 100%);
   }
-  
+
   .text-shadow-gold {
     text-shadow: 0 0 20px hsla(var(--cosmic-200), 0.5);
   }
-  
+
   .dreamcatcher-glow {
     filter: drop-shadow(0 0 20px hsla(var(--cosmic-200), 0.3));
   }
-  
+
   /* Legacy DreamCatcher styles */
   .text-gold {
     color: var(--gold);
   }
-  
+
   .glow-gold {
     text-shadow:
       0 0 8px rgba(196,160,90,0.4),
       0 0 20px rgba(196,160,90,0.25);
   }
-  
+
   .btn-glow {
     box-shadow:
       0 0 15px rgba(196,160,90,0.35),
       0 0 30px rgba(196,160,90,0.25);
   }
-  
+
   .glass-effect {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid hsla(var(--cosmic-200), 0.2);
   }
-  
+
   .recording-pulse {
     animation: pulse-gold 1.5s infinite;
   }
-  
+
   .shimmer-text {
     background: linear-gradient(90deg, hsl(var(--cosmic-200)), hsl(var(--cosmic-50)), hsl(var(--cosmic-200)));
     background-size: 200% 100%;
@@ -183,15 +197,15 @@
   }
 
   .shiny-gold {
-    background: linear-gradient(135deg, 
-      #FFD700 0%, 
-      #FFA500 25%, 
-      #FFD700 50%, 
-      #FFFF99 75%, 
+    background: linear-gradient(135deg,
+      #FFD700 0%,
+      #FFA500 25%,
+      #FFD700 50%,
+      #FFFF99 75%,
       #FFD700 100%);
     background-size: 200% 200%;
     animation: goldShine 3s ease-in-out infinite;
-    box-shadow: 
+    box-shadow:
       0 0 20px rgba(255, 215, 0, 0.6),
       0 0 40px rgba(255, 215, 0, 0.4),
       inset 0 0 20px rgba(255, 255, 255, 0.2);
@@ -199,18 +213,18 @@
   }
 
   .shiny-gold-text {
-    background: linear-gradient(135deg, 
-      #FFD700 0%, 
-      #FFA500 25%, 
-      #FFD700 50%, 
-      #FFFF99 75%, 
+    background: linear-gradient(135deg,
+      #FFD700 0%,
+      #FFA500 25%,
+      #FFD700 50%,
+      #FFFF99 75%,
       #FFD700 100%);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: goldShine 3s ease-in-out infinite;
-    text-shadow: 
+    text-shadow:
       0 0 10px rgba(255, 215, 0, 0.8),
       0 0 20px rgba(255, 215, 0, 0.6),
       0 0 30px rgba(255, 215, 0, 0.4);
@@ -218,7 +232,7 @@
   }
 
   .cosmic-glow {
-    text-shadow: 
+    text-shadow:
       0 0 10px rgba(255, 215, 0, 0.8),
       0 0 20px rgba(255, 215, 0, 0.6),
       0 0 30px rgba(255, 215, 0, 0.4);
@@ -278,13 +292,13 @@
     @apply min-h-[48px] min-w-[48px] touch-manipulation;
     -webkit-tap-highlight-color: rgba(255, 215, 0, 0.3);
   }
-  
+
   /* Improved scrollable areas for mobile */
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  
+
   /* PWA safe area containers */
   .pwa-container {
     padding-top: max(1rem, env(safe-area-inset-top));
@@ -292,75 +306,75 @@
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
   }
-  
+
   /* Mobile-first responsive containers */
   .mobile-container {
     @apply w-full max-w-md mx-auto px-4;
   }
-  
+
   /* Enhanced touch feedback */
   .touch-feedback {
     transition: all 0.15s ease;
     transform: scale(1);
   }
-  
+
   .touch-feedback:active {
     transform: scale(0.95);
     opacity: 0.8;
   }
-  
+
   /* Voice recording specific mobile styles */
   .voice-recorder-mobile {
     @apply fixed inset-0 flex flex-col items-center justify-center p-6;
-    background: linear-gradient(135deg, 
-      hsla(var(--cosmic-950), 0.95) 0%, 
-      hsla(var(--cosmic-900), 0.95) 50%, 
+    background: linear-gradient(135deg,
+      hsla(var(--cosmic-950), 0.95) 0%,
+      hsla(var(--cosmic-900), 0.95) 50%,
       hsla(var(--cosmic-800), 0.95) 100%);
     backdrop-filter: blur(20px);
   }
-  
+
   /* Mobile dream cards */
   .dream-card-mobile {
     @apply p-4 rounded-lg glass-effect mb-4 touch-feedback;
     min-height: 80px;
   }
-  
+
   /* Mobile navigation */
   .mobile-nav {
     @apply fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t;
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
-  
+
   /* Mobile text sizing */
   .mobile-text-lg {
     @apply text-lg leading-relaxed;
   }
-  
+
   .mobile-text-base {
     @apply text-base leading-relaxed;
   }
-  
+
   /* Offline state styles */
   .offline-state {
     @apply opacity-75 pointer-events-none;
   }
-  
+
   .offline-indicator {
     @apply fixed top-4 left-4 right-4 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg text-center text-sm z-50;
     animation: slideDown 0.3s ease;
   }
-  
+
   /* Install prompt styles */
   .install-prompt {
     @apply fixed top-0 left-0 right-0 bg-primary text-primary-foreground px-4 py-3 text-center text-sm z-50;
     animation: slideDown 0.3s ease;
   }
-  
+
   /* Loading states for mobile */
   .mobile-loading {
     @apply flex items-center justify-center min-h-[200px];
   }
-  
+
   .mobile-skeleton {
     @apply animate-pulse bg-muted rounded;
   }
@@ -380,45 +394,45 @@
   html {
     font-size: 16px !important; /* Prevent zoom issues */
   }
-  
+
   /* Increase touch targets on mobile */
   button, [role="button"], .clickable {
     min-height: 48px;
     min-width: 48px;
   }
-  
+
   /* Optimize text for mobile reading */
   p, span, div {
     line-height: 1.6;
   }
-  
+
   /* Better mobile form inputs */
   input, textarea, select {
     @apply text-base px-4 py-3 rounded-lg;
     min-height: 48px;
     font-size: 16px !important; /* Prevent zoom on iOS */
   }
-  
+
   /* Mobile card spacing */
   .card {
     @apply mx-2 my-3;
   }
-  
+
   /* Adjust modal sizes for mobile */
   .modal-content {
     @apply w-full max-w-sm mx-4;
   }
-  
+
   /* Mobile-specific dreamcatcher positioning */
   .dreamcatcher-bottom {
     padding-bottom: max(2rem, env(safe-area-inset-bottom)) !important;
   }
-  
+
   /* Mobile text scaling */
   .mobile-title {
     font-size: 1.5rem !important;
   }
-  
+
   .mobile-subtitle {
     font-size: 1rem !important;
   }
@@ -429,7 +443,7 @@
   .mobile-title {
     font-size: 1.25rem !important;
   }
-  
+
   .mobile-subtitle {
     font-size: 0.875rem !important;
   }
@@ -488,7 +502,7 @@
   .voice-recorder-mobile {
     @apply flex-row gap-8;
   }
-  
+
   .mobile-container {
     @apply max-w-full px-8;
   }
@@ -508,11 +522,11 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .recording-pulse {
     animation: none;
   }
-  
+
   .shimmer-text {
     animation: none;
     background: hsl(var(--cosmic-200));
@@ -616,13 +630,13 @@
     width: 100% !important;
     box-sizing: border-box !important;
   }
-  
+
   .glass-effect {
     overflow: hidden !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
   }
-  
+
   /* Prevent horizontal overflow on mobile */
   .mobile-container {
     max-width: 100vw !important;

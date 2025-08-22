@@ -19,9 +19,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div key="app-v2">
+        <div key="app-v2" className="min-h-screen">
           <Toaster />
-          <Router />
+          <div className="mx-auto max-w-screen-md">
+            <Router />
+          </div>
         </div>
       </TooltipProvider>
     </QueryClientProvider>

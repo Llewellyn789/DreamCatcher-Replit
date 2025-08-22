@@ -313,25 +313,25 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
 
       {(dreamText || hasRecorded) ? (
         // Show text area when there's content or recording has been made
-        <div className="flex-1 flex flex-col px-6">
+        <div className="flex-1 flex flex-col">
           {/* Back button */}
           <div className="flex justify-start pt-4 pb-2">
             <Button
               variant="ghost"
               onClick={resetToHome}
-              className="cosmic-text-200 hover:cosmic-text-50 p-2"
+              className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] p-2"
             >
               ← Back
             </Button>
           </div>
           
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center px-4">
             <div className="w-full max-w-md">
             <Textarea
               value={dreamText}
               onChange={(e) => setDreamText(e.target.value)}
               placeholder={isRecording ? "Recording your dream..." : isTranscribing ? "Transcribing..." : "Describe your dream here..."}
-              className="glass-effect cosmic-text-50 placeholder-cosmic-300 border-cosmic-300/30 resize-none min-h-[200px] text-base leading-relaxed"
+              className="glass-effect cosmic-text-50 placeholder-cosmic-300 border-cosmic-300/30 resize-none min-h-[200px] text-base leading-relaxed w-full"
               disabled={isRecording || isTranscribing}
             />
             
@@ -341,7 +341,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
               {isRecording && (
                 <Button
                   onClick={stopRecording}
-                  className="w-full max-w-xs bg-red-500 hover:bg-red-600 text-white font-semibold transition-all duration-200 z-50 relative"
+                  className="w-full max-w-xs min-h-[44px] bg-red-500 hover:bg-red-600 text-white font-semibold transition-all duration-200 z-50 relative"
                 >
                   <MicOff className="w-4 h-4 mr-2" />
                   Stop Recording
@@ -353,7 +353,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
                 <Button
                   onClick={interpretDream}
                   disabled={!dreamText.trim() || isAnalyzing}
-                  className="w-full max-w-xs gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
+                  className="w-full max-w-xs min-h-[44px] gradient-gold cosmic-text-950 font-semibold hover:opacity-90 transition-all duration-200"
                 >
                   {isAnalyzing ? "Analyzing..." : "Interpret Dream"}
                 </Button>
@@ -383,13 +383,13 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
           </div>
 
           {/* Microphone button at bottom */}
-          <div className="pb-8 px-6">
+          <div className="pb-8 px-4">
             <div className="flex justify-center">
               <button
                 aria-label="Record"
                 onClick={voiceEnabled ? toggleRecording : () => setHasRecorded(true)}
                 disabled={isTranscribing}
-                className={`relative h-16 w-16 rounded-full flex items-center justify-center text-white
+                className={`relative min-h-[64px] min-w-[64px] h-16 w-16 rounded-full flex items-center justify-center text-white
                            transition-transform duration-150 ease-out
                            focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70
                            hover:scale-105 active:scale-95 ${
