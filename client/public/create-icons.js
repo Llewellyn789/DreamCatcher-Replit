@@ -67,13 +67,6 @@ function createIcon(size, filename) {
   console.log(`Created ${filename} (${size}x${size})`);
 }
 
-// Ensure icons directory exists
-if (!fs.existsSync('client/public/icons')) {
-  fs.mkdirSync('client/public/icons', { recursive: true });
-}
-
-// Generate icons
-createIcon(192, 'icon-192.png');
-createIcon(512, 'icon-512.png');
-
-console.log('All PNG icons created successfully!');
+// Icons have been replaced with custom PNG files
+// This script is no longer needed for icon generation
+console.log('Custom PNG icons are already in place!');
