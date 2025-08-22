@@ -42,7 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get single dream
   app.get("/api/dreams/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const dream = await storage.getDream(id);
       
       if (!dream) {
@@ -102,9 +102,7 @@ ${content}`;
   app.post("/api/dreams/:id/analyze", async (req, res) => {
     try {
       const idParam = req.params.id;
-      // Handle both numeric IDs and UUIDs
-      const id = isNaN(parseInt(idParam)) ? idParam : parseInt(idParam);
-      const dream = await storage.getDream(id);
+      const dream = await storage.getDream(idParam);
       
       if (!dream) {
         return res.status(404).json({ message: "Dream not found" });
@@ -204,7 +202,7 @@ Provide a thoughtful, professional analysis focusing on Jungian concepts like th
   // Delete dream
   app.delete("/api/dreams/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const success = await storage.deleteDream(id);
       
       if (!success) {

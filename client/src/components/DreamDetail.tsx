@@ -41,13 +41,18 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
     onSuccess: (analysisResult) => {
       // Update the dream with the analysis result
       if (dream && analysisResult.analysis) {
-        updateDream(dreamId, { analysis: analysisResult.analysis });
+        updateDream(dreamId, { analysis: JSON.stringify(analysisResult.analysis) });
       }
       queryClient.invalidateQueries({ queryKey: ["dreams", dreamId] });
       queryClient.invalidateQueries({ queryKey: ["dreams"] });
     },
-    onError: () => {
-      console.error("Failed to analyze dream");
+    onError: (error) => {
+      console.error("Failed to analyze dream:", error);
+      toast({
+        title: "Analysis failed",
+        description: "Failed to analyze dream. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 

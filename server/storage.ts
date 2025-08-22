@@ -9,10 +9,10 @@ export interface IStorage {
   
   // Dream operations
   getAllDreams(): Promise<Dream[]>;
-  getDream(id: number): Promise<Dream | undefined>;
+  getDream(id: number | string): Promise<Dream | undefined>;
   createDream(dream: InsertDream): Promise<Dream>;
-  updateDream(id: number, updates: Partial<InsertDream>): Promise<Dream | undefined>;
-  deleteDream(id: number): Promise<boolean>;
+  updateDream(id: number | string, updates: Partial<InsertDream>): Promise<Dream | undefined>;
+  deleteDream(id: number | string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -40,9 +40,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDream(id: number | string): Promise<Dream | undefined> {
-    const [dream] = typeof id === 'string' 
-      ? await db.select().from(dreams).where(eq(dreams.id, id))
-      : await db.select().from(dreams).where(eq(dreams.id, id));
+    const numericId = typeof id === 'string' ? parseInt(id) : id;
+    if (isNaN(numericId)) {
+      return undefined;
+    }
+    const [dream] = await db.select().from(dreams).where(eq(dreams.id, numericId));
     return dream || undefined;
   }
 
@@ -54,17 +56,25 @@ export class DatabaseStorage implements IStorage {
     return dream;
   }
 
-  async updateDream(id: number, updates: Partial<InsertDream>): Promise<Dream | undefined> {
+  async updateDream(id: number | string, updates: Partial<InsertDream>): Promise<Dream | undefined> {
+    const numericId = typeof id === 'string' ? parseInt(id) : id;
+    if (isNaN(numericId)) {
+      return undefined;
+    }
     const [dream] = await db
       .update(dreams)
       .set(updates)
-      .where(eq(dreams.id, id))
+      .where(eq(dreams.id, numericId))
       .returning();
     return dream || undefined;
   }
 
-  async deleteDream(id: number): Promise<boolean> {
-    const result = await db.delete(dreams).where(eq(dreams.id, id));
+  async deleteDream(id: number | string): Promise<boolean> {
+    const numericId = typeof id === 'string' ? parseInt(id) : id;
+    if (isNaN(numericId)) {
+      return false;
+    }
+    const result = await db.delete(dreams).where(eq(dreams.id, numericId));
     return (result.rowCount || 0) > 0;
   }
 }
