@@ -1,0 +1,91 @@
+You are working in a TypeScript React + Vite + Express monorepo named DreamCatcher.
+
+GOAL
+Create a single, typed localStorage DataManager and refactor the client so ALL dream CRUD uses localStorage (no /api/dreams). Do not touch OpenAI endpoints.
+
+BRANCH
+- git checkout -b feat/localstorage-data-manager
+
+STEP 1 — Discover types & current calls
+- Search for the Dream type and /api/dreams calls:
+  - rg -n "interface\\s+Dream|type\\s+Dream" client shared || true
+  - rg -n "/api/dreams" client || true
+- If a shared Dream type exists (e.g., shared/schema.ts), import it.
+- If not, create one (adjust fields as needed):
+  export interface Dream {
+    id: string;
+    title: string;
+    body: string;
+    interpretation?: string;
+    createdAt: string; // ISO
+    updatedAt: string; // ISO
+    tags?: string[];
+  }
+
+STEP 2 — Implement localStorage DataManager
+Create or replace: client/src/lib/dataManager.ts
+Export a strongly-typed module with:
+- STORAGE_KEY = "dreams"
+- Internal helpers:
+  - loadAll(): Dream[]
+  - persist(all: Dream[]): void
+  - normalize(d: Partial<Dream>): Dream   // ensure id/createdAt/updatedAt/title/body
+  - uuid(): string                        // crypto.randomUUID() with fallback
+- Public async API (return Promises for API consistency):
+  - getAllDreams(): Promise<Dream[]>      // sort by updatedAt desc
+  - getById(id: string): Promise<Dream | undefined>
+  - saveDream(input: Partial<Dream> & { id?: string }): Promise<Dream>  // create or upsert
+  - updateDream(id: string, patch: Partial<Dream>): Promise<Dream>
+  - deleteDream(id: string): Promise<void>
+  - exportJSON(): Promise<string>         // pretty JSON string
+  - importJSON(fileOrString: File | string): Promise<{ count: number }>
+Implementation notes:
+- Store an array of Dream under STORAGE_KEY.
+- Be tolerant of older shapes (add missing fields on read).
+- Add JSDoc comments to each function.
+
+STEP 3 — Refactor client to use DataManager
+- Replace every fetch('/api/dreams*') usage with DataManager equivalents:
+  - DreamList.tsx -> getAllDreams()
+  - DreamDetail.tsx -> getById(id)
+  - Creation/edit flows -> saveDream()/updateDream()
+  - Deletion -> deleteDream()
+- If React Query is used, wrap DataManager calls in queries/mutations instead of fetch.
+
+STEP 4 — Add minimal Export/Import UI
+- In Settings or Dream List toolbar, add:
+  - “Export (.json)” → calls exportJSON(), triggers file download.
+  - “Import (.json)” → hidden file input; on change, read file text and call importJSON(); toast result.
+- Keep styling minimal and consistent with existing buttons.
+
+STEP 5 — Remove client coupling to server CRUD
+- Verify there are NO remaining references:
+  - rg -n "/api/dreams" client || true  → should return nothing
+- Ensure no code path depends on DATABASE_URL or server CRUD.
+
+STEP 6 — Typecheck & build
+- npx tsc -p .
+- npm run build
+- Fix any type or build errors until green.
+
+STEP 7 — Smoke tests (report results)
+- Fresh profile (no data): open app → empty state shows clearly.
+- Create dream → edit → confirm “Saved” behavior if present.
+- Delete dream → verify it disappears.
+- Export → clear localStorage → Import → data restored.
+- Offline test: reload app and confirm existing dreams are visible; AI calls fail gracefully with user-friendly messaging.
+
+ACCEPTANCE
+- No `/api/dreams` usage remains in the client.
+- All dream CRUD flows through dataManager.ts (localStorage-only).
+- Build + typecheck are green.
+- Export/Import works as described.
+
+COMMIT & REPORT
+- git add -A
+- git commit -m "feat: localStorage-only DataManager + client refactor; add export/import; remove /api/dreams usage"
+- Output a short report:
+  - Files created/updated
+  - Final dataManager.ts contents
+  - ripgrep proof that /api/dreams calls are gone
+  - Build + tsc results
