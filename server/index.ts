@@ -105,17 +105,12 @@ app.use((req, res, next) => {
     res.json({ message: "Express is working", timestamp: new Date().toISOString() });
   });
 
-  // Temporarily serve built assets instead of Vite dev server
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const distPath = path.resolve(__dirname, "..", "dist", "public");
-  
-  log(`Setting up static file serving from: ${distPath}`);
-  app.use(express.static(distPath));
-
   const server = await registerRoutes(app);
 
-  // Setup static file serving for SPA in production only
-  if (process.env.NODE_ENV !== "development") {
+  // Setup Vite dev server or static files based on environment
+  if (process.env.NODE_ENV === "development") {
+    await setupVite(app, server);
+  } else {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const distPath = path.resolve(__dirname, "..", "dist", "public");
     
