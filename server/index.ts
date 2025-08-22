@@ -52,16 +52,6 @@ async function setupVite(app: express.Express, server: any) {
   }
 }
 
-function serveStatic(app: express.Express) {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const distPath = path.resolve(__dirname, "..", "dist", "public");
-  
-  app.use(express.static(distPath));
-  
-  app.use("*", (req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
-  });
-}
 
 const app = express();
 app.use(express.json());
@@ -108,29 +98,23 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  const env = process.env.NODE_ENV || "development";
-  log(`Environment: ${env}`);
+  // Setup static file serving for SPA
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const distPath = path.resolve(__dirname, "..", "dist", "public");
   
-  if (env === "development") {
-    log("Setting up Vite middleware");
-    // Temporarily use fallback instead of Vite due to compilation issues
-    app.get("*", (req, res) => {
-      if (req.path.startsWith("/api") || req.path.startsWith("/health")) {
-        return;
-      }
+  log("Setting up static file serving for SPA");
+  app.use(express.static(distPath));
+
+  // Dev-only status page
+  if (process.env.SHOW_STATUS_PAGE === "true") {
+    app.get("/_status", (req, res) => {
       res.send(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dream Catcher - AI Dream Interpretation</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <title>Dream Catcher - Server Status</title>
   <style>
     body { 
       margin: 0; 
@@ -180,12 +164,12 @@ app.use((req, res, next) => {
 </head>
 <body>
   <div class="container">
-    <h1>🌙 Dream Catcher</h1>
+    <h1>🌙 Dream Catcher - Server Status</h1>
     
     <div class="status">
       <h3>App Status: ✅ Server Running</h3>
       <p>The Dream Catcher server is running successfully!</p>
-      <p>Frontend compilation is temporarily bypassed while we resolve Vite configuration issues.</p>
+      <p>Environment: ${process.env.NODE_ENV || "development"}</p>
     </div>
 
     <div class="api-test">
@@ -200,8 +184,8 @@ app.use((req, res, next) => {
         <li>✅ Express Server</li>
         <li>✅ API Routes (/health, /api/generate-title, /api/analyze-dream, /api/dream-themes)</li>
         <li>✅ OpenAI Integration</li>
-        <li>🔄 Frontend (Temporarily Simplified)</li>
-        <li>🔄 Vite Development Server (Under Repair)</li>
+        <li>✅ Static SPA Frontend</li>
+        <li>✅ Single-port Server</li>
       </ul>
     </div>
   </div>
@@ -225,10 +209,12 @@ app.use((req, res, next) => {
 </html>
       `);
     });
-  } else {
-    log("Setting up static file serving");
-    serveStatic(app);
   }
+
+  // SPA fallback - must be LAST
+  app.use("*", (req, res) => {
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
 
   // Serve the app on configured port
   // this serves both the API and the client.
