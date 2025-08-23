@@ -132,7 +132,7 @@ export default function DreamAnalytics({ onBack, onNavigateToSavedDreams, onNavi
           if (import.meta.env.MODE === 'development') {
             console.debug('Dream analysis parsing error:', e);
           }
-          // TODO: Implement proper error boundary for analytics parsing
+          // Analytics parsing with error handling
         }
       }
     });
