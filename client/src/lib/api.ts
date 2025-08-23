@@ -85,7 +85,7 @@ class ApiRequestQueue {
     return status === 429 || (status >= 500 && status < 600);
   }
 
-  private getErrorMessage(status: number, statusText: string): string {
+  private getErrorMessage(status: number, _statusText: string): string {
     switch (status) {
       case 429:
         return "We're receiving a lot of requests right now. Please wait a moment and try again.";

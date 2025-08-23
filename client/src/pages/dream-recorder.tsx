@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import DreamCatcher from "@/components/DreamCatcher";
+import { useState } from "react";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import DreamList from "@/components/DreamList";
 import DreamDetail from "@/components/DreamDetail";
@@ -8,7 +7,6 @@ import DreamAnalytics from "@/components/DreamAnalytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Folder, BarChart3 } from "lucide-react";
-import { isFeatureEnabled } from "@/lib/features";
 
 type Page = 'recording' | 'saved-dreams' | 'dream-detail' | 'analytics';
 
@@ -19,7 +17,7 @@ export default function DreamRecorder() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-  const resetToHome = () => {
+  const _resetToHome = () => {
     setCurrentPage('recording');
     setSelectedDreamId(null);
     setResetKey(prev => prev + 1); // Force VoiceRecorder to reset

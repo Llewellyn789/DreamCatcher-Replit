@@ -40,7 +40,7 @@ export class AppErrorBoundary extends Component<Props, State> {
   handleCopyErrorId = async () => {
     try {
       await navigator.clipboard.writeText(this.state.errorId);
-    } catch (err) {
+    } catch {
       // Fallback if clipboard API fails
       console.log('Error ID:', this.state.errorId);
     }

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, Clock, Moon, Folder, BarChart3, Home, Mic } from "lucide-react";
+import { Clock, Moon, BarChart3, Home, Mic } from "lucide-react";
 import { format } from "date-fns";
 import { getAllDreams, type Dream } from "@/lib/dataManager";
 

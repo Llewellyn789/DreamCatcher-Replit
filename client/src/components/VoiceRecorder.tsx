@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+// Voice recorder with transcription capabilities
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { request } from "@/lib/api";
 import { saveDream, updateDream } from "@/lib/dataManager";
-import { Mic, MicOff, Folder, BarChart3 } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import DreamCatcher from "@/components/DreamCatcher";
 
 interface VoiceRecorderProps {
@@ -17,7 +17,7 @@ interface VoiceRecorderProps {
   onReset?: () => void;
 }
 
-export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, onNavigateToAnalytics, onReset }: VoiceRecorderProps) {
+export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSavedDreams, onViewDream, onNavigateToAnalytics: _onNavigateToAnalytics, onReset }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [dreamText, setDreamText] = useState("");
@@ -212,7 +212,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
     },
   });
 
-  const saveDreamOnly = async () => {
+  const _saveDreamOnly = async () => {
     if (!dreamText.trim()) return;
 
     try {

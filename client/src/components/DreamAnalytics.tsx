@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Clock, Folder, Home } from "lucide-react";
+import { ChevronLeft, TrendingUp, Calendar, Brain, Eye, Folder, Home } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
-import { format, startOfMonth, eachMonthOfInterval, subMonths } from "date-fns";
+import { format, eachMonthOfInterval, subMonths } from "date-fns";
 import { getAllDreams, type Dream } from "@/lib/dataManager";
 
 interface DreamAnalyticsProps {

@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ChevronLeft, Share, Quote, Brain, Calendar, Clock, Mic, Trash2 } from "lucide-react";
+import { ChevronLeft, Share, Quote, Brain, Calendar, Clock, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -32,7 +32,7 @@ interface DreamDetailProps {
   onNavigateHome?: () => void;
 }
 
-export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDetailProps) {
+export default function DreamDetail({ dreamId, onBack, onNavigateHome: _onNavigateHome }: DreamDetailProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -133,7 +133,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
           title: `Dream: ${dream.title}`,
           text: dream.content,
         });
-      } catch (error) {
+      } catch {
         // User cancelled or share failed
       }
     } else {
@@ -144,7 +144,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
           title: "Copied",
           description: "Dream content copied to clipboard.",
         });
-      } catch (error) {
+      } catch {
         toast({
           title: "Share Failed",
           description: "Unable to share this dream.",

@@ -1,4 +1,4 @@
-import { Mic, MicOff, PenTool } from "lucide-react";
+// DreamCatcher component with cosmic styling
 
 interface DreamCatcherProps {
   isRecording?: boolean;
