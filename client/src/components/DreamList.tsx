@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Clock, Moon, Folder, BarChart3, Home } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronLeft, Clock, Moon, Folder, BarChart3, Home, Mic } from "lucide-react";
 import { format } from "date-fns";
 import { getAllDreams, type Dream } from "@/lib/dataManager";
 
@@ -28,29 +29,41 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-screen px-6 py-8">
+      <div className="flex flex-col h-screen px-4 sm:px-6 py-6 md:py-8">
         <div className="flex items-center justify-between mb-8">
           <Button
             variant="ghost"
             size="icon"
             onClick={onBack}
-            className="cosmic-text-200 hover:cosmic-text-50"
+            className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] min-w-[44px]"
           >
             <Home className="w-6 h-6" />
           </Button>
-          <h1 className="text-2xl font-bold cosmic-text-50 text-shadow-gold">Saved Dreams</h1>
+          <h1 className="text-xl sm:text-2xl font-bold cosmic-text-50 text-shadow-gold text-center">Saved Dreams</h1>
           <Button
             variant="ghost"
             size="icon"
             onClick={onNavigateToAnalytics}
-            className="cosmic-text-200 hover:cosmic-text-50"
+            className="cosmic-text-200 hover:cosmic-text-50 min-h-[44px] min-w-[44px]"
           >
             <BarChart3 className="w-6 h-6" />
           </Button>
         </div>
 
-        <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-2 border-[hsl(var(--cosmic-200))] border-t-transparent rounded-full" />
+        <div className="flex-1 overflow-y-auto">
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="glass-effect rounded-xl p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-3" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -113,12 +126,21 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
           </div>
         ) : (
           /* Empty State */
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-16">
-            <div className="w-16 h-16 mb-4 opacity-50" role="img" aria-label="Moon icon">
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-16 px-8">
+            <div className="w-20 h-20 mb-6 opacity-60" role="img" aria-label="Moon icon">
               <Moon className="w-full h-full cosmic-text-300" />
             </div>
-            <p className="cosmic-text-300 mb-2 text-lg">No dreams recorded yet</p>
-            <p className="cosmic-text-400 text-sm">Record your first dream to begin your journey</p>
+            <h2 className="cosmic-text-50 text-xl font-semibold mb-3">No dreams yet</h2>
+            <p className="cosmic-text-300 text-base mb-8 leading-relaxed max-w-sm">
+              Record your first dream to begin your journey of self-discovery and unlock the insights within your subconscious mind.
+            </p>
+            <Button
+              onClick={onBack}
+              className="gradient-gold cosmic-text-950 text-base px-6 py-3 h-12 min-w-[140px] font-medium"
+            >
+              <Mic className="w-5 h-5 mr-2" />
+              Record Dream
+            </Button>
           </div>
         )}
       </div>

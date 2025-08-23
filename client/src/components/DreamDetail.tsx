@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -214,7 +215,50 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome }: DreamDe
             )}
           </div>
 
-          {analysis ? (
+          {analyzeDreamMutation.isPending ? (
+            <div className="space-y-4">
+              <div>
+                <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
+                  Archetypes:
+                </h4>
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-4/5" />
+              </div>
+
+              <div>
+                <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
+                  Symbols:
+                </h4>
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+
+              <div>
+                <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
+                  Personal and Collective Unconscious:
+                </h4>
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-5/6 mb-1" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+
+              <div>
+                <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
+                  Psychological Insights:
+                </h4>
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-4/5" />
+              </div>
+
+              <div>
+                <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
+                  Integration Opportunities:
+                </h4>
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-3/5" />
+              </div>
+            </div>
+          ) : analysis ? (
             <div className="space-y-4">
               <div>
                 <h4 className="cosmic-text-50 font-medium mb-2 gradient-gold bg-clip-text text-transparent">
