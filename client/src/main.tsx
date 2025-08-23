@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import "./index.css";
 
 // Force cache refresh - disable PWA temporarily
@@ -15,4 +16,8 @@ if ('caches' in window) {
   });
 }
 
-createRoot(document.getElementById("root")!).render(<App key={cacheVersion} />);
+createRoot(document.getElementById("root")!).render(
+  <AppErrorBoundary>
+    <App key={cacheVersion} />
+  </AppErrorBoundary>
+);
