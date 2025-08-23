@@ -1,6 +1,6 @@
-const CACHE_NAME = 'dreamcatcher-v3';
-const STATIC_CACHE = 'dreamcatcher-static-v3';
-const DYNAMIC_CACHE = 'dreamcatcher-dynamic-v3';
+const CACHE_NAME = 'dreamcatcher-v4';
+const STATIC_CACHE = 'dreamcatcher-static-v4';
+const DYNAMIC_CACHE = 'dreamcatcher-dynamic-v4';
 
 // Resources to cache immediately
 const STATIC_ASSETS = [

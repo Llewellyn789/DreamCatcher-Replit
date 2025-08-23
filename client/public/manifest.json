@@ -19,21 +19,21 @@
       "short_name": "Record",
       "description": "Start recording a new dream",
       "url": "/",
-      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Saved Dreams",
       "short_name": "Dreams",
       "description": "View your saved dreams",
       "url": "/",
-      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Analytics",
       "short_name": "Analytics",
       "description": "View dream analytics",
       "url": "/",
-      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "icons": [
@@ -58,7 +58,7 @@
   ],
   "screenshots": [
     {
-      "src": "./icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
