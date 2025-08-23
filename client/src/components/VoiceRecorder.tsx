@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { request } from "@/lib/api";
 import { saveDream, updateDream } from "@/lib/dataManager";
 import { Mic, MicOff, Folder, BarChart3 } from "lucide-react";
 import DreamCatcher from "@/components/DreamCatcher";
@@ -147,7 +148,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const response = await fetch('/api/transcribe', {
+      const response = await request('/api/transcribe', {
         method: 'POST',
         body: formData,
         signal: controller.signal,
@@ -163,7 +164,20 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       setDreamText(prev => prev + (prev ? ' ' : '') + data.transcript);
     } catch (error) {
       console.error('Transcription error:', error);
-      // Silent error handling - no toasts as requested
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        toast({
+          title: "Transcription Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Transcription Failed",
+          description: "Unable to convert speech to text. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsTranscribing(false);
     }
@@ -215,6 +229,20 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       setHasRecorded(false);
     } catch (error) {
       console.error("Save failed:", error);
+      // Show user-friendly error message for save failures
+      if (error instanceof Error) {
+        toast({
+          title: "Save Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Save Failed",
+          description: "Unable to save your dream. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -282,6 +310,20 @@ export default function VoiceRecorder({ onNavigateToSavedDreams, onViewDream, on
       setHasRecorded(false);
     } catch (error) {
       console.error("Analysis failed:", error);
+      // Show user-friendly error message for analysis failures
+      if (error instanceof Error) {
+        toast({
+          title: "Analysis Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Analysis Failed",
+          description: "Unable to analyze your dream. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }

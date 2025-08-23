@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { request } from "./api";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -12,6 +13,22 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  // Use rate-limited request for AI endpoints
+  const isAiEndpoint = url.includes('/api/generate-title') || 
+                      url.includes('/api/analyze-dream') || 
+                      url.includes('/api/dream-themes') ||
+                      url.includes('/api/transcribe');
+  
+  if (isAiEndpoint) {
+    return request(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+  }
+
+  // Use regular fetch for non-AI endpoints
   const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
