@@ -1,0 +1,99 @@
+Goal: Deploy from the mvp-hybrid branch without the Unconscious Map. Move the map work to a feature branch so it’s safe, and ensure mvp-hybrid has no map imports/routes/flags and no map code in the build.
+
+Steps:
+
+Checkpoint the feature on its own branch
+
+git fetch --all
+git switch mvp-hybrid
+git pull --rebase
+git switch -c feature/unconscious-map
+git add -A
+git commit -m "chore(map): checkpoint unconscious map work before isolating from mvp-hybrid"
+
+
+(If branch exists, just git switch feature/unconscious-map and commit.)
+
+Identify all Unconscious Map references
+
+Search case-insensitive for: unconscious, map, UNCONSCIOUS_MAP, VITE_ENABLE_UNCONSCIOUS_MAP.
+
+List files (components, routes, flags, env usage). Do not delete files yet; just report paths.
+
+Return to mvp-hybrid and remove references
+
+git switch mvp-hybrid
+git pull --rebase
+
+
+In mvp-hybrid, remove:
+
+Any imports of map modules from routers/layouts/providers.
+
+Any route entries / links to the map screen(s).
+
+Any feature flags and code guarded by VITE_ENABLE_UNCONSCIOUS_MAP.
+
+Any build/run command prefix using that env var.
+
+If you must keep code stubs, ensure there are no static imports (so bundler can’t include it).
+
+Build and prove it’s not bundled
+
+npm run build
+
+
+Search client/dist (or your build output) for map identifiers:
+
+grep -RInE "unconscious|UNCONSCIOUS_MAP|MapScreen" client/dist || true
+
+
+Expect no matches. Paste the output.
+
+Sanity run
+
+npm start
+
+
+App loads without env VITE_ENABLE_UNCONSCIOUS_MAP.
+
+No console/runtime errors about missing map modules.
+
+Set clean deployment commands
+
+Build command: npm run build
+
+Run command: npm start
+
+Remove any VITE_ENABLE_UNCONSCIOUS_MAP=... prefixes in Replit deployment settings.
+
+Commit and push
+
+git add -A
+git commit -m "chore(mvp-hybrid): remove Unconscious Map imports/routes/flags from MVP build"
+git push --set-upstream origin mvp-hybrid
+
+
+Acceptance criteria
+
+mvp-hybrid builds and runs without map code, flags, or routes.
+
+client/dist contains no “unconscious”/map identifiers.
+
+Replit deployment uses:
+
+Build: npm run build
+
+Run: npm start
+
+feature/unconscious-map branch safely contains the original code for later.
+
+Report back
+
+Files edited + brief diffs
+
+Build success
+
+Grep results from client/dist
+
+Confirmation of updated Replit deploy commands

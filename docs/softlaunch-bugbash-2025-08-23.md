@@ -190,3 +190,32 @@
 - ❌ Data Portability: 0% covered
 
 **Overall Assessment**: App is functional for soft launch with minor missing features. Core dream recording and analysis workflow operates correctly.
+
+---
+
+## UPDATE: PWA Icon Fix & Unconscious Map Cleanup
+
+### PWA Icon Error Resolution
+- **Status**: ✅ FIXED
+- **Issue**: Console error about invalid manifest icons
+- **Solution**: 
+  - Renamed `manifest.json` to `manifest.webmanifest` (standard extension)
+  - Updated HTML to reference `/manifest.webmanifest`
+  - Fixed apple-touch-icon to use correct `/icons/icon-180.png`
+- **Verification**: App now loads without PWA manifest errors
+
+### Unconscious Map Feature Cleanup
+- **Status**: ✅ COMPLETED
+- **Finding**: No actual Unconscious Map feature was implemented in codebase
+- **Actions Taken**:
+  - Removed `scripts/build-simple.sh` (referenced non-existent VITE_ENABLE_UNCONSCIOUS_MAP)
+  - Verified legitimate "unconscious" references are part of Jungian analysis (not map feature)
+  - Confirmed build produces clean bundle without map references
+- **Build Verification**: `npm run build` successful, production server tested and working
+- **Bundle Analysis**: Only legitimate Jungian "unconscious" analysis references found in dist/
+
+### Final Deployment Status
+- **Build Command**: `npm run build` ✅
+- **Run Command**: `npm start` ✅  
+- **Clean Bundle**: No unconscious map code included ✅
+- **Production Ready**: App successfully runs without feature flags ✅
