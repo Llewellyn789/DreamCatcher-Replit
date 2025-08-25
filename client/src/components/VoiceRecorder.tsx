@@ -198,6 +198,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
       return dream;
     },
     onSuccess: () => {
+      track('dream_saved');
       queryClient.invalidateQueries({ queryKey: ["dreams"] });
       setDreamText("");
     },
@@ -298,6 +299,9 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
         content: dreamText,
         duration: undefined
       });
+
+      // Track successful dream save
+      track('dream_saved');
 
       // Invalidate queries manually since we bypassed the mutation
       queryClient.invalidateQueries({ queryKey: ["dreams"] });

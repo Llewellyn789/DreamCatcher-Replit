@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { getById, deleteDream, updateDream, type Dream } from "@/lib/dataManager";
+import { track } from "@/analytics";
 // Local type definition
 type JungianAnalysis = {
   archetypes: string;
@@ -44,6 +45,7 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome: _onNaviga
   const analyzeDreamMutation = useMutation({
     mutationFn: async () => {
       if (!dream) throw new Error('No dream found');
+      track('ai_interpretation_requested');
       const response = await apiRequest("POST", `/api/analyze-dream`, { content: dream.content });
       return response.json();
     },
@@ -127,6 +129,8 @@ export default function DreamDetail({ dreamId, onBack, onNavigateHome: _onNaviga
     : null;
 
   const handleShare = async () => {
+    track('share_clicked');
+    
     if (navigator.share) {
       try {
         await navigator.share({
