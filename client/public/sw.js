@@ -5,7 +5,7 @@ const DYNAMIC_CACHE = 'dreamcatcher-dynamic-v5';
 // Resources to cache immediately
 const STATIC_ASSETS = [
   '/',
-  '/manifest.json',
+  '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/src/main.tsx',
