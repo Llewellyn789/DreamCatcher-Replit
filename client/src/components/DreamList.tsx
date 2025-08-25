@@ -4,6 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Moon, BarChart3, Home, Mic } from "lucide-react";
 import { format } from "date-fns";
 import { getAllDreams, type Dream } from "@/lib/dataManager";
+import { useEffect } from "react";
+import { track } from "@/analytics";
 
 interface DreamListProps {
   onBack: () => void;
@@ -16,6 +18,10 @@ export default function DreamList({ onBack, onViewDream, onNavigateToAnalytics }
     queryKey: ["dreams"],
     queryFn: getAllDreams,
   });
+
+  useEffect(() => {
+    track('dream_log_opened');
+  }, []);
 
 
   const formatDate = (date: string | Date) => {

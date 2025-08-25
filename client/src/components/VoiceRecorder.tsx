@@ -9,6 +9,7 @@ import { request } from "@/lib/api";
 import { saveDream, updateDream } from "@/lib/dataManager";
 import { Mic, MicOff } from "lucide-react";
 import DreamCatcher from "@/components/DreamCatcher";
+import { track } from "@/analytics";
 
 interface VoiceRecorderProps {
   onNavigateToSavedDreams: () => void;
@@ -46,14 +47,14 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
         // Request microphone permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         console.log('Microphone access granted');
-        
+
         // Stop the test stream
         stream.getTracks().forEach(track => track.stop());
         setVoiceEnabled(true);
       } catch (error) {
         console.error('Microphone access error:', error);
         setVoiceEnabled(false);
-        
+
         // Show user-friendly message based on error type
         const err = error as any;
         if (err?.name === 'NotAllowedError') {
@@ -77,16 +78,16 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: { 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
           sampleRate: 16000, // Lower sample rate for faster processing
           channelCount: 1,   // Mono audio
           echoCancellation: true,
           noiseSuppression: true
-        } 
+        }
       });
       streamRef.current = stream;
-      
+
       // Try different mime types for better compatibility and compression
       let mimeType = 'audio/webm;codecs=opus';
       if (!MediaRecorder.isTypeSupported(mimeType)) {
@@ -95,12 +96,12 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
       if (!MediaRecorder.isTypeSupported(mimeType)) {
         mimeType = 'audio/mp4';
       }
-      
+
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
         audioBitsPerSecond: 32000 // Lower bitrate for faster upload
       });
-      
+
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -113,7 +114,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         await transcribeAudio(audioBlob);
-        
+
         // Clean up stream
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
@@ -218,14 +219,14 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
     try {
       // Generate title first
       const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
-      
+
       // Then save dream with generated title
       await createDreamMutation.mutateAsync({
         title: titleResponse.title,
         content: dreamText,
         duration: undefined
       });
-      
+
       setHasRecorded(false);
     } catch (error) {
       console.error("Save failed:", error);
@@ -252,22 +253,22 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
-    
+
     // Clean up stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    
+
     // Clear all states
     setIsTranscribing(false);
     setIsAnalyzing(false);
     setDreamText("");
     setHasRecorded(false);
-    
+
     // Clean up audio chunks
     audioChunksRef.current = [];
-    
+
     // Call parent reset if provided
     if (onReset) {
       onReset();
@@ -275,14 +276,22 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
   };
 
   const interpretDream = async () => {
-    if (!dreamText.trim()) return;
+    if (!dreamText.trim()) {
+      toast({
+        title: "No dream content",
+        description: "Please record or type your dream first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    track('ai_interpretation_requested');
+    setIsAnalyzing(true);
 
     try {
-      setIsAnalyzing(true);
-      
       // Generate title first
       const titleResponse = await generateTitleMutation.mutateAsync(dreamText);
-      
+
       // Save dream with generated title - use saveDream directly to get the dream object
       const dreamResponse = await saveDream({
         title: titleResponse.title,
@@ -295,7 +304,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
 
       // Then analyze it
       const analysisResponse = await apiRequest("POST", `/api/analyze-dream`, { content: dreamText });
-      
+
       // Update the local dream with the analysis result
       if (analysisResponse.ok) {
         const analysisResult = await analysisResponse.json();
@@ -366,7 +375,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
               ← Back
             </Button>
           </div>
-          
+
           <div className="flex-1 flex items-center justify-center px-4">
             <div className="w-full max-w-md">
             <Textarea
@@ -376,7 +385,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
               className="glass-effect cosmic-text-50 placeholder-cosmic-300 border-cosmic-300/30 resize-none min-h-[200px] text-base leading-relaxed w-full"
               disabled={isRecording || isTranscribing}
             />
-            
+
             {/* Recording controls and action buttons */}
             <div className="flex flex-col items-center mt-4 space-y-3">
               {/* Stop recording button - show when actively recording */}
@@ -389,7 +398,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
                   Stop Recording
                 </Button>
               )}
-              
+
               {/* Interpret dream button - show when not recording and has text */}
               {!isRecording && (
                 <Button
@@ -416,7 +425,7 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
 
           {/* Large floating dreamcatcher in center */}
           <div className="flex-1 flex items-center justify-center">
-            <DreamCatcher 
+            <DreamCatcher
               isRecording={isRecording}
               voiceEnabled={voiceEnabled}
               isTranscribing={isTranscribing}
@@ -435,8 +444,8 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
                            transition-transform duration-150 ease-out
                            focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70
                            hover:scale-105 active:scale-95 ${
-                  isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                  isRecording
+                    ? 'bg-red-500 hover:bg-red-600 animate-pulse'
                     : 'bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[var(--gold-dark)] btn-glow'
                 }`}
               >
@@ -450,16 +459,16 @@ export default function VoiceRecorder({ onNavigateToSavedDreams: _onNavigateToSa
                 )}
               </button>
             </div>
-            
+
             {/* Status text */}
             <div className="text-center mt-3">
               <p className="text-sm cosmic-text-200">
-                {isRecording 
-                  ? "Recording..." 
-                  : isTranscribing 
-                    ? "Transcribing..." 
-                    : voiceEnabled 
-                      ? "Tap to record your dream" 
+                {isRecording
+                  ? "Recording..."
+                  : isTranscribing
+                    ? "Transcribing..."
+                    : voiceEnabled
+                      ? "Tap to record your dream"
                       : "Tap to write your dream"
                 }
               </p>
