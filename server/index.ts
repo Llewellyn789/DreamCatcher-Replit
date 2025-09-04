@@ -2,6 +2,7 @@ import path from "path";
 import express from "express";
 import OpenAI from "openai";
 import multer from "multer";
+import { registerShareRoutes } from "./shareRoutes";
 
 const app = express();
 
@@ -14,6 +15,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-api-key"
 });
 
+// Register share routes
+registerShareRoutes(app);
+
 // Configure multer for audio file uploads
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -23,6 +27,18 @@ const upload = multer({
 // Share Routes
 app.get("/s/:token", (req, res) => {
   const { token } = req.params;
+  const { verifyShareToken } = require('./tokenManager');
+  
+  const verification = verifyShareToken(token);
+  
+  if (!verification.valid) {
+    return res.status(403).json({ 
+      error: 'Forbidden', 
+      message: verification.error || 'Invalid token' 
+    });
+  }
+
+  const { payload } = verification;
   
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -31,19 +47,19 @@ app.get("/s/:token", (req, res) => {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     
     <!-- Open Graph tags -->
-    <meta property="og:title" content="DreamCatcher – Shared Dream" />
-    <meta property="og:description" content="Explore this dream analysis with AI-powered Jungian psychology insights." />
+    <meta property="og:title" content="DreamCatcher – ${payload.archetype} Dream" />
+    <meta property="og:description" content="${payload.snippet}..." />
     <meta property="og:image" content="${req.protocol}://${req.get('host')}/og/${token}" />
     <meta property="og:url" content="${req.protocol}://${req.get('host')}/s/${token}" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="DreamCatcher – Shared Dream" />
-    <meta name="twitter:description" content="Explore this dream analysis with AI-powered Jungian psychology insights." />
+    <meta name="twitter:title" content="DreamCatcher – ${payload.archetype} Dream" />
+    <meta name="twitter:description" content="${payload.snippet}..." />
     <meta name="twitter:image" content="${req.protocol}://${req.get('host')}/og/${token}" />
     
-    <title>DreamCatcher - Shared Dream</title>
+    <title>DreamCatcher - ${payload.archetype} Dream</title>
     <style>
       body {
         margin: 0;
@@ -71,10 +87,24 @@ app.get("/s/:token", (req, res) => {
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
-      .subtitle {
-        font-size: 1.2rem;
+      .archetype {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #FFA500;
+      }
+      .snippet {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+        line-height: 1.5;
+      }
+      .guidance {
+        font-size: 1rem;
         margin-bottom: 2rem;
         opacity: 0.8;
+        font-style: italic;
+        line-height: 1.4;
       }
       .cta {
         display: inline-block;
@@ -89,19 +119,15 @@ app.get("/s/:token", (req, res) => {
       .cta:hover {
         transform: translateY(-2px);
       }
-      .token {
-        margin-top: 2rem;
-        font-size: 0.8rem;
-        opacity: 0.6;
-      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1 class="logo">✨ DreamCatcher</h1>
-      <p class="subtitle">AI-powered dream interpretation with Jungian psychology</p>
-      <a href="/" class="cta">Open DreamCatcher App</a>
-      <div class="token">Share ID: ${token}</div>
+      <div class="archetype">${payload.archetype}</div>
+      <p class="snippet">"${payload.snippet}..."</p>
+      <p class="guidance">${payload.guidance}</p>
+      <a href="/" class="cta">Explore Your Dreams</a>
     </div>
   </body>
 </html>`;
@@ -111,29 +137,48 @@ app.get("/s/:token", (req, res) => {
 
 app.get("/og/:token", (req, res) => {
   const { token } = req.params;
+  const { verifyShareToken } = require('./tokenManager');
   
-  // Create a simple 1200x630 canvas with placeholder content
+  const verification = verifyShareToken(token);
+  
+  if (!verification.valid) {
+    return res.status(403).json({ 
+      error: 'Forbidden', 
+      message: verification.error || 'Invalid token' 
+    });
+  }
+
+  const { payload } = verification;
   const width = 1200;
   const height = 630;
   
-  // For now, return a simple SVG that browsers can render as an image
+  // Use palette if provided, otherwise default colors
+  const colors = payload.palette ? JSON.parse(payload.palette) : {
+    bg1: '#0B1426',
+    bg2: '#1A2332', 
+    bg3: '#2D3748',
+    text1: '#FFD700',
+    text2: '#FFA500'
+  };
+  
   const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#0B1426;stop-opacity:1" />
-        <stop offset="50%" style="stop-color:#1A2332;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#2D3748;stop-opacity:1" />
+        <stop offset="0%" style="stop-color:${colors.bg1};stop-opacity:1" />
+        <stop offset="50%" style="stop-color:${colors.bg2};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${colors.bg3};stop-opacity:1" />
       </linearGradient>
       <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+        <stop offset="0%" style="stop-color:${colors.text1};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${colors.text2};stop-opacity:1" />
       </linearGradient>
     </defs>
     <rect width="100%" height="100%" fill="url(#bg)"/>
-    <text x="600" y="250" font-family="system-ui, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="url(#text)">✨ DreamCatcher</text>
-    <text x="600" y="320" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" fill="#FFD700" opacity="0.8">Shared Dream Analysis</text>
-    <text x="600" y="380" font-family="system-ui, sans-serif" font-size="24" text-anchor="middle" fill="#FFD700" opacity="0.6">AI-powered Jungian Psychology</text>
-    <text x="600" y="500" font-family="system-ui, sans-serif" font-size="18" text-anchor="middle" fill="#FFD700" opacity="0.4">Share ID: ${token}</text>
+    <text x="600" y="200" font-family="system-ui, sans-serif" font-size="64" font-weight="bold" text-anchor="middle" fill="url(#text)">✨ DreamCatcher</text>
+    <text x="600" y="260" font-family="system-ui, sans-serif" font-size="32" font-weight="600" text-anchor="middle" fill="${colors.text2}">${payload.archetype}</text>
+    <text x="600" y="340" font-family="system-ui, sans-serif" font-size="22" text-anchor="middle" fill="${colors.text1}" opacity="0.9">"${payload.snippet}..."</text>
+    <text x="600" y="420" font-family="system-ui, sans-serif" font-size="18" text-anchor="middle" fill="${colors.text1}" opacity="0.7">${payload.guidance}</text>
+    <text x="600" y="550" font-family="system-ui, sans-serif" font-size="16" text-anchor="middle" fill="${colors.text1}" opacity="0.5">AI-powered Jungian Psychology</text>
   </svg>`;
   
   res.set({
