@@ -219,7 +219,7 @@ app.get("/s/:token", async (req, res) => {
     res.send(html);
   });
 
-app.get("/og/:token", (req, res) => {
+app.get("/og/:token", async (req, res) => {
   const { token } = req.params;
 
   const verification = verifyShareToken(token);
@@ -293,14 +293,47 @@ app.get("/og/:token", (req, res) => {
     </defs>`;
   }
 
+  // Dreamcatcher glyph SVG
+  const dreamcatcherGlyph = `
+    <g transform="translate(64, 550)">
+      <circle cx="20" cy="20" r="18" fill="none" stroke="${colors.text2}" stroke-width="2"/>
+      <path d="M8,14 Q20,26 32,14 Q20,18 8,14" fill="none" stroke="${colors.text2}" stroke-width="1"/>
+      <path d="M12,26 Q20,18 28,26 Q20,22 12,26" fill="none" stroke="${colors.text2}" stroke-width="1"/>
+      <line x1="20" y1="2" x2="20" y2="8" stroke="${colors.text2}" stroke-width="1"/>
+      <line x1="38" y1="20" x2="32" y2="20" stroke="${colors.text2}" stroke-width="1"/>
+      <line x1="2" y1="20" x2="8" y2="20" stroke="${colors.text2}" stroke-width="1"/>
+      <path d="M20,38 L16,46 L24,46 Z" fill="${colors.text2}"/>
+    </g>
+  `;
+
+  // Truncate snippet to 80 chars max
+  const snippet = payload.snippet.length > 80 ? payload.snippet.substring(0, 77) + "..." : payload.snippet;
+  
+  // Create headline with highlighted archetype and guidance
+  const headlineText = `The ${payload.archetype} archetype is telling you to ${payload.guidance}.`;
+  
   const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     ${fontDefs}
     <rect width="100%" height="100%" fill="url(#bg)"/>
-    <text x="600" y="200" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="bold" text-anchor="middle" fill="url(#text)">✨ DreamCatcher</text>
-    <text x="600" y="260" font-family="Inter, system-ui, sans-serif" font-size="32" font-weight="600" text-anchor="middle" fill="${colors.text2}">${payload.archetype}</text>
-    <text x="600" y="340" font-family="Inter, system-ui, sans-serif" font-size="22" text-anchor="middle" fill="${colors.text1}" opacity="0.9">"${payload.snippet}..."</text>
-    <text x="600" y="420" font-family="Inter, system-ui, sans-serif" font-size="18" text-anchor="middle" fill="${colors.text1}" opacity="0.7">${payload.guidance}</text>
-    <text x="600" y="550" font-family="Inter, system-ui, sans-serif" font-size="16" text-anchor="middle" fill="${colors.text1}" opacity="0.5">AI-powered Jungian Psychology</text>
+    
+    <!-- Top snippet zone (handwritten style) -->
+    <text x="600" y="120" font-family="Caveat, cursive" font-size="28" text-anchor="middle" fill="${colors.text1}" opacity="0.9">"${snippet}"</text>
+    
+    <!-- Main headline zone -->
+    <text x="64" y="240" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="bold" fill="${colors.text1}" text-anchor="start">
+      <tspan>The </tspan>
+      <tspan fill="${colors.text2}">${payload.archetype}</tspan>
+      <tspan> archetype is</tspan>
+    </text>
+    <text x="64" y="300" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="bold" fill="${colors.text1}" text-anchor="start">
+      <tspan>telling you to </tspan>
+      <tspan fill="${colors.text2}">${payload.guidance}</tspan>
+      <tspan>.</tspan>
+    </text>
+    
+    <!-- Footer zone -->
+    ${dreamcatcherGlyph}
+    <text x="1136" y="575" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="600" text-anchor="end" fill="${colors.text2}">Try DreamCatcher →</text>
   </svg>`;
 
   res.set({
