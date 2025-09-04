@@ -18,6 +18,34 @@ const openai = new OpenAI({
 // Register share routes
 registerShareRoutes(app);
 
+// Test endpoint to generate a valid token for testing
+app.get("/test/create-token", (req, res) => {
+  const { createShareToken } = require('./tokenManager');
+  
+  const testToken = createShareToken({
+    i: "test-dream-id",
+    archetype: "The Explorer",
+    snippet: "A vivid dream about flying through cosmic landscapes",
+    guidance: "This dream suggests a desire for freedom and exploration",
+    palette: JSON.stringify({
+      bg1: '#0B1426',
+      bg2: '#1A2332', 
+      bg3: '#2D3748',
+      text1: '#FFD700',
+      text2: '#FFA500'
+    }),
+    exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
+  });
+  
+  res.json({ 
+    token: testToken,
+    testUrls: {
+      share: `${req.protocol}://${req.get('host')}/s/${testToken}`,
+      og: `${req.protocol}://${req.get('host')}/og/${testToken}`
+    }
+  });
+});
+
 // Configure multer for audio file uploads
 const upload = multer({ 
   storage: multer.memoryStorage(),
