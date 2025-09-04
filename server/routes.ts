@@ -110,37 +110,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(html);
   });
 
-  app.get("/og/:token", (req, res) => {
+  app.get("/og/:token", async (req, res) => {
     const { token } = req.params;
     
-    // Create a simple 1200x630 SVG with placeholder content
-    const width = 1200;
-    const height = 630;
-    
-    const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#0B1426;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#1A2332;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#2D3748;stop-opacity:1" />
-        </linearGradient>
-        <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#bg)"/>
-      <text x="600" y="250" font-family="system-ui, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="url(#text)">✨ DreamCatcher</text>
-      <text x="600" y="320" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" fill="#FFD700" opacity="0.8">Shared Dream Analysis</text>
-      <text x="600" y="380" font-family="system-ui, sans-serif" font-size="24" text-anchor="middle" fill="#FFD700" opacity="0.6">AI-powered Jungian Psychology</text>
-      <text x="600" y="500" font-family="system-ui, sans-serif" font-size="18" text-anchor="middle" fill="#FFD700" opacity="0.4">Share ID: ${token}</text>
-    </svg>`;
-    
-    res.set({
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600'
-    });
-    res.send(svg);
+    try {
+      // Read font files
+      const fs = await import('fs');
+      const path = await import('path');
+      
+      const interRegular = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/inter-regular.woff2'));
+      const interBold = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/inter-bold.woff2'));
+      const caveat = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/caveat-regular.woff2'));
+      
+      // Convert to base64
+      const interRegularBase64 = interRegular.toString('base64');
+      const interBoldBase64 = interBold.toString('base64');
+      const caveatBase64 = caveat.toString('base64');
+      
+      // Inline dreamcatcher SVG
+      const dreamcatcherSVG = `
+        <g transform="translate(100, 80)">
+          <circle cx="30" cy="30" r="25" fill="none" stroke="#FFD700" stroke-width="2"/>
+          <path d="M15,20 Q30,35 45,20 Q30,25 15,20" fill="none" stroke="#FFD700" stroke-width="1"/>
+          <path d="M20,40 Q30,25 40,40 Q30,35 20,40" fill="none" stroke="#FFD700" stroke-width="1"/>
+          <line x1="30" y1="5" x2="30" y2="15" stroke="#FFD700" stroke-width="1"/>
+          <line x1="55" y1="30" x2="45" y2="30" stroke="#FFD700" stroke-width="1"/>
+          <line x1="5" y1="30" x2="15" y2="30" stroke="#FFD700" stroke-width="1"/>
+          <path d="M30,55 L25,65 L35,65 Z" fill="#FFA500"/>
+          <path d="M45,50 L50,60 L55,55" fill="none" stroke="#FFA500" stroke-width="1"/>
+          <path d="M5,50 L10,60 L15,55" fill="none" stroke="#FFA500" stroke-width="1"/>
+        </g>
+      `;
+      
+      const width = 1200;
+      const height = 630;
+      
+      const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            @font-face {
+              font-family: 'Inter';
+              font-weight: 400;
+              src: url(data:font/woff2;base64,${interRegularBase64}) format('woff2');
+            }
+            @font-face {
+              font-family: 'Inter';
+              font-weight: 700;
+              src: url(data:font/woff2;base64,${interBoldBase64}) format('woff2');
+            }
+            @font-face {
+              font-family: 'Caveat';
+              font-weight: 400;
+              src: url(data:font/woff2;base64,${caveatBase64}) format('woff2');
+            }
+          </style>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0B1426;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#1A2332;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2D3748;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge> 
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        <rect width="100%" height="100%" fill="url(#bg)"/>
+        
+        ${dreamcatcherSVG}
+        
+        <text x="600" y="280" font-family="Inter, sans-serif" font-size="64" font-weight="700" text-anchor="middle" fill="url(#text)" filter="url(#glow)">DreamCatcher</text>
+        <text x="600" y="340" font-family="Caveat, cursive" font-size="32" text-anchor="middle" fill="#FFD700" opacity="0.9">Shared Dream Analysis</text>
+        <text x="600" y="390" font-family="Inter, sans-serif" font-size="22" text-anchor="middle" fill="#FFD700" opacity="0.7">AI-powered Jungian Psychology</text>
+        <text x="600" y="520" font-family="Inter, sans-serif" font-size="16" text-anchor="middle" fill="#FFD700" opacity="0.5">dreamcatcher-mvp.replit.app/s/${token.substring(0, 12)}...</text>
+      </svg>`;
+      
+      res.set({
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'public, max-age=3600'
+      });
+      res.send(svg);
+    } catch (error) {
+      console.error('OG image generation error:', error);
+      
+      // Fallback SVG without fonts
+      const fallbackSvg = `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#0B1426"/>
+        <text x="600" y="315" font-family="system-ui" font-size="48" text-anchor="middle" fill="#FFD700">DreamCatcher</text>
+      </svg>`;
+      
+      res.send(fallbackSvg);
+    }
   });
 
   // Generate 3-word dream title
