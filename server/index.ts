@@ -3,6 +3,7 @@ import express from "express";
 import OpenAI from "openai";
 import multer from "multer";
 import { registerShareRoutes } from "./shareRoutes";
+import { createShareToken, verifyShareToken } from "./tokenManager";
 
 const app = express();
 
@@ -20,7 +21,6 @@ registerShareRoutes(app);
 
 // Test endpoint to generate a valid token for testing
 app.get("/test/create-token", (req, res) => {
-  const { createShareToken } = require('./tokenManager');
   
   const testToken = createShareToken({
     i: "test-dream-id",
@@ -55,7 +55,6 @@ const upload = multer({
 // Share Routes
 app.get("/s/:token", (req, res) => {
   const { token } = req.params;
-  const { verifyShareToken } = require('./tokenManager');
   
   const verification = verifyShareToken(token);
   
@@ -165,7 +164,6 @@ app.get("/s/:token", (req, res) => {
 
 app.get("/og/:token", (req, res) => {
   const { token } = req.params;
-  const { verifyShareToken } = require('./tokenManager');
   
   const verification = verifyShareToken(token);
   
