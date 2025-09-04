@@ -1,0 +1,80 @@
+# DreamCatcher OG Image Export Prompt
+
+You are working in a Vite + React project.  
+I want to generate a **1200×630px OG/share image** of my homepage hero section.
+
+Steps:
+1. Install dependencies:
+   npm install html-to-image --save
+
+2. In `src/components/OGPreview.tsx`, create a component that renders the homepage hero into a fixed 1200×630 container:
+
+   import React from "react";
+
+   export default function OGPreview() {
+     return (
+       <div
+         id="og-card"
+         style={{
+           width: "1200px",
+           height: "630px",
+           background: "linear-gradient(180deg, #0a0439, #1c0f4e)",
+           display: "flex",
+           flexDirection: "column",
+           justifyContent: "center",
+           alignItems: "center",
+           color: "#d4af37",
+           fontFamily: "sans-serif"
+         }}
+       >
+         <h1 style={{ fontSize: "64px", fontWeight: "bold", marginBottom: "40px" }}>
+           DreamCatcher
+         </h1>
+         <img src="/dreamcatcher-icon.png" alt="Dreamcatcher" style={{ height: "200px", marginBottom: "40px" }} />
+         <div style={{
+           background: "#d4af37",
+           borderRadius: "50%",
+           padding: "20px",
+           boxShadow: "0 0 40px #d4af37"
+         }}>
+           🎤
+         </div>
+         <p style={{ marginTop: "20px" }}>Tap to record your dream</p>
+       </div>
+     );
+   }
+
+3. In `src/pages/OGExport.tsx`, use `html-to-image` to export this component to PNG:
+
+   import React, { useRef } from "react";
+   import { toPng } from "html-to-image";
+   import OGPreview from "../components/OGPreview";
+
+   export default function OGExport() {
+     const ref = useRef<HTMLDivElement>(null);
+
+     const handleExport = async () => {
+       if (ref.current) {
+         const dataUrl = await toPng(ref.current);
+         const link = document.createElement("a");
+         link.download = "dreamcatcher-og.png";
+         link.href = dataUrl;
+         link.click();
+       }
+     };
+
+     return (
+       <div>
+         <div ref={ref}>
+           <OGPreview />
+         </div>
+         <button onClick={handleExport}>Export OG Image</button>
+       </div>
+     );
+   }
+
+4. Add a route `/og` to render this page, so I can visit it in dev, click **Export OG Image**, and download the PNG.
+
+5. Verify the downloaded PNG is exactly **1200×630px** and centered correctly.
+
+Do not overcomplicate — just create the OGPreview component, export page, and download workflow.
