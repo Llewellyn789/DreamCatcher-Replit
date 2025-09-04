@@ -5,6 +5,8 @@ import multer from "multer";
 import { registerShareRoutes } from "./shareRoutes";
 import { createShareToken, verifyShareToken } from "./tokenManager";
 
+console.log('Server starting - imports loaded successfully');
+
 const app = express();
 
 // Add JSON parsing for API routes
@@ -21,6 +23,7 @@ registerShareRoutes(app);
 
 // Test endpoint to generate a valid token for testing
 app.get("/test/create-token", (req, res) => {
+  console.log('Test endpoint hit - creating token');
   
   const testToken = createShareToken({
     i: "test-dream-id",
