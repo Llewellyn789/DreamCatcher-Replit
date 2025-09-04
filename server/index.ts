@@ -174,5 +174,5 @@ app.use("*", (_req, res) => {
 
 const port = Number(process.env.PORT) || 5000;
 app.listen(port, "0.0.0.0", () => {
-  console.log("[server] listening on", port);
+  console.log(`[server] listening on 0.0.0.0:${port}`);
 });
