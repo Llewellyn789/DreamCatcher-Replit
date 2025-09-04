@@ -5,11 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import DreamRecorder from "@/pages/dream-recorder";
 import NotFound from "@/pages/not-found";
+import OGExport from "@/pages/OGExport";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={DreamRecorder} />
+      <Route path="/og" component={OGExport} />
       <Route component={NotFound} />
     </Switch>
   );
