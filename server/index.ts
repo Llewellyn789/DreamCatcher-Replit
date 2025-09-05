@@ -31,11 +31,11 @@ app.get("/test/create-token", (req, res) => {
     snippet: "A vivid dream about flying through cosmic landscapes",
     guidance: "This dream suggests a desire for freedom and exploration",
     palette: JSON.stringify({
-      bg1: '#0B1426',
-      bg2: '#1A2332', 
-      bg3: '#2D3748',
-      text1: '#FFD700',
-      text2: '#FFA500'
+      bg1: '#0B1426', // cosmic-950
+      bg2: '#1E1B4B', // cosmic-900
+      bg3: '#2D1B69', // cosmic-800
+      text1: '#C4A068', // cosmic-200
+      text2: '#E8DCC8'  // cosmic-50
     }),
     exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
   });
@@ -75,14 +75,25 @@ app.get("/og/:token", async (req, res) => {
   const width = 1200;
   const height = 630;
 
-  // Use palette if provided, otherwise default to cosmic theme colors
-  const colors = payload.palette ? JSON.parse(payload.palette) : {
-    bg1: '#0B1426', // cosmic-950
-    bg2: '#1E1B4B', // cosmic-900
-    bg3: '#2D1B69', // cosmic-800
-    text1: '#C4A068', // cosmic-200
-    text2: '#E8DCC8'  // cosmic-50
-  };
+  // Parse palette from token payload or use cosmic theme defaults
+  let colors;
+  try {
+    colors = payload.palette ? JSON.parse(payload.palette) : {
+      bg1: '#0B1426', // cosmic-950
+      bg2: '#1E1B4B', // cosmic-900
+      bg3: '#2D1B69', // cosmic-800
+      text1: '#C4A068', // cosmic-200
+      text2: '#E8DCC8'  // cosmic-50
+    };
+  } catch {
+    colors = {
+      bg1: '#0B1426', // cosmic-950
+      bg2: '#1E1B4B', // cosmic-900
+      bg3: '#2D1B69', // cosmic-800
+      text1: '#C4A068', // cosmic-200
+      text2: '#E8DCC8'  // cosmic-50
+    };
+  }
 
   // Load fonts for inline SVG
   let fontDefs = '';
