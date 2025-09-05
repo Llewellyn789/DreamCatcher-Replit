@@ -229,10 +229,10 @@ export function registerShareRoutes(app: Express) {
         for (let i = 0; i < 100; i++) { // Increased number of stars for better effect
           const star = document.createElement('div');
           star.className = 'star';
-          star.style.left = `${Math.random() * width}px`;
-          star.style.top = `${Math.random() * height}px`;
+          star.style.left = Math.random() * width + 'px';
+          star.style.top = Math.random() * height + 'px';
           star.style.opacity = Math.random() * 0.5 + 0.2; // More varied opacity
-          star.style.animationDuration = `${Math.random() * 2 + 2}s`; // More varied twinkle duration
+          star.style.animationDuration = (Math.random() * 2 + 2) + 's'; // More varied twinkle duration
           starsContainer.appendChild(star);
         }
       }
