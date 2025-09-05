@@ -40,23 +40,23 @@ export function registerShareRoutes(app: Express) {
       return res.status(404).json({ error: 'Not Found' });
     }
 
-    // Parse palette if it exists, using cosmic theme colors as defaults
+    // Parse palette if it exists, using app colors as defaults
     let palette;
     try {
       palette = data.palette ? JSON.parse(data.palette) : {
-        bg1: '#0B1426', // cosmic-950
-        bg2: '#1A2332', // cosmic-900
-        bg3: '#2D3748', // cosmic-800
-        text1: '#FFD700', // gold
-        text2: '#FFA500'  // orange-gold
+        bg1: '#0a0a0a', // dark background
+        bg2: '#1a1a1a', // slightly lighter
+        bg3: '#2a2a2a', // card background
+        text1: '#FFD700', // gold accent
+        text2: '#FFA500'  // warm orange
       };
     } catch {
       palette = {
-        bg1: '#0B1426', // cosmic-950
-        bg2: '#1A2332', // cosmic-900
-        bg3: '#2D3748', // cosmic-800
-        text1: '#FFD700', // gold
-        text2: '#FFA500'  // orange-gold
+        bg1: '#0a0a0a', // dark background
+        bg2: '#1a1a1a', // slightly lighter
+        bg3: '#2a2a2a', // card background
+        text1: '#FFD700', // gold accent
+        text2: '#FFA500'  // warm orange
       };
     }
 
@@ -300,6 +300,41 @@ export function registerShareRoutes(app: Express) {
     }
   });
 
+  // Test endpoint to create a token with app colors
+  app.get("/test/create-token", (req, res) => {
+    try {
+      const appPalette = {
+        bg1: '#0a0a0a', // dark background
+        bg2: '#1a1a1a', // slightly lighter
+        bg3: '#2a2a2a', // card background
+        text1: '#FFD700', // gold accent
+        text2: '#FFA500'  // warm orange
+      };
+
+      const token = createShareToken({
+        i: "test-dream-id",
+        archetype: "The Explorer",
+        snippet: "A vivid dream about flying through cosmic landscapes",
+        guidance: "This dream suggests a desire for freedom and exploration",
+        palette: JSON.stringify(appPalette),
+        exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
+      });
+
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      
+      res.json({
+        token,
+        testUrls: {
+          share: `${baseUrl}/s/${token}`,
+          og: `${baseUrl}/og/${token}`
+        }
+      });
+    } catch (error) {
+      console.error("Test token creation error:", error);
+      res.status(500).json({ message: "Failed to create test token" });
+    }
+  });
+
   // OG Image Generation Route
   app.get("/og/:token", async (req, res) => {
     const { token } = req.params;
@@ -318,13 +353,13 @@ export function registerShareRoutes(app: Express) {
       return res.status(404).json({ error: 'Not Found' });
     }
 
-    // Use cosmic theme colors as defaults
+    // Use app theme colors as defaults
     const palette = data.palette ? JSON.parse(data.palette) : {
-      bg1: '#0B1426', // cosmic-950
-      bg2: '#1A2332', // cosmic-900
-      bg3: '#2D3748', // cosmic-800
-      text1: '#FFD700', // gold
-      text2: '#FFA500'  // orange-gold
+      bg1: '#0a0a0a', // dark background
+      bg2: '#1a1a1a', // slightly lighter
+      bg3: '#2a2a2a', // card background
+      text1: '#FFD700', // gold accent
+      text2: '#FFA500'  // warm orange
     };
 
     const { createCanvas } = await import('canvas');
