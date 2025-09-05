@@ -1,5 +1,5 @@
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 const SECRET_KEY = process.env.TOKEN_SECRET || 'dreamcatcher-secret-key-change-in-production';
 
