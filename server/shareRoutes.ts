@@ -197,7 +197,7 @@ export function registerShareRoutes(app: Express) {
           position: absolute;
           width: 2px;
           height: 2px;
-          background: #FFD700;
+          background: ${palette.text1};
           border-radius: 50%;
           animation: twinkle 2s infinite;
         }
