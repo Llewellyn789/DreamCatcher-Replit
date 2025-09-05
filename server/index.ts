@@ -25,26 +25,33 @@ registerShareRoutes(app);
 app.get("/test/create-token", (req, res) => {
   console.log('Test endpoint hit - creating token');
 
+  // Current cosmic color palette
+  const cosmicPalette = {
+    bg1: '#0B1426', // cosmic-950
+    bg2: '#1E1B4B', // cosmic-900
+    bg3: '#2D1B69', // cosmic-800
+    text1: '#C4A068', // cosmic-200
+    text2: '#E8DCC8'  // cosmic-50
+  };
+
   const testToken = createShareToken({
     i: "test-dream-id",
     archetype: "The Explorer",
     snippet: "A vivid dream about flying through cosmic landscapes",
     guidance: "This dream suggests a desire for freedom and exploration",
-    palette: JSON.stringify({
-      bg1: '#0B1426', // cosmic-950
-      bg2: '#1E1B4B', // cosmic-900
-      bg3: '#2D1B69', // cosmic-800
-      text1: '#C4A068', // cosmic-200
-      text2: '#E8DCC8'  // cosmic-50
-    }),
+    palette: JSON.stringify(cosmicPalette),
     exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
   });
 
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const cacheBuster = Date.now();
+
   res.json({ 
     token: testToken,
+    palette: cosmicPalette,
     testUrls: {
-      share: `${req.protocol}://${req.get('host')}/s/${testToken}`,
-      og: `${req.protocol}://${req.get('host')}/og/${testToken}`
+      share: `${baseUrl}/s/${testToken}`,
+      og: `${baseUrl}/og/${testToken}?v=${cacheBuster}`
     }
   });
 });
@@ -60,9 +67,9 @@ const upload = multer({
 app.get("/og/:token", async (req, res) => {
   const { token } = req.params;
 
-  console.log('OG route token received:', token);
+  console.log('OG route token received:', token.substring(0, 50) + '...');
   const verification = verifyShareToken(token);
-  console.log('Token verification result:', verification);
+  console.log('Token verification result:', verification.valid ? 'VALID' : 'INVALID');
 
   if (!verification.valid) {
     return res.status(403).json({ 
@@ -77,22 +84,25 @@ app.get("/og/:token", async (req, res) => {
 
   // Parse palette from token payload or use cosmic theme defaults
   let colors;
+  const cosmicDefaults = {
+    bg1: '#0B1426', // cosmic-950
+    bg2: '#1E1B4B', // cosmic-900
+    bg3: '#2D1B69', // cosmic-800
+    text1: '#C4A068', // cosmic-200
+    text2: '#E8DCC8'  // cosmic-50
+  };
+
   try {
-    colors = payload.palette ? JSON.parse(payload.palette) : {
-      bg1: '#0B1426', // cosmic-950
-      bg2: '#1E1B4B', // cosmic-900
-      bg3: '#2D1B69', // cosmic-800
-      text1: '#C4A068', // cosmic-200
-      text2: '#E8DCC8'  // cosmic-50
-    };
-  } catch {
-    colors = {
-      bg1: '#0B1426', // cosmic-950
-      bg2: '#1E1B4B', // cosmic-900
-      bg3: '#2D1B69', // cosmic-800
-      text1: '#C4A068', // cosmic-200
-      text2: '#E8DCC8'  // cosmic-50
-    };
+    if (payload.palette) {
+      colors = JSON.parse(payload.palette);
+      console.log('Using token palette:', colors);
+    } else {
+      colors = cosmicDefaults;
+      console.log('No palette in token, using cosmic defaults');
+    }
+  } catch (error) {
+    console.log('Palette parsing failed, using cosmic defaults:', error);
+    colors = cosmicDefaults;
   }
 
   // Load fonts for inline SVG
