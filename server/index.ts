@@ -222,7 +222,9 @@ app.get("/s/:token", async (req, res) => {
 app.get("/og/:token", async (req, res) => {
   const { token } = req.params;
 
+  console.log('OG route token received:', token);
   const verification = verifyShareToken(token);
+  console.log('Token verification result:', verification);
 
   if (!verification.valid) {
     return res.status(403).json({ 
@@ -231,7 +233,7 @@ app.get("/og/:token", async (req, res) => {
     });
   }
 
-  const { payload } = verification;
+  const payload = verification.payload;
   const width = 1200;
   const height = 630;
 
