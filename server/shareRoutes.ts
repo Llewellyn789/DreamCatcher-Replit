@@ -21,23 +21,23 @@ export function registerShareRoutes(app: Express) {
       return res.status(404).json({ error: 'Not Found' });
     }
 
-    // Parse palette if it exists
+    // Parse palette if it exists, using cosmic theme colors as defaults
     let palette;
     try {
       palette = data.palette ? JSON.parse(data.palette) : {
-        bg1: '#0B1426',
-        bg2: '#1A2332', 
-        bg3: '#2D3748',
-        text1: '#FFD700',
-        text2: '#FFA500'
+        bg1: '#0B1426', // cosmic-950
+        bg2: '#1E1B4B', // cosmic-900  
+        bg3: '#2D1B69', // cosmic-800
+        text1: '#C4A068', // cosmic-200
+        text2: '#E8DCC8'  // cosmic-50
       };
     } catch {
       palette = {
-        bg1: '#0B1426',
-        bg2: '#1A2332',
-        bg3: '#2D3748', 
-        text1: '#FFD700',
-        text2: '#FFA500'
+        bg1: '#0B1426', // cosmic-950
+        bg2: '#1E1B4B', // cosmic-900
+        bg3: '#2D1B69', // cosmic-800
+        text1: '#C4A068', // cosmic-200
+        text2: '#E8DCC8'  // cosmic-50
       };
     }
 
