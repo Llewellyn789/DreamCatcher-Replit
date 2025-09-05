@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // OpenAI setup for dream analysis
-const openai = new OpenAI({ 
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-api-key"
 });
 
@@ -46,7 +46,7 @@ app.get("/test/create-token", (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   const cacheBuster = Date.now();
 
-  res.json({ 
+  res.json({
     token: testToken,
     palette: cosmicPalette,
     testUrls: {
@@ -57,7 +57,7 @@ app.get("/test/create-token", (req, res) => {
 });
 
 // Configure multer for audio file uploads
-const upload = multer({ 
+const upload = multer({
   storage:multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit
 });
@@ -72,9 +72,9 @@ app.get("/og/:token", async (req, res) => {
   console.log('Token verification result:', verification.valid ? 'VALID' : 'INVALID');
 
   if (!verification.valid) {
-    return res.status(403).json({ 
-      error: 'Forbidden', 
-      message: verification.error || 'Invalid token' 
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: verification.error || 'Invalid token'
     });
   }
 
@@ -322,8 +322,8 @@ app.post("/api/transcribe", upload.single('audio'), async (req, res) => {
 
     try {
       // Convert buffer to File-like object for OpenAI
-      const audioFile = new File([req.file.buffer], 'audio.webm', { 
-        type: req.file.mimetype || 'audio/webm' 
+      const audioFile = new File([req.file.buffer], 'audio.webm', {
+        type: req.file.mimetype || 'audio/webm'
       });
 
       const transcription = await openai.audio.transcriptions.create({
