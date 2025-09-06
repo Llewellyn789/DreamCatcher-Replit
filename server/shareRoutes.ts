@@ -47,21 +47,22 @@ function isBot(userAgent: string): boolean {
 export function registerShareRoutes(app: Express) {
   // Share page route
   app.get("/s/:token", async (req, res) => {
-    const { token } = req.params;
+    try {
+      const { token } = req.params;
 
-    const verification = verifyShareToken(token);
+      const verification = verifyShareToken(token);
 
-    if (!verification.valid) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: verification.error || 'Invalid token'
-      });
-    }
+      if (!verification.valid) {
+        return res.status(403).json({
+          error: 'Forbidden',
+          message: verification.error || 'Invalid token'
+        });
+      }
 
-    const data = verification.payload;
-    if (!data) {
-      return res.status(404).json({ error: 'Not Found' });
-    }
+      const data = verification.payload;
+      if (!data) {
+        return res.status(404).json({ error: 'Not Found' });
+      }
 
     // Parse palette if it exists, using app colors as defaults
     let palette;
@@ -83,33 +84,43 @@ export function registerShareRoutes(app: Express) {
       };
     }
 
-    // Load fonts for inline CSS
+    // Load fonts for inline CSS with better error handling
     let fontCSS = '';
     try {
       const fs = await import('fs');
       const path = await import('path');
 
-      const interRegular = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/inter-regular.woff2'));
-      const caveat = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/caveat-regular.woff2'));
+      const fontDir = path.join(process.cwd(), 'client/public/fonts');
+      const interPath = path.join(fontDir, 'inter-regular.woff2');
+      const caveatPath = path.join(fontDir, 'caveat-regular.woff2');
 
-      const interRegularBase64 = interRegular.toString('base64');
-      const caveatBase64 = caveat.toString('base64');
+      // Check if font files exist before reading
+      if (fs.existsSync(interPath) && fs.existsSync(caveatPath)) {
+        const interRegular = fs.readFileSync(interPath);
+        const caveat = fs.readFileSync(caveatPath);
 
-      fontCSS = `
-        @font-face {
-          font-family: 'Inter';
-          font-weight: 400;
-          src: url(data:font/woff2;base64,${interRegularBase64}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Caveat';
-          font-weight: 400;
-          src: url(data:font/woff2;base64,${caveatBase64}) format('woff2');
-        }
-      `;
+        const interRegularBase64 = interRegular.toString('base64');
+        const caveatBase64 = caveat.toString('base64');
+
+        fontCSS = `
+          @font-face {
+            font-family: 'Inter';
+            font-weight: 400;
+            src: url(data:font/woff2;base64,${interRegularBase64}) format('woff2');
+          }
+          @font-face {
+            font-family: 'Caveat';
+            font-weight: 400;
+            src: url(data:font/woff2;base64,${caveatBase64}) format('woff2');
+          }
+        `;
+      } else {
+        console.warn('Font files not found, using fallback fonts');
+        fontCSS = '/* Font files not available - using system fonts */';
+      }
     } catch (error) {
       console.error('Font loading error for share page:', error);
-      fontCSS = '/* Fonts not available */';
+      fontCSS = '/* Fonts not available - error loading */';
     }
 
     // Check if this is a bot or human
@@ -354,6 +365,13 @@ export function registerShareRoutes(app: Express) {
 </html>`;
 
     res.send(html);
+    } catch (error) {
+      console.error('Share page error:', error);
+      res.status(500).json({ 
+        error: 'Internal Server Error', 
+        message: 'Failed to load share page' 
+      });
+    }
   });
 
   // Create share token from dream data
@@ -449,35 +467,61 @@ export function registerShareRoutes(app: Express) {
 
   // OG Image Generation Route
   app.get("/og/:token", async (req, res) => {
-    const { token } = req.params;
+    try {
+      const { token } = req.params;
 
-    const verification = verifyShareToken(token);
+      const verification = verifyShareToken(token);
 
-    if (!verification.valid) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: verification.error || 'Invalid token'
-      });
-    }
+      if (!verification.valid) {
+        return res.status(403).json({
+          error: 'Forbidden',
+          message: verification.error || 'Invalid token'
+        });
+      }
 
-    const data = verification.payload;
-    if (!data) {
-      return res.status(404).json({ error: 'Not Found' });
-    }
+      const data = verification.payload;
+      if (!data) {
+        return res.status(404).json({ error: 'Not Found' });
+      }
 
-    // Use app theme colors as defaults
-    const palette = data.palette ? JSON.parse(data.palette) : {
-      bg1: '#0B1426',
-      bg2: '#1E1B4B',
-      bg3: '#2D1B69',
-      text1: '#C4A068',
-      text2: '#E8DCC8'
-    };
+      // Use app theme colors as defaults with error handling
+      let palette;
+      try {
+        palette = data.palette ? JSON.parse(data.palette) : {
+          bg1: '#0B1426',
+          bg2: '#1E1B4B',
+          bg3: '#2D1B69',
+          text1: '#C4A068',
+          text2: '#E8DCC8'
+        };
+      } catch (paletteError) {
+        console.error('Palette parsing error:', paletteError);
+        palette = {
+          bg1: '#0B1426',
+          bg2: '#1E1B4B',
+          bg3: '#2D1B69',
+          text1: '#C4A068',
+          text2: '#E8DCC8'
+        };
+      }
 
-    const { createCanvas } = await import('canvas');
-    const width = 1200;
-    const height = 630;
-    const ctx = createCanvas(width, height).getContext('2d');
+      // Try to import canvas with error handling
+      let createCanvas;
+      try {
+        const canvasModule = await import('canvas');
+        createCanvas = canvasModule.createCanvas;
+      } catch (canvasError) {
+        console.error('Canvas import error:', canvasError);
+        return res.status(500).json({ 
+          error: 'Internal Server Error', 
+          message: 'Canvas library not available' 
+        });
+      }
+
+      const width = 1200;
+      const height = 630;
+      const canvas = createCanvas(width, height);
+      const ctx = canvas.getContext('2d');
 
     // Create gradient background
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -545,8 +589,27 @@ export function registerShareRoutes(app: Express) {
     ctx.font = '20px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillText('AI-powered Jungian Psychology', width / 2, height - 40);
 
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-    res.send(Buffer.from(ctx.canvas.toBuffer()));
+    // Generate the image buffer with error handling
+      let imageBuffer;
+      try {
+        imageBuffer = canvas.toBuffer('image/png');
+      } catch (bufferError) {
+        console.error('Canvas buffer generation error:', bufferError);
+        return res.status(500).json({ 
+          error: 'Internal Server Error', 
+          message: 'Failed to generate image' 
+        });
+      }
+
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      res.send(imageBuffer);
+    } catch (error) {
+      console.error('OG image generation error:', error);
+      res.status(500).json({ 
+        error: 'Internal Server Error', 
+        message: 'Failed to generate OG image' 
+      });
+    }
   });
 }
