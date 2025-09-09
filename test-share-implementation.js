@@ -1,5 +1,5 @@
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 const BASE_URL = 'http://0.0.0.0:5000';
 
@@ -147,17 +147,4 @@ async function testShareImplementation() {
   }
 }
 
-// Handle missing node-fetch gracefully
-try {
-  testShareImplementation();
-} catch (error) {
-  if (error.code === 'MODULE_NOT_FOUND' && error.message.includes('node-fetch')) {
-    console.log('Installing node-fetch for testing...');
-    require('child_process').execSync('npm install node-fetch@2', { stdio: 'inherit' });
-    console.log('Retrying test...\n');
-    delete require.cache[require.resolve(__filename)];
-    require(__filename);
-  } else {
-    throw error;
-  }
-}
+testShareImplementation();
