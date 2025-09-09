@@ -146,9 +146,13 @@ export function registerShareRoutes(app: Express) {
     <meta property="og:title" content="DreamCatcher – ${data.archetype} Dream" />
     <meta property="og:description" content="${shortDescription}" />
     <meta property="og:image" content="${ogImageUrl}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:url" content="${currentUrl}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DreamCatcher" />
+    <meta property="fb:app_id" content="dreamcatcher" />
 
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -506,10 +510,25 @@ export function registerShareRoutes(app: Express) {
       }
 
       // Try to import canvas with error handling
-      let createCanvas;
+      let createCanvas, registerFont;
       try {
         const canvasModule = await import('canvas');
         createCanvas = canvasModule.createCanvas;
+        registerFont = canvasModule.registerFont;
+        
+        // Pre-register fonts to avoid segfaults
+        try {
+          const fs = await import('fs');
+          const path = await import('path');
+          const fontDir = path.join(process.cwd(), 'client/public/fonts');
+          const interPath = path.join(fontDir, 'inter-regular.woff2');
+          
+          if (fs.existsSync(interPath)) {
+            registerFont(interPath, { family: 'Inter' });
+          }
+        } catch (fontError) {
+          console.warn('Font registration failed, using system fonts:', fontError);
+        }
       } catch (canvasError) {
         console.error('Canvas import error:', canvasError);
         return res.status(500).json({ 
@@ -520,8 +539,22 @@ export function registerShareRoutes(app: Express) {
 
       const width = 1200;
       const height = 630;
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext('2d');
+      
+      let canvas, ctx;
+      try {
+        canvas = createCanvas(width, height);
+        ctx = canvas.getContext('2d');
+        
+        // Set safe defaults to prevent crashes
+        ctx.textBaseline = 'top';
+        ctx.imageSmoothingEnabled = true;
+      } catch (canvasCreationError) {
+        console.error('Canvas creation error:', canvasCreationError);
+        return res.status(500).json({ 
+          error: 'Internal Server Error', 
+          message: 'Failed to create canvas' 
+        });
+      }
 
     // Create gradient background
     const gradient = ctx.createLinearGradient(0, 0, width, height);
