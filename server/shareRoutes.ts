@@ -274,12 +274,7 @@ export function registerShareRoutes(app: Express) {
         0%, 100% { opacity: 0.3; }
         50% { opacity: 1; }
       }
-      .redirect-notice {
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        opacity: 0.7;
-        color: ${palette.text2};
-      }
+      
       @media (max-width: 640px) {
         .container {
           padding: 1.5rem;
@@ -309,7 +304,6 @@ export function registerShareRoutes(app: Express) {
       <div class="snippet">"${data.snippet}"</div>
       <div class="guidance">${data.guidance}</div>
       <a href="/" class="cta">Open DreamCatcher App</a>
-      ${!isBotRequest ? '<div class="redirect-notice">Redirecting to app in 2 seconds...</div>' : ''}
       <div class="powered">AI-powered Jungian Psychology</div>
     </div>
 
@@ -357,12 +351,7 @@ export function registerShareRoutes(app: Express) {
       // Initialize stars
       createStars();
       
-      // Handle human redirect with delay (bots should not redirect)
-      if (!isBot()) {
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
-      }
+      // Note: Users can click the CTA button to go to the app when ready
     </script>
   </body>
 </html>`;
