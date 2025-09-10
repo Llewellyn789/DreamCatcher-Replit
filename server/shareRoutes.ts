@@ -133,8 +133,8 @@ export function registerShareRoutes(app: Express) {
       : data.snippet;
 
     // Get current URL for proper OG tags
-    const currentUrl = `${req.protocol}://${req.get('host')}/s/${token}`;
-    const ogImageUrl = `${req.protocol}://${req.get('host')}/og/${token}`;
+    const currentUrl = `https://${req.get('host')}/s/${token}`;
+    const ogImageUrl = `https://${req.get('host')}/og/${token}`;
 
     const html = `<!DOCTYPE html>
 <html lang="en">
