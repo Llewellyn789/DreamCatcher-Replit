@@ -152,7 +152,6 @@ export function registerShareRoutes(app: Express) {
     <meta property="og:url" content="${currentUrl}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DreamCatcher" />
-    <meta property="fb:app_id" content="dreamcatcher" />
 
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image" />
