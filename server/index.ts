@@ -79,8 +79,9 @@ app.get("/og/:token", async (req, res) => {
   }
 
   const payload = verification.payload;
-  const width = 1200;
-  const height = 630;
+  if (!payload) {
+    return res.status(404).json({ error: 'Not Found' });
+  }
 
   // Parse palette from token payload or use cosmic theme defaults
   let colors;
@@ -105,103 +106,155 @@ app.get("/og/:token", async (req, res) => {
     colors = cosmicDefaults;
   }
 
-  // Load fonts for inline SVG
-  let fontDefs = '';
+  // Try to import canvas with error handling
+  let createCanvas, registerFont;
   try {
-    const fs = await import('fs');
-    const path = await import('path');
-
-    const interRegular = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/inter-regular.woff2'));
-    const caveat = fs.readFileSync(path.join(process.cwd(), 'client/public/fonts/caveat-regular.woff2'));
-
-    const interRegularBase64 = interRegular.toString('base64');
-    const caveatBase64 = caveat.toString('base64');
-
-    fontDefs = `
-      <defs>
-        <font-face font-family="Inter" font-weight="400" font-style="normal">
-          <font-face-src>
-            <font-set type="glyph" mime-type="font/woff2" xlink:href="data:font/woff2;base64,${interRegularBase64}" />
-          </font-face-src>
-        </font-face>
-        <font-face font-family="Caveat" font-weight="400" font-style="normal">
-          <font-face-src>
-            <font-set type="glyph" mime-type="font/woff2" xlink:href="data:font/woff2;base64,${caveatBase64}" />
-          </font-face-src>
-        </font-face>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:${colors.bg1};stop-opacity:1" />
-          <stop offset="50%" style="stop-color:${colors.bg2};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${colors.bg3};stop-opacity:1" />
-        </linearGradient>
-        <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:${colors.text1};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${colors.text2};stop-opacity:1" />
-        </linearGradient>
-      </defs>`;
-  } catch (error) {
-    console.error('Font loading error for OG image:', error);
-    fontDefs = `<defs>
-      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:${colors.bg1};stop-opacity:1" />
-        <stop offset="50%" style="stop-color:${colors.bg2};stop-opacity:1" />
-        <stop offset="100%" style="stop-color:${colors.bg3};stop-opacity:1" />
-      </linearGradient>
-      <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:${colors.text1};stop-opacity:1" />
-        <stop offset="100%" style="stop-color:${colors.text2};stop-opacity:1" />
-      </linearGradient>
-    </defs>`;
+    const canvasModule = await import('canvas');
+    createCanvas = canvasModule.createCanvas;
+    registerFont = canvasModule.registerFont;
+    
+    // Pre-register fonts to avoid segfaults
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const fontDir = path.join(process.cwd(), 'client/public/fonts');
+      const interPath = path.join(fontDir, 'inter-regular.woff2');
+      
+      if (fs.existsSync(interPath)) {
+        registerFont(interPath, { family: 'Inter' });
+      }
+    } catch (fontError) {
+      console.warn('Font registration failed, using system fonts:', fontError);
+    }
+  } catch (canvasError) {
+    console.error('Canvas import error:', canvasError);
+    return res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Canvas library not available' 
+    });
   }
 
-  // Dreamcatcher glyph SVG
-  const dreamcatcherGlyph = `
-    <g transform="translate(64, 550)">
-      <circle cx="20" cy="20" r="18" fill="none" stroke="${colors.text2}" stroke-width="2"/>
-      <path d="M8,14 Q20,26 32,14 Q20,18 8,14" fill="none" stroke="${colors.text2}" stroke-width="1"/>
-      <path d="M12,26 Q20,18 28,26 Q20,22 12,26" fill="none" stroke="${colors.text2}" stroke-width="1"/>
-      <line x1="20" y1="2" x2="20" y2="8" stroke="${colors.text2}" stroke-width="1"/>
-      <line x1="38" y1="20" x2="32" y2="20" stroke="${colors.text2}" stroke-width="1"/>
-      <line x1="2" y1="20" x2="8" y2="20" stroke="${colors.text2}" stroke-width="1"/>
-      <path d="M20,38 L16,46 L24,46 Z" fill="${colors.text2}"/>
-    </g>
-  `;
+  const width = 1200;
+  const height = 630;
+  
+  let canvas, ctx;
+  try {
+    canvas = createCanvas(width, height);
+    ctx = canvas.getContext('2d');
+    
+    // Set safe defaults to prevent crashes
+    ctx.textBaseline = 'top';
+    ctx.imageSmoothingEnabled = true;
+  } catch (canvasCreationError) {
+    console.error('Canvas creation error:', canvasCreationError);
+    return res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Failed to create canvas' 
+    });
+  }
 
-  // Truncate snippet to 80 chars max
-  const snippet = payload.snippet.length > 80 ? payload.snippet.substring(0, 77) + "..." : payload.snippet;
+  // Helper function to wrap text for canvas
+  function wrapText(context, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
 
-  // Create headline with highlighted archetype and guidance
-  const headlineText = `The ${payload.archetype} archetype is telling you to ${payload.guidance}.`;
+    for (const word of words) {
+      const potentialLine = currentLine === '' ? word : `${currentLine} ${word}`;
+      const testLine = context.measureText(potentialLine);
+      if (testLine.width > maxWidth && currentLine !== '') {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = potentialLine;
+      }
+    }
+    lines.push(currentLine);
+    return lines;
+  }
 
-  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    ${fontDefs}
-    <rect width="100%" height="100%" fill="url(#bg)"/>
+  // Create gradient background
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, colors.bg1);
+  gradient.addColorStop(0.5, colors.bg2);
+  gradient.addColorStop(1, colors.bg3);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
 
-    <!-- Top snippet zone (handwritten style) -->
-    <text x="600" y="120" font-family="Caveat, cursive" font-size="28" text-anchor="middle" fill="${colors.text1}" opacity="0.9">"${snippet}"</text>
+  // Add some decorative stars
+  ctx.fillStyle = colors.text1;
+  for (let i = 0; i < 30; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const size = Math.random() * 3 + 1;
 
-    <!-- Main headline zone -->
-    <text x="64" y="240" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="bold" fill="${colors.text1}" text-anchor="start">
-      <tspan>The </tspan>
-      <tspan fill="${colors.text2}">${payload.archetype}</tspan>
-      <tspan> archetype is</tspan>
-    </text>
-    <text x="64" y="300" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="bold" fill="${colors.text1}" text-anchor="start">
-      <tspan>telling you to </tspan>
-      <tspan fill="${colors.text2}">${payload.guidance}</tspan>
-      <tspan>.</tspan>
-    </text>
+    ctx.globalAlpha = Math.random() * 0.8 + 0.2;
+    ctx.shadowColor = colors.text1;
+    ctx.shadowBlur = 5;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
 
-    <!-- Footer zone -->
-    ${dreamcatcherGlyph}
-    <text x="1136" y="575" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="600" text-anchor="end" fill="${colors.text2}">Try DreamCatcher →</text>
-  </svg>`;
+  // Draw title with glow effect
+  ctx.fillStyle = colors.text1;
+  ctx.font = 'bold 52px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.textAlign = 'center';
 
-  res.set({
-    'Content-Type': 'image/svg+xml',
-    'Cache-Control': 'public, max-age=3600'
+  // Add glow effect for title
+  ctx.shadowColor = colors.text1;
+  ctx.shadowBlur = 20;
+  ctx.fillText('✨ DreamCatcher', width / 2, 120);
+  ctx.shadowBlur = 0;
+
+  // Draw archetype
+  ctx.fillStyle = colors.text2;
+  ctx.font = '36px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText(payload.archetype, width / 2, 180);
+
+  // Draw snippet (word wrapped)
+  ctx.fillStyle = colors.text1;
+  ctx.font = '28px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+  const snippetLines = wrapText(ctx, `"${payload.snippet}"`, width - 100);
+  let snippetY = 240;
+  snippetLines.slice(0, 4).forEach((line) => { // Limit to 4 lines
+    ctx.fillText(line, width / 2, snippetY);
+    snippetY += 35;
   });
-  res.send(svg);
+
+  // Draw guidance
+  ctx.fillStyle = colors.text2;
+  ctx.font = '24px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+  const guidanceLines = wrapText(ctx, payload.guidance, width - 100);
+  let guidanceY = snippetY + 40;
+  guidanceLines.slice(0, 3).forEach((line) => { // Limit to 3 lines
+    ctx.fillText(line, width / 2, guidanceY);
+    guidanceY += 30;
+  });
+
+  // Draw footer
+  ctx.fillStyle = colors.text1;
+  ctx.font = '20px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('AI-powered Jungian Psychology', width / 2, height - 40);
+
+  // Generate the PNG buffer
+  let buffer;
+  try {
+    buffer = canvas.toBuffer('image/png');
+  } catch (bufferError) {
+    console.error('Canvas buffer generation error:', bufferError);
+    return res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Failed to generate image' 
+    });
+  }
+
+  // Set response headers and send PNG buffer
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.end(buffer);
 });
 
 // API Routes
