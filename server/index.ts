@@ -2,7 +2,7 @@ import path from "path";
 import express from "express";
 import OpenAI from "openai";
 import multer from "multer";
-import { registerShareRoutes } from "./shareRoutes.js";
+import { registerShareRoutes } from "./shareRoutes";
 import { createShareToken, verifyShareToken } from "./tokenManager";
 
 console.log('Server starting - imports loaded successfully');
@@ -18,43 +18,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-api-key"
 });
 
-// Register share routes
-registerShareRoutes(app);
+// Register share routes with guard to prevent duplicate registration
+if (!app.locals.shareRoutesMounted) {
+  registerShareRoutes(app);
+  app.locals.shareRoutesMounted = true;
+}
 
-// Test endpoint to generate a valid token for testing
-app.get("/test/create-token", (req, res) => {
-  console.log('Test endpoint hit - creating token');
 
-  // Current cosmic color palette
-  const cosmicPalette = {
-    bg1: '#0B1426', // cosmic-950
-    bg2: '#1E1B4B', // cosmic-900
-    bg3: '#2D1B69', // cosmic-800
-    text1: '#C4A068', // cosmic-200
-    text2: '#E8DCC8'  // cosmic-50
-  };
-
-  const testToken = createShareToken({
-    i: "test-dream-id",
-    archetype: "The Explorer",
-    snippet: "A vivid dream about flying through cosmic landscapes",
-    guidance: "This dream suggests a desire for freedom and exploration",
-    palette: JSON.stringify(cosmicPalette),
-    exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
-  });
-
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const cacheBuster = Date.now();
-
-  res.json({
-    token: testToken,
-    palette: cosmicPalette,
-    testUrls: {
-      share: `${baseUrl}/s/${testToken}`,
-      og: `${baseUrl}/og/${testToken}?v=${cacheBuster}`
-    }
-  });
-});
 
 // Configure multer for audio file uploads
 const upload = multer({
@@ -63,199 +33,6 @@ const upload = multer({
 });
 
 // Share routes are handled by shareRoutes.ts
-
-app.get("/og/:token", async (req, res) => {
-  const { token } = req.params;
-
-  console.log('OG route token received:', token.substring(0, 50) + '...');
-  const verification = verifyShareToken(token);
-  console.log('Token verification result:', verification.valid ? 'VALID' : 'INVALID');
-
-  if (!verification.valid) {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: verification.error || 'Invalid token'
-    });
-  }
-
-  const payload = verification.payload;
-  if (!payload) {
-    return res.status(404).json({ error: 'Not Found' });
-  }
-
-  // Parse palette from token payload or use cosmic theme defaults
-  let colors;
-  const cosmicDefaults = {
-    bg1: '#0B1426', // cosmic-950
-    bg2: '#1E1B4B', // cosmic-900
-    bg3: '#2D1B69', // cosmic-800
-    text1: '#C4A068', // cosmic-200
-    text2: '#E8DCC8'  // cosmic-50
-  };
-
-  try {
-    if (payload.palette) {
-      colors = JSON.parse(payload.palette);
-      console.log('Using token palette:', colors);
-    } else {
-      colors = cosmicDefaults;
-      console.log('No palette in token, using cosmic defaults');
-    }
-  } catch (error) {
-    console.log('Palette parsing failed, using cosmic defaults:', error);
-    colors = cosmicDefaults;
-  }
-
-  // Try to import canvas with error handling
-  let createCanvas, registerFont;
-  try {
-    const canvasModule = await import('canvas');
-    createCanvas = canvasModule.createCanvas;
-    registerFont = canvasModule.registerFont;
-
-    // Pre-register fonts to avoid segfaults
-    try {
-      const fs = await import('fs');
-      const path = await import('path');
-      const fontDir = path.join(process.cwd(), 'client/public/fonts');
-      const interPath = path.join(fontDir, 'inter-regular.woff2');
-
-      if (fs.existsSync(interPath)) {
-        registerFont(interPath, { family: 'Inter' });
-      }
-    } catch (fontError) {
-      console.warn('Font registration failed, using system fonts:', fontError);
-    }
-  } catch (canvasError) {
-    console.error('Canvas import error:', canvasError);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Canvas library not available' 
-    });
-  }
-
-  const width = 1200;
-  const height = 630;
-
-  let canvas, ctx;
-  try {
-    canvas = createCanvas(width, height);
-    ctx = canvas.getContext('2d');
-
-    // Set safe defaults to prevent crashes
-    ctx.textBaseline = 'top';
-    ctx.imageSmoothingEnabled = true;
-  } catch (canvasCreationError) {
-    console.error('Canvas creation error:', canvasCreationError);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Failed to create canvas' 
-    });
-  }
-
-  // Helper function to wrap text for canvas
-  function wrapText(context, text, maxWidth) {
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-
-    for (const word of words) {
-      const potentialLine = currentLine === '' ? word : `${currentLine} ${word}`;
-      const testLine = context.measureText(potentialLine);
-      if (testLine.width > maxWidth && currentLine !== '') {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = potentialLine;
-      }
-    }
-    lines.push(currentLine);
-    return lines;
-  }
-
-  // Create gradient background
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, colors.bg1);
-  gradient.addColorStop(0.5, colors.bg2);
-  gradient.addColorStop(1, colors.bg3);
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-
-  // Add some decorative stars
-  ctx.fillStyle = colors.text1;
-  for (let i = 0; i < 30; i++) {
-    const x = Math.random() * width;
-    const y = Math.random() * height;
-    const size = Math.random() * 3 + 1;
-
-    ctx.globalAlpha = Math.random() * 0.8 + 0.2;
-    ctx.shadowColor = colors.text1;
-    ctx.shadowBlur = 5;
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
-
-  // Draw title with glow effect
-  ctx.fillStyle = colors.text1;
-  ctx.font = 'bold 52px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.textAlign = 'center';
-
-  // Add glow effect for title
-  ctx.shadowColor = colors.text1;
-  ctx.shadowBlur = 20;
-  ctx.fillText('✨ DreamCatcher', width / 2, 120);
-  ctx.shadowBlur = 0;
-
-  // Draw archetype
-  ctx.fillStyle = colors.text2;
-  ctx.font = '36px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillText(payload.archetype, width / 2, 180);
-
-  // Draw snippet (word wrapped)
-  ctx.fillStyle = colors.text1;
-  ctx.font = '28px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-  const snippetLines = wrapText(ctx, `"${payload.snippet}"`, width - 100);
-  let snippetY = 240;
-  snippetLines.slice(0, 4).forEach((line) => { // Limit to 4 lines
-    ctx.fillText(line, width / 2, snippetY);
-    snippetY += 35;
-  });
-
-  // Draw guidance
-  ctx.fillStyle = colors.text2;
-  ctx.font = '24px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-  const guidanceLines = wrapText(ctx, payload.guidance, width - 100);
-  let guidanceY = snippetY + 40;
-  guidanceLines.slice(0, 3).forEach((line) => { // Limit to 3 lines
-    ctx.fillText(line, width / 2, guidanceY);
-    guidanceY += 30;
-  });
-
-  // Draw footer
-  ctx.fillStyle = colors.text1;
-  ctx.font = '20px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillText('AI-powered Jungian Psychology', width / 2, height - 40);
-
-  // Generate the PNG buffer
-  let buffer;
-  try {
-    buffer = canvas.toBuffer('image/png');
-  } catch (bufferError) {
-    console.error('Canvas buffer generation error:', bufferError);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Failed to generate image' 
-    });
-  }
-
-  // Set response headers and send PNG buffer
-  res.setHeader('Content-Type', 'image/png');
-  res.setHeader('Cache-Control', 'public, max-age=3600');
-  res.end(buffer);
-});
 
 // API Routes
 app.post("/api/generate-title", async (req, res) => {
