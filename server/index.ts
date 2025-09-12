@@ -2,7 +2,7 @@ import path from "path";
 import express from "express";
 import OpenAI from "openai";
 import multer from "multer";
-import { registerShareRoutes } from "./shareRoutes";
+import { registerShareRoutes } from "./shareRoutes.js";
 import { createShareToken, verifyShareToken } from "./tokenManager";
 
 console.log('Server starting - imports loaded successfully');
@@ -112,14 +112,14 @@ app.get("/og/:token", async (req, res) => {
     const canvasModule = await import('canvas');
     createCanvas = canvasModule.createCanvas;
     registerFont = canvasModule.registerFont;
-    
+
     // Pre-register fonts to avoid segfaults
     try {
       const fs = await import('fs');
       const path = await import('path');
       const fontDir = path.join(process.cwd(), 'client/public/fonts');
       const interPath = path.join(fontDir, 'inter-regular.woff2');
-      
+
       if (fs.existsSync(interPath)) {
         registerFont(interPath, { family: 'Inter' });
       }
@@ -136,12 +136,12 @@ app.get("/og/:token", async (req, res) => {
 
   const width = 1200;
   const height = 630;
-  
+
   let canvas, ctx;
   try {
     canvas = createCanvas(width, height);
     ctx = canvas.getContext('2d');
-    
+
     // Set safe defaults to prevent crashes
     ctx.textBaseline = 'top';
     ctx.imageSmoothingEnabled = true;
