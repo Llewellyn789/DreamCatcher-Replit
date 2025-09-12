@@ -1,0 +1,53 @@
+I want you to run a full verification of our share-card pipeline.
+
+Inputs
+- HOST: https://<YOUR-HOST>          # e.g. https://dreamcatcher-mvp.replit.app
+- TOKEN: <YOUR-TOKEN>                 # the token we generated
+
+What to do
+1) Define these vars in the Shell:
+   HOST="https://<YOUR-HOST>"
+   TOKEN="<YOUR-TOKEN>"
+   SHARE="$HOST/s/$TOKEN"
+   OG="$HOST/og/$TOKEN.png"
+
+2) TEST A — Share page head contains OG/Twitter tags (server-rendered)
+   - Run:
+     curl -s -L "$SHARE" | grep -iE 'og:title|og:description|og:image|og:url|twitter:card|og:image:width|og:image:height' || true
+   - Then show final response code (follow redirects):
+     curl -s -o /dev/null -w '%{http_code}\n' -L "$SHARE"
+
+   PASS criteria:
+   - The grep prints lines for og:title, og:description, og:image, og:url, twitter:card.
+   - The status printed is 200 (final document).
+
+3) TEST B — og:image is absolute HTTPS
+   - Extract the og:image value:
+     curl -s -L "$SHARE" | sed -n '1,200p' | grep -i 'og:image' | head -1
+   PASS if the content starts with "https://$HOST/og/"
+
+4) TEST C — OG image returns a real PNG
+   - HEAD request:
+     curl -I -L "$OG"
+   PASS criteria:
+   - Final status is 200
+   - Header includes: "Content-Type: image/png"
+   - "Content-Length" is present and < 5_242_880 (≈5MB)
+
+5) TEST D — Optional: fetch the image and report dimensions
+   - Download to /tmp and print file type:
+     curl -s -L "$OG" -o /tmp/og.png
+     file /tmp/og.png
+   (If ImageMagick is available) identify -format '%wx%h\n' /tmp/og.png
+   PASS if ~1200x630 (or our configured size).
+
+6) Summarize results
+   - Print a checklist with PASS/FAIL for:
+     [A] OG tags present
+     [B] og:image absolute HTTPS
+     [C] OG returns image/png (200)
+     [D] Size sane (<5MB) and dimensions expected
+
+7) If any test fails, print a short diagnosis with the exact evidence from the commands and the next fix to try (e.g., "og:image is http:// not https://", "Content-Type is text/html", "final status not 200", etc.).
+
+Please run the commands, substitute HOST and TOKEN, and paste the raw outputs plus the PASS/FAIL summary.
